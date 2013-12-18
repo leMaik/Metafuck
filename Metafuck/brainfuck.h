@@ -8,10 +8,9 @@ private:
    std::vector<Cell> cells_;
    unsigned int pointer_;
    
-   void freeCell(unsigned int index);
-   
 public:
-   unsigned int allocCell(unsigned int count);
+	unsigned int allocCell(unsigned int count);
+	void freeCell(unsigned int index);
    
    //Grundfunktionen
    std::string move(unsigned int to);

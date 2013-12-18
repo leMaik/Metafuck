@@ -26,25 +26,32 @@ void Brainfuck::freeCell(unsigned int index) {
 	}
 }
 
+/*
+Returns the brainfuck code to move the pointer to the given position. Warning: pointer_ is changed to the new position!
+*/
 std::string Brainfuck::move(unsigned int to) {
-	std::string result = "";
+	std::stringstream result;
 	if (to > pointer_) {
-		for (; pointer_ < to; pointer_++)
-			result += ">";
+		do {
+			result << ">";
+			pointer_++;
+		} while (pointer_ < to);
 	}
 	else if (to < pointer_) {
-		for (; pointer_ > to; pointer_--)
-			result += "<";
+		do {
+			result << "<";
+			pointer_--;
+		} while (pointer_ > to);
 	}
-	return result;
+	return result.str();
 }
 
 std::string Brainfuck::inc(unsigned int amount) {
 	//TODO: Bei großem amount optimieren
-	std::string result = "";
+	std::stringstream result;
 	for (unsigned int i = 0; i < amount; i++)
-		result += "+";
-	return result;
+		result << "+";
+	return result.str();
 }
 
 std::string Brainfuck::dec(unsigned int amount) {
@@ -56,15 +63,22 @@ std::string Brainfuck::dec(unsigned int amount) {
 }
 
 std::string Brainfuck::set(unsigned int const &index, unsigned int const &value) {
-	return move(index) + "[-]" + inc(value);
+	return move(index) + "[-]" + inc(value); //okay as inc() does not move the pointer_
 }
 
 std::string Brainfuck::copy(unsigned int source, unsigned int target) {
 	unsigned int tmp = allocCell(1);
-	std::stringstream result;
-	result << set(tmp, 0) << move(source) << "[" << move(tmp) << "+" << move(target) << "+" << move(source) << "-]" << move(tmp) << "[" << move(source) << "+" << move(tmp) << "-]";
+	std::stringstream r;
+	r << set(tmp, 0);
+	r << move(source) << "[";
+	r << move(tmp) << "+";
+	r << move(target) << "+";
+	r << move(source) << "-]";
+	r << move(tmp) << "[";
+	r << move(source) << "+";
+	r << move(tmp) << "-]";
 	freeCell(tmp);
-	return result.str();
+	return r.str();
 }
 
 std::string Brainfuck::print(unsigned int index) {
@@ -74,10 +88,9 @@ std::string Brainfuck::print(unsigned int index) {
 std::string Brainfuck::printString(std::string s) {
 	std::stringstream result;
 	unsigned int tmp = allocCell(1);
-	result << move(tmp);//TODO: Das hier ist ein temporärer Hotfix. Aber warum zur Hölle geht das so?!
 	for (char c : s) {
-		//TODO: ASCII garantieren!
-		result << "*setting*" << set(tmp, (unsigned int)c) << "*printing*" << print(tmp);
+		result << set(tmp, (unsigned int)c); //TODO: ASCII garantieren!
+		result << print(tmp);
 	}
 	freeCell(tmp);
 	return result.str();
@@ -88,18 +101,28 @@ std::string Brainfuck::input(unsigned int target) {
 }
 
 std::string Brainfuck::add(unsigned int index, unsigned int constant) {
-	return move(index) + inc(constant);
+	std::stringstream result;
+	result << move(index);
+	result << inc(constant);
+	return result.str();
 }
 
 std::string Brainfuck::addAway(unsigned int source, unsigned int target) {
-	return move(source) + "[" + move(target) + "+" + move(source) + "-]";
+	std::stringstream result;
+	result << move(source);
+	result << "[" << move(target) << "+";
+	result << move(source) << "-]";
+	return result.str();
 }
 
 std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int target) {
+	std::stringstream result;
 	unsigned int tmp = allocCell(1);
-	std::string result = copy(a, target) + copy(b, tmp) + addAway(tmp, target);
+	result << copy(a, target);
+	result << copy(b, tmp);
+	result << addAway(tmp, target);
 	freeCell(tmp);
-	return result;
+	return result.str();
 }
 
 Brainfuck::Brainfuck() : pointer_(0) { }

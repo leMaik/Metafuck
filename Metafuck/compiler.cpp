@@ -66,6 +66,7 @@ std::size_t Compiler::lex() {
 				break;
 			case '"':
 				isString = !isString;
+				currentElement += c;
 				break;
 			default:
 				currentElement += c;
@@ -104,7 +105,18 @@ void Compiler::compile() {
 			}
 		}
 		else if (statement[0] == "print") {
-			generated_ << b.printString(statement[1]);
+			if (statement[1].at(0) == '"'){//print a constant string
+				generated_ << b.printString(statement[1].substr(1, statement[1].length() - 2));
+			}
+			else if (isNumber(statement[1])) {//print a constant number
+				unsigned int tmp = b.allocCell(1);
+				b.set(tmp, std::stoi(statement[1]));
+				generated_ << b.print(tmp);
+				b.freeCell(tmp);
+			}
+			else {//print a variable (as ASCII char at the moment)
+				generated_ << b.print(getVar(statement[1], b));//TODO: Add a printint-command that really prints a number as a number (ie. "65" instead of 'A').
+			}
 		}
 	}
 }
