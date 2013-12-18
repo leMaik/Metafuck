@@ -77,11 +77,15 @@ std::size_t Compiler::lex() {
 	return statements.size();
 }
 
-bool Compiler::isNumber(const std::string& s) const {
+bool Compiler::isNumber(const std::string &s) const {
 	if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
 	char * p;
 	std::strtol(s.c_str(), &p, 10);
 	return (*p == 0);
+}
+
+bool Compiler::isString(const std::string &s) const {
+	return s.length() >= 2 && s[0] == '"' && s[s.length() - 1] == '"';
 }
 
 unsigned int Compiler::getVar(const std::string &name, Brainfuck &b) {
@@ -105,7 +109,7 @@ void Compiler::compile() {
 			}
 		}
 		else if (statement[0] == "print") {
-			if (statement[1].at(0) == '"'){//print a constant string
+			if (isString(statement[1])){//print a constant string
 				generated_ << b.printString(statement[1].substr(1, statement[1].length() - 2));
 			}
 			else if (isNumber(statement[1])) {//print a constant number
@@ -116,6 +120,14 @@ void Compiler::compile() {
 			}
 			else {//print a variable (as ASCII char at the moment)
 				generated_ << b.print(getVar(statement[1], b));//TODO: Add a printint-command that really prints a number as a number (ie. "65" instead of 'A').
+			}
+		}
+		else if (statement[0] == "add") {
+			if (isNumber(statement[2])) {
+				generated_ << b.add(getVar(statement[1], b), std::stoi(statement[2]));
+			}
+			else if (!isString(statement[2])) {
+				generated_ << b.addCellTo(getVar(statement[1], b), getVar(statement[2], b), getVar(statement[1], b));
 			}
 		}
 	}

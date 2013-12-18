@@ -17,6 +17,7 @@ private:
 
 	unsigned int getVar(const std::string &name, Brainfuck &b);
 	bool isNumber(const std::string &s) const;
+	bool isString(const std::string &s) const;
 
 	template <typename T>
 	T pop(std::stack<T> &s);

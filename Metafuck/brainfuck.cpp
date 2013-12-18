@@ -1,7 +1,9 @@
 #include "brainfuck.h"
 #include <sstream>
+#include <math.h>
 
 unsigned int Brainfuck::allocCell(unsigned int count) {
+	return allocCellNear(pointer_);
 	//TODO: Das hier klappt nur für count == 1
 	if (count == 1) {
 		for (unsigned int i = 0; i < cells_.size(); i++) {
@@ -17,6 +19,34 @@ unsigned int Brainfuck::allocCell(unsigned int count) {
 	else {
 		//cout << "allocCell is not implemented for count > 1\ n";
 		return -1;
+	}
+}
+
+unsigned int absdiff(unsigned int &a, unsigned int &b) {
+	return a > b ? a - b : b - a;
+}
+
+unsigned int Brainfuck::allocCellNear(unsigned int index) {
+	unsigned int currBest;
+	bool found = false;
+	for (unsigned int i = 0; i < cells_.size(); i++) {
+		if (!cells_[i].isInUse()) {
+			found = true;
+			if (absdiff(i, index) < absdiff(index, currBest) || !found){
+				currBest = i;
+			}
+			else {
+				break;
+			}
+		}
+	}
+	if (found){
+		cells_[currBest].setUsed(true);
+		return currBest;
+	}
+	else {
+		cells_.push_back(Cell());
+		return cells_.size() - 1;
 	}
 }
 
@@ -88,8 +118,18 @@ std::string Brainfuck::print(unsigned int index) {
 std::string Brainfuck::printString(std::string s) {
 	std::stringstream result;
 	unsigned int tmp = allocCell(1);
+	result << set(tmp, 0);
+	char prev = (char)0;
 	for (char c : s) {
-		result << set(tmp, (unsigned int)c); //TODO: ASCII garantieren!
+		if ((int)c > (int)prev){
+			result << add(tmp, (int)c - (int)prev);
+		}
+		else {
+			//TODO: use something like sub() later
+			result << move(tmp);
+			result << dec((int)prev - (int)c);
+		}
+		prev = c;
 		result << print(tmp);
 	}
 	freeCell(tmp);
@@ -118,7 +158,9 @@ std::string Brainfuck::addAway(unsigned int source, unsigned int target) {
 std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int target) {
 	std::stringstream result;
 	unsigned int tmp = allocCell(1);
-	result << copy(a, target);
+	if (a != target) {
+		result << copy(a, target);
+	}
 	result << copy(b, tmp);
 	result << addAway(tmp, target);
 	freeCell(tmp);

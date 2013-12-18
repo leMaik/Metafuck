@@ -31,7 +31,7 @@ int main(void)
 	cout << com.getGeneratedCode() << "\n";
 	cout << "===\nRunning:\n";
 	RunBrainfuckProgram(com.getGeneratedCode());
-
+	cout << "\n===\n";
 	pause();
 
 	return 0;
