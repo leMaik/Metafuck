@@ -42,7 +42,7 @@ std::string Brainfuck::move(unsigned int to) {
 std::string Brainfuck::inc(unsigned int amount) {
 	//TODO: Bei großem amount optimieren
 	std::string result = "";
-	for (int i = 0; i < amount; i++)
+	for (unsigned int i = 0; i < amount; i++)
 		result += "+";
 	return result;
 }
@@ -50,7 +50,7 @@ std::string Brainfuck::inc(unsigned int amount) {
 std::string Brainfuck::dec(unsigned int amount) {
 	//TODO: Bei großem amount optimieren
 	std::string result = "";
-	for (int i = 0; i < amount; i++)
+	for (unsigned int i = 0; i < amount; i++)
 		result += "-";
 	return result;
 }
@@ -74,9 +74,10 @@ std::string Brainfuck::print(unsigned int index) {
 std::string Brainfuck::printString(std::string s) {
 	std::stringstream result;
 	unsigned int tmp = allocCell(1);
+
 	for (char c : s) {
 		//TODO: ASCII garantieren!!!!
-		result << set(tmp, (int)c) << print(tmp);
+		result << set(tmp, (unsigned int)c) << print(tmp);
 	}
 	freeCell(tmp);
 	return result.str();

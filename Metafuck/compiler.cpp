@@ -1,4 +1,6 @@
 #include "compiler.h"
+#include <algorithm>
+#include <locale>
 
 bool Compiler::validate() {
 	std::stack<char> keller;
@@ -74,12 +76,32 @@ std::size_t Compiler::lex() {
 	return statements.size();
 }
 
+bool Compiler::isNumber(const std::string& s) const {
+	if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+	char * p;
+	std::strtol(s.c_str(), &p, 10);
+	return (*p == 0);
+}
+
+unsigned int Compiler::getVar(const std::string &name, Brainfuck &b) {
+	auto var = vars_.find(name);
+	if (var == vars_.end()){
+		return vars_[name] = b.allocCell(1);
+	}
+	return var->second;
+}
+
 void Compiler::compile() {
 	Brainfuck b;
 	generated_.clear();
 	for (const std::vector<std::string> statement : lexed_) {
 		if (statement[0] == "set") {
-			generated_ << b.set(b.allocCell(1), std::stoi(statement[2]));
+			if (isNumber(statement[2])){
+				generated_ << b.set(getVar(statement[1], b), std::stoi(statement[2]));
+			}
+			else {
+				generated_ << b.copy(getVar(statement[2], b), getVar(statement[1], b));
+			}
 		}
 		else if (statement[0] == "print") {
 			generated_ << b.printString(statement[1]);

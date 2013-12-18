@@ -7,7 +7,7 @@ private:
    bool inUse_;
 
 public:
-   //Cell(std::string name = NULL);
+   Cell();
 
    // get set
    std::string getName() const;

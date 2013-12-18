@@ -1,8 +1,8 @@
 #include "cell.h"
-/*
-Cell::Cell(std::string name = null) : name_(std::move(name)), index_(0) {
 
-}*/
+Cell::Cell() : inUse_(true) {
+
+}
 
 std::string Cell::getName() const {
 	return name_;
