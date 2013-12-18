@@ -17,7 +17,7 @@ public:
    std::string move(unsigned int to);
    std::string inc(unsigned int amount);
    std::string dec(unsigned int amount);
-   std::string set(unsigned int index, unsigned int value);
+   std::string set(unsigned int const &index, unsigned int const &value);
    std::string copy(unsigned int source, unsigned int target);
    
    //IO

@@ -55,7 +55,7 @@ std::string Brainfuck::dec(unsigned int amount) {
 	return result;
 }
 
-std::string Brainfuck::set(unsigned int index, unsigned int value) {
+std::string Brainfuck::set(unsigned int const &index, unsigned int const &value) {
 	return move(index) + "[-]" + inc(value);
 }
 
@@ -74,10 +74,10 @@ std::string Brainfuck::print(unsigned int index) {
 std::string Brainfuck::printString(std::string s) {
 	std::stringstream result;
 	unsigned int tmp = allocCell(1);
-
+	result << move(tmp);//TODO: Das hier ist ein temporärer Hotfix. Aber warum zur Hölle geht das so?!
 	for (char c : s) {
-		//TODO: ASCII garantieren!!!!
-		result << set(tmp, (unsigned int)c) << print(tmp);
+		//TODO: ASCII garantieren!
+		result << "*setting*" << set(tmp, (unsigned int)c) << "*printing*" << print(tmp);
 	}
 	freeCell(tmp);
 	return result.str();
