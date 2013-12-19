@@ -77,23 +77,58 @@ std::string Brainfuck::move(unsigned int to) {
 }
 
 std::string Brainfuck::inc(unsigned int amount) {
-	//TODO: Bei großem amount optimieren
 	std::stringstream result;
-	for (unsigned int i = 0; i < amount; i++)
-		result << "+";
+	unsigned int tempCell = allocCellNear(pointer_);
+	unsigned int prt = (unsigned int)std::sqrt(amount);
+	if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
+		unsigned int p = pointer_;
+		if (prt*prt < amount){
+			result << inc(amount - prt*prt);
+		}
+		result << set(tempCell, prt);
+		result << move(tempCell) << "[";
+		result << move(p);
+		for (unsigned int i = 0; i < prt; i++)
+			result << "+";
+		result << move(tempCell) << "-]";
+	}
+	else {
+		for (unsigned int i = 0; i < amount; i++)
+			result << "+";
+	}
+	freeCell(tempCell);
 	return result.str();
 }
 
 std::string Brainfuck::dec(unsigned int amount) {
-	//TODO: Bei großem amount optimieren
-	std::string result = "";
-	for (unsigned int i = 0; i < amount; i++)
-		result += "-";
-	return result;
+	std::stringstream result;
+	unsigned int tempCell = allocCellNear(pointer_);
+	unsigned int prt = (unsigned int)std::sqrt(amount);
+	if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
+		unsigned int p = pointer_;
+		if (prt*prt < amount){
+			result << dec(amount - prt*prt);
+		}
+		result << set(tempCell, prt);
+		result << move(tempCell) << "[";
+		result << move(p);
+		for (unsigned int i = 0; i < prt; i++)
+			result << "-";
+		result << move(tempCell) << "-]";
+	}
+	else {
+		for (unsigned int i = 0; i < amount; i++)
+			result << "-";
+	}
+	freeCell(tempCell);
+	return result.str();
 }
 
 std::string Brainfuck::set(unsigned int const &index, unsigned int const &value) {
-	return move(index) + "[-]" + inc(value); //okay as inc() does not move the pointer_
+	std::stringstream result;
+	result << move(index) << "[-]";
+	result << inc(value);
+	return result.str();
 }
 
 std::string Brainfuck::copy(unsigned int source, unsigned int target) {
