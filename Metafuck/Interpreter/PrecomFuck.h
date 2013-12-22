@@ -139,6 +139,7 @@ namespace BrainfuckCompiler {
 		void addInstruction(Instruction* instr);
 		inline void changeInstructionIndex(std::size_t instructionPtr); // for conditional jump instruction - do not make public
 		std::function <void(std::size_t)> getInstructionChangerFunction();
+		void clear();
 
 		// execute:
 		void operator()(VirtualMemory& memory);
@@ -197,6 +198,13 @@ namespace BrainfuckCompiler {
 	std::function <void(std::size_t)> BrainfuckProgram<InputStreamT, OutputStreamT>::getInstructionChangerFunction()
 	{
 		return std::bind(&BrainfuckProgram::changeInstructionIndex, this, std::placeholders::_1);
+	}
+	//-------------------------------------------------------------
+	template <typename InputStreamT, typename OutputStreamT>
+	void BrainfuckProgram<InputStreamT, OutputStreamT>::clear()
+	{
+		instructionList_.clear();
+		instructionPtr_ = 0;
 	}
 	//-------------------------------------------------------------
 	template <typename InputStreamT, typename OutputStreamT>
