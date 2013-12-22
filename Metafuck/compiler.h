@@ -19,9 +19,6 @@ private:
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
 
-	template <typename T>
-	T pop(std::stack<T> &s);
-
 public:
 	bool validate();
 	std::size_t lex();
@@ -31,10 +28,3 @@ public:
 
 	Compiler(std::string c);
 };
-
-template <typename T>
-T Compiler::pop(std::stack<T> &s) {
-	T l = s.top();
-	s.pop();
-	return l;
-}

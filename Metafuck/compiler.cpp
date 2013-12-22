@@ -1,4 +1,7 @@
 #include "compiler.h"
+#include "CallList.h"
+#include "Call.h"
+#include "helper.h"
 #include <algorithm>
 #include <locale>
 
@@ -25,56 +28,38 @@ bool Compiler::validate() {
 
 std::size_t Compiler::lex() {
 	//Phase 1: Statements ermitteln
-	std::vector<std::string> statements;
-	std::string currentStatement;
-	bool ignoreSpaces = true;
-	for (const char& c : code_) {
-		switch (c) {
-		case ';':
-			statements.push_back(currentStatement);
-			currentStatement = "";
-			break;
-		case '"':
-			ignoreSpaces = !ignoreSpaces;
-			currentStatement += c;
-			break;
-		default:
-			if (!(ignoreSpaces && c == ' ') && c != '\t' && c != '\r' && c != '\n') {
-				currentStatement += c;
-			}
-			break;
-		}
-	}
+	CallList program(code_);
 
 	//Phase 2: Statements -> std::vector<std::string>
-	std::string currentElement = "";
-	bool isString = false;
-	for (const std::string& statement : statements) {
-		lexed_.push_back(std::vector<std::string>());
-		for (const char& c : statement) {
-			switch (c) {
-			case ',':
-			case '(':
-			case ')':
-				if (!isString) {
-					lexed_[lexed_.size() - 1].push_back(currentElement);
-					currentElement = "";
-				}
-				else {
-					currentElement += c;
-				}
-				break;
-			case '"':
-				isString = !isString;
-				currentElement += c;
-				break;
-			default:
-				currentElement += c;
-				break;
-			}
-		}
-	}
-	return statements.size();
+	//std::string currentElement = "";
+	//bool isString = false;
+	//for (const std::string& statement : statements) {
+	//	lexed_.push_back(std::vector<std::string>());
+	//	for (const char& c : statement) {
+	//		switch (c) {
+	//		case ',':
+	//		case '(':
+	//		case ')':
+	//			if (!isString) {
+	//				lexed_[lexed_.size() - 1].push_back(currentElement);
+	//				currentElement = "";
+	//			}
+	//			else {
+	//				currentElement += c;
+	//			}
+	//			break;
+	//		case '"':
+	//			isString = !isString;
+	//			currentElement += c;
+	//			break;
+	//		default:
+	//			currentElement += c;
+	//			break;
+	//		}
+	//	}
+	//}
+	//return statements.size();
+	return 0;
 }
 
 bool Compiler::isNumber(const std::string &s) const {
