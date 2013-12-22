@@ -7,6 +7,7 @@
 #include <sstream>
 #include <deque>
 #include <vector>
+#include <fstream>
 
 class NullInput
 {
@@ -68,7 +69,7 @@ BrainfuckCompiler::CompilerErrorCode RunBrainfuckProgram(std::string program, In
 		}
 	}
 	else
-		return error;	
+		return error;
 }
 
 // on cin cout
@@ -91,7 +92,7 @@ BrainfuckCompiler::CompilerErrorCode RunBrainfuckProgram_FromFile(std::string pa
 	std::ifstream reader (path);
 	std::stringstream buffer;
 	buffer << reader.rdbuf();
-	
+
 	return RunBrainfuckProgram<InputStreamT, OutputStreamT>(buffer.str(), is, os, memorySize);
 }
 
