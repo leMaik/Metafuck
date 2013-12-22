@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-// test
-
 void BinaryInput::get(char& c)
 {
 	if (front_) {
