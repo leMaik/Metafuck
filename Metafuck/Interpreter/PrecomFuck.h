@@ -22,8 +22,8 @@ namespace BrainfuckCompiler {
 		CELL_TYPE* getMemoryPointer();
 		std::size_t getSize() const;
 	private:
-		std::size_t size;
 		std::vector <CELL_TYPE> memory;
+		std::size_t size;
 	};
 
 	//############################################################################################################
@@ -45,7 +45,7 @@ namespace BrainfuckCompiler {
 		virtual ~Instruction() = default;
 
 		// Instruction execute command
-		inline virtual void execute(CELL_TYPE*& ptr) const = 0;
+		virtual void execute(CELL_TYPE*& ptr) const = 0;
 	};
 
 	class IncrementInstruction : public Instruction
@@ -71,6 +71,7 @@ namespace BrainfuckCompiler {
 	public:
 		MemoryPointerShift(int amount); // directional
 		virtual void execute(CELL_TYPE*& ptr) const override;
+
 	private:
 		int amount_;
 	};
@@ -138,7 +139,7 @@ namespace BrainfuckCompiler {
 		void addInstruction(Instruction* instr);
 		inline void changeInstructionIndex(std::size_t instructionPtr); // for conditional jump instruction - do not make public
 		std::function <void(std::size_t)> getInstructionChangerFunction();
-	
+
 		// execute:
 		void operator()(VirtualMemory& memory);
 		BrainfuckProgram& operator=(BrainfuckProgram const&) = delete;
@@ -148,11 +149,11 @@ namespace BrainfuckCompiler {
 		std::size_t instructionPtr_;
 		std::vector <std::shared_ptr <Instruction> > instructionList_;
 
-		OutputStreamT& os_;
 		InputStreamT& is_;
+		OutputStreamT& os_;
 	};
 
-	enum CompilerErrorCode 
+	enum CompilerErrorCode
 	{
 		CEC_NO_ERROR,
 		CEC_LOOP_MISMATCH,
@@ -200,7 +201,7 @@ namespace BrainfuckCompiler {
 	//-------------------------------------------------------------
 	template <typename InputStreamT, typename OutputStreamT>
 	void BrainfuckProgram<InputStreamT, OutputStreamT>::operator()(VirtualMemory& memory)
-	{	
+	{
 		//if (memory.getSize() < minimalMemory_)
 		//	throw std::runtime_error("insufficient memory for program");
 		auto memptr = memory.getMemoryPointer();
@@ -215,11 +216,11 @@ namespace BrainfuckCompiler {
 
 	template <typename InputStreamT, typename OutputStreamT>
 	void BrainfuckPrecompiler::compile(std::string const& str, BrainfuckProgram<InputStreamT, OutputStreamT>& Prog)
-	{	
+	{
 		std::map <std::string::const_iterator, ConditionalJumpForward*>  f_jumps;
 		std::map <std::string::const_iterator, ConditionalJumpBackward*>  b_jumps;
 
-		auto nop = [](){};
+		// auto nop = [](){};
 
 		unsigned int curMemMax = 0;
 		for (auto i = std::begin(str); i != std::end(str); ++i) {
@@ -238,7 +239,6 @@ namespace BrainfuckCompiler {
 				case('+'): {
 					// add new increment instruction
 					unsigned int amount = 0;
-					auto before = i;
 					for (; i != std::end(str) && (*i=='+' || !isInstruction(*i)); ++i)
 						if (*i == '+')
 							++amount;
@@ -249,7 +249,6 @@ namespace BrainfuckCompiler {
 				}
 				case ('-'): {
 					unsigned int amount = 0;
-					auto before = i;
 					for (; i != std::end(str) && (*i=='-' || !isInstruction(*i)); ++i)
 						if (*i == '-')
 							++amount;
@@ -260,7 +259,6 @@ namespace BrainfuckCompiler {
 				}
 				case ('<'): {
 					unsigned int amount = 0;
-					auto before = i;
 					for (; i != std::end(str) && (*i=='<' || !isInstruction(*i)); ++i)
 						if (*i == '<')
 							++amount;
@@ -271,7 +269,6 @@ namespace BrainfuckCompiler {
 				}
 				case ('>'): {
 					unsigned int amount = 0;
-					auto before = i;
 					for (; i != std::end(str) && (*i=='>' || !isInstruction(*i)); ++i)
 						if (*i == '>')
 							++amount;
@@ -321,7 +318,7 @@ namespace BrainfuckCompiler {
 			// back = the jump instruction that correspinds to i
 			auto back = b_jumps.find(c);
 
-			auto finder = 
+			auto finder =
 			[&](Instruction* instr) -> decltype(std::begin(Prog.instructionList_)) {
 				auto f = std::begin(Prog.instructionList_);
 				for (; f != std::end(Prog.instructionList_); ++f) {
@@ -341,9 +338,8 @@ namespace BrainfuckCompiler {
 			back->second->resetInstructionPtr((opening-Prog.instructionList_.begin()));
 			i.second->resetInstructionPtr((closing-Prog.instructionList_.begin()));
 		}
-	}	
+	}
 
 } // Brainfuck Compiler
 
 #endif // PRECOMFUCK_H_INCLUDED
- 
