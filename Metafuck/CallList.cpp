@@ -7,7 +7,6 @@
 
 CallList::CallList(std::string code)
 {
-	std::vector<Call> statements;
 	std::string currentCall = "";
 	bool isString = false;
 	bool isStatement = false;
@@ -67,7 +66,14 @@ CallList::CallList(std::string code)
 	}
 }
 
+CallList::CallList()
+{
+}
 
 CallList::~CallList()
 {
+}
+
+Argument::Type CallList::getType() const {
+	return CALLLIST;
 }

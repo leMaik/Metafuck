@@ -19,10 +19,7 @@ int main(void)
 	string input;
 	getline(cin, input);
 	Compiler com(input);
-	if (!com.validate()) {
-		cerr << "ERROR: Your code is invalid. Check ALL the brackets!\n";
-		return -1;
-	}
+
 	cout << "Compiling...\n";
 	cout << com.lex() << " statements found.\n";
 	com.compile();

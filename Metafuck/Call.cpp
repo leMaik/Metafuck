@@ -42,7 +42,11 @@ Call::Call(std::string code)
 				currentArgument += c;
 				break;
 			case ' ':
+				break;
 			case ',':
+				if (keller.size() == 1){
+					currentArgument += c;
+				}
 				break;
 			default:
 				currentArgument += c;
@@ -57,7 +61,8 @@ Call::Call(std::string code)
 		}
 
 		if (keller.empty() && !isString && (i == code.length() - 1 || code[i + 1] == ',')) {
-			arguments_.push_back(Argument::fromString(currentArgument));
+			std::shared_ptr<Argument> arg(parseArgument(currentArgument));
+			arguments_.push_back(arg);
 			std::cout << "Found arg: " << currentArgument << std::endl;
 			currentArgument = "";
 		}
@@ -68,6 +73,9 @@ Call::Call(std::string code)
 	}
 }
 
+Argument::Type Call::getType() const {
+	return CALL;
+}
 
 Call::~Call()
 {

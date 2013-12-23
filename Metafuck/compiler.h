@@ -1,5 +1,7 @@
 #include "cell.h"
 #include "brainfuck.h"
+#include "Call.h"
+#include "CallList.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -12,12 +14,13 @@ class Compiler
 private:
 	std::string code_;
 	std::stringstream generated_;
-	std::vector<std::vector<std::string>> lexed_;
+	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
 
 	unsigned int getVar(const std::string &name, Brainfuck &b);
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
+	void evaluate(Argument& arg);
 
 public:
 	bool validate();
