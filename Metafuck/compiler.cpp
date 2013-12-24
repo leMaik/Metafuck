@@ -26,6 +26,8 @@ void Compiler::evaluate(Argument& arg) {
 				evaluate(statement);
 			}
 			break;
+		case Argument::Type::CALL:
+			Call c = (Call)arg;
 	}
 	//TODO: Evaluate other types
 }

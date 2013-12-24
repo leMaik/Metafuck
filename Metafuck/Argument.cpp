@@ -1,6 +1,7 @@
 #include "Argument.h"
 #include "CallList.h"
 #include "Call.h"
+#include "String.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -31,20 +32,20 @@ inline bool isString(std::string const& s) {
 Argument* parseArgument(std::string const& code)
 {
 	if (isString(code)) {
-		//String (const)
+		return new String(code.substr(1, code.length() - 2));
 	}
 	else if (isCallList(code)) {
 		return new CallList(code.substr(1, code.length() - 2));
 	}
 	else if (isNumber(code)) {
-		//Int (const)
+		//return new Integer(code);
 	}
 	else if (isVar(code)) {
-		//Variable
+		//return new Variable(code);
 	}
 	else if (code[code.length() - 1] == ')') {
 		return new Call(code);
 	}
-	return nullptr;
-	throw; //TODO: Create an exception class for that and NEVER return a nullptr here...
+	//return nullptr;
+	throw; //TODO: Create an exception class for that
 }
