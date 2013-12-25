@@ -40,6 +40,9 @@ CallList::CallList(std::string code)
 				isString = true;
 				currentCall += c;
 				break;
+			case '\n':
+			case '\r':
+			case '\t':
 			case ' ':
 				break;
 			default:

@@ -31,6 +31,9 @@ public:
    
    //Subtraktion
    
+   //Logik
+   std::string isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
+
    //Komplexere Funktionen
    std::string printString(std::string s);
 

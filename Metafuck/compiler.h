@@ -22,6 +22,7 @@ private:
 	unsigned int getVar(const Variable& variable, Brainfuck &b);
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
+	unsigned int evaluateTo(Argument& arg);
 	void evaluate(Argument& arg);
 
 public:

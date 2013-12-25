@@ -202,4 +202,28 @@ std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int ta
 	return result.str();
 }
 
+std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex){
+	std::stringstream result;
+	result << copy(indexA, resultIndex);
+	unsigned int temp0 = allocCell(1);
+	unsigned int temp1 = allocCell(1);
+	result << set(temp0, 0);
+	result << set(temp1, 0);
+	result << addAway(resultIndex, temp1);
+	result << add(resultIndex, 1);
+	result << move(indexB) << "[";
+	result << move(temp1) << "-";
+	result << move(temp0) << "+";
+	result << move(indexB) << "-]";
+	result << move(temp0) << "[";
+	result << move(indexB) << "+";
+	result << move(temp0) << "-]";
+	result << move(temp1) << "[";
+	result << move(resultIndex) << "-";
+	result << set(temp1, 0) << "]";
+	freeCell(temp0);
+	freeCell(temp1);
+	return result.str();
+}
+
 Brainfuck::Brainfuck() : pointer_(0) { }

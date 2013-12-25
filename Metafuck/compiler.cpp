@@ -21,10 +21,32 @@ unsigned int Compiler::getVar(const Variable& variable, Brainfuck &b) {
 	return var->second;
 }
 
+unsigned int Compiler::evaluateTo(Argument& arg) {
+	switch (arg.getType()){
+	case Argument::Type::CALL:{
+			Call&c = static_cast<Call&>(arg);
+			if (c.getFunction() == "iseq"){
+				unsigned int result = bf_.allocCell(1);
+				generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
+				return result;
+			}
+	    }
+		break;
+	case Argument::Type::VARIABLE:
+		return getVar(static_cast<Variable&>(arg), bf_);
+		break;
+	case Argument::Type::INTEGER:
+		unsigned int t = bf_.allocCell(1);
+		generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
+		return t;
+	}
+	return 0;
+}
+
 void Compiler::evaluate(Argument& arg) {
 	switch (arg.getType()) {
 	case Argument::Type::CALLLIST:
-		for (Call statement : lexed_.statements) {
+		for (Call statement : static_cast<CallList&>(arg).statements) {
 			evaluate(statement);
 		}
 		break;
@@ -42,6 +64,23 @@ void Compiler::evaluate(Argument& arg) {
 			if (c.getArg(0).getType() == Argument::Type::VARIABLE) {
 				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0)), bf_), static_cast<Number&>(c.getArg(1)).getValue());
 			}
+		}
+		else if (c.getFunction() == "if"){
+			unsigned int temp0 = bf_.allocCell(1);
+			unsigned int temp1 = bf_.allocCell(1);
+			unsigned int x = evaluateTo(c.getArg(0));
+			generated_ << bf_.copy(x, temp1);
+			generated_ << bf_.set(temp0, 1);
+			generated_ << bf_.move(temp1) << "[";
+			evaluate(static_cast<CallList&>(c.getArg(1)));
+			generated_ << bf_.move(temp0) << "-";
+			generated_ << bf_.set(temp1, 0) << "]";
+			generated_ << bf_.move(temp0) << "[";
+			evaluate(static_cast<CallList&>(c.getArg(2)));
+			generated_ << bf_.move(temp0) << "-]";
+			bf_.freeCell(temp0);
+			bf_.freeCell(temp1);
+			bf_.freeCell(x);
 		}
 	}
 	//TODO: Evaluate other types
