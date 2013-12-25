@@ -60,6 +60,9 @@ void Compiler::evaluate(Argument& arg) {
 				generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0)), bf_));
 			}
 		}
+		else if (c.getFunction() == "input"){
+			generated_ << bf_.input(evaluateTo(c.getArg(0)));
+		}
 		else if (c.getFunction() == "set"){
 			if (c.getArg(0).getType() == Argument::Type::VARIABLE) {
 				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0)), bf_), static_cast<Number&>(c.getArg(1)).getValue());
