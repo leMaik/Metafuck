@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "CallList.h"
 #include "Call.h"
+#include "String.h"
 #include "helper.h"
 #include <algorithm>
 #include <locale>
@@ -27,14 +28,17 @@ void Compiler::evaluate(Argument& arg) {
 			}
 			break;
 		case Argument::Type::CALL:
-			Call c = (Call)arg;
+			Call& c = static_cast<Call&>(arg);
+			if (c.getFunction() == "print"){
+				if (c.getArg(0).getType() == Argument::Type::STRING) {
+					generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).content);
+				}
+			}
 	}
 	//TODO: Evaluate other types
 }
 
 void Compiler::compile() {
-	Brainfuck b;
-	generated_.clear();
 	evaluate(lexed_);
 }
 

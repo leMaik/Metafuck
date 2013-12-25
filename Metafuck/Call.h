@@ -13,6 +13,9 @@ public:
 	~Call();
 	Argument::Type getType() const;
 
+	std::string getFunction() const;
+	Argument& getArg(unsigned int index) const;
+
 private:
 	std::string function_;
 	std::vector<std::shared_ptr<Argument>> arguments_;

@@ -12,6 +12,7 @@
 class Compiler
 {
 private:
+	Brainfuck bf_;
 	std::string code_;
 	std::stringstream generated_;
 	CallList lexed_;
