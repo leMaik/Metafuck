@@ -6,11 +6,14 @@
 
 class String : public Argument
 {
+private:
+	std::string value_;
+
 public:
 	String(std::string s);
 	~String();
-	std::string content;
 
+	std::string getValue() const;
 	Argument::Type getType() const;
 };
 

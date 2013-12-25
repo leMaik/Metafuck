@@ -2,6 +2,8 @@
 #include "CallList.h"
 #include "Call.h"
 #include "String.h"
+#include "Variable.h"
+#include "Number.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -38,10 +40,10 @@ Argument* parseArgument(std::string const& code)
 		return new CallList(code.substr(1, code.length() - 2));
 	}
 	else if (isNumber(code)) {
-		//return new Integer(code);
+		return new Number(code);
 	}
 	else if (isVar(code)) {
-		//return new Variable(code);
+		return new Variable(code);
 	}
 	else if (code[code.length() - 1] == ')') {
 		return new Call(code);

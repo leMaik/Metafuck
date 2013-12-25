@@ -2,6 +2,7 @@
 #include "CallList.h"
 #include "Call.h"
 #include "String.h"
+#include "Number.h"
 #include "helper.h"
 #include <algorithm>
 #include <locale>
@@ -12,28 +13,36 @@ std::size_t Compiler::lex() {
 	return 0;
 }
 
-unsigned int Compiler::getVar(const std::string &name, Brainfuck &b) {
-	auto var = vars_.find(name);
-	if (var == vars_.end()){
-		return vars_[name] = b.allocCell(1);
+unsigned int Compiler::getVar(const Variable& variable, Brainfuck &b) {
+	auto var = vars_.find(variable.getName());
+	if (var == vars_.end()) {
+		return vars_[variable.getName()] = b.allocCell(1);
 	}
 	return var->second;
 }
 
 void Compiler::evaluate(Argument& arg) {
 	switch (arg.getType()) {
-		case Argument::Type::CALLLIST:
-			for (Call statement : lexed_.statements) {
-				evaluate(statement);
+	case Argument::Type::CALLLIST:
+		for (Call statement : lexed_.statements) {
+			evaluate(statement);
+		}
+		break;
+	case Argument::Type::CALL:
+		Call& c = static_cast<Call&>(arg);
+		if (c.getFunction() == "print"){
+			if (c.getArg(0).getType() == Argument::Type::STRING) {
+				generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
 			}
-			break;
-		case Argument::Type::CALL:
-			Call& c = static_cast<Call&>(arg);
-			if (c.getFunction() == "print"){
-				if (c.getArg(0).getType() == Argument::Type::STRING) {
-					generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).content);
-				}
+			else if (c.getArg(0).getType() == Argument::Type::VARIABLE){
+				generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0)), bf_));
 			}
+		}
+		else if (c.getFunction() == "set"){
+			if (c.getArg(0).getType() == Argument::Type::VARIABLE) {
+				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0)), bf_), static_cast<Number&>(c.getArg(1)).getValue());
+			}
+		}
 	}
 	//TODO: Evaluate other types
 }

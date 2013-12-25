@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 	else {
 		std::getline(std::cin, input);
 	}
-	bool shallRun = false;
+	bool shallRun = true;
 
 	Compiler com(input);
 	com.lex();

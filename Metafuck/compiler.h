@@ -2,6 +2,7 @@
 #include "brainfuck.h"
 #include "Call.h"
 #include "CallList.h"
+#include "Variable.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -18,7 +19,7 @@ private:
 	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
 
-	unsigned int getVar(const std::string &name, Brainfuck &b);
+	unsigned int getVar(const Variable& variable, Brainfuck &b);
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
 	void evaluate(Argument& arg);
