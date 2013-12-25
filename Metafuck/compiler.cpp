@@ -13,10 +13,10 @@ std::size_t Compiler::lex() {
 	return 0;
 }
 
-unsigned int Compiler::getVar(const Variable& variable, Brainfuck &b) {
+unsigned int Compiler::getVar(const Variable& variable) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
-		return vars_[variable.getName()] = b.allocCell(1);
+		return vars_[variable.getName()] = bf_.allocCell(1);
 	}
 	return var->second;
 }
@@ -33,7 +33,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	    }
 		break;
 	case Argument::Type::VARIABLE:
-		return getVar(static_cast<Variable&>(arg), bf_);
+		return getVar(static_cast<Variable&>(arg));
 		break;
 	case Argument::Type::INTEGER:
 		unsigned int t = bf_.allocCell(1);
@@ -57,7 +57,7 @@ void Compiler::evaluate(Argument& arg) {
 				generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
 			}
 			else if (c.getArg(0).getType() == Argument::Type::VARIABLE){
-				generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0)), bf_));
+				generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0))));
 			}
 		}
 		else if (c.getFunction() == "input"){
@@ -65,7 +65,7 @@ void Compiler::evaluate(Argument& arg) {
 		}
 		else if (c.getFunction() == "set"){
 			if (c.getArg(0).getType() == Argument::Type::VARIABLE) {
-				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0)), bf_), static_cast<Number&>(c.getArg(1)).getValue());
+				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
 			}
 		}
 		else if (c.getFunction() == "if"){

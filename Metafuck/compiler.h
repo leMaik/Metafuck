@@ -19,7 +19,7 @@ private:
 	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
 
-	unsigned int getVar(const Variable& variable, Brainfuck &b);
+	unsigned int getVar(const Variable& variable);
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
 	unsigned int evaluateTo(Argument& arg);
