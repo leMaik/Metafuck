@@ -63,7 +63,6 @@ Call::Call(std::string code)
 		if (keller.empty() && !isString && (i == code.length() - 1 || code[i + 1] == ',')) {
 			std::shared_ptr<Argument> arg(parseArgument(currentArgument));
 			arguments_.push_back(arg);
-			std::cout << "Found arg: " << currentArgument << std::endl;
 			currentArgument = "";
 		}
 	}

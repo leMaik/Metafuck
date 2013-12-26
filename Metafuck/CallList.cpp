@@ -51,7 +51,6 @@ CallList::CallList(std::string code)
 			}
 			if (keller.empty() && isStatement){
 				statements.push_back(Call(currentCall));
-				std::cout << "Found call: " << currentCall << std::endl;
 				currentCall = "";
 				isStatement = false;
 			}
