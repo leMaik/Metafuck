@@ -13,11 +13,6 @@ namespace
 	const size_t ERROR_IN_COMMAND_LINE = 1;
 	const size_t SUCCESS = 0;
 	const size_t ERROR_UNHANDLED_EXCEPTION = 2;
-
-	void pause() {
-		std::cin.clear();
-		std::cin.get();
-	}
 }
 
 int main(int argc, char** argv)
@@ -30,8 +25,9 @@ int main(int argc, char** argv)
 		po::options_description desc("Options");
 		desc.add_options()
 			("help", "Print help messages")
-			("output,o", po::value<std::string>(), "Output filename")
+			("output,o", po::value<std::string>(), "Output filename (default is <input filename>.bf")
 			("input,i", po::value<std::string>()->required(), "File to compile")
+			("print,p", "Print the program on the screen after compiling (does not save it if --output is not set)")
 			("run,r", "Run the program after compiling it");
 
 		po::positional_options_description positionalOptions;
@@ -71,23 +67,20 @@ int main(int argc, char** argv)
 		com.compile();
 		//com.optimize();
 
-		if (vm.count("output")) {
+		if (vm.count("output") || !vm.count("print")) {
 			std::ofstream out;
-			out.open(vm["output"].as<std::string>());
+			out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".bf");
 			out << com.getGeneratedCode();
 			out.close();
 		}
-		else {
+		if (vm.count("print")) {
 			std::cout << com.getGeneratedCode() << std::endl;
 		}
 
 		if (vm.count("run")) {
-			std::cout << "===" << std::endl << "Running:" << std::endl;
+			std::cout << "___" << std::endl << "Running:" << std::endl;
 			RunBrainfuckProgram(com.getGeneratedCode());
-			std::cout << std::endl << "===" << std::endl;;
-			pause();
 		}
-		std::cout << "Done. :)";
 
 		return SUCCESS;
 
