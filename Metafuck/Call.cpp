@@ -44,7 +44,7 @@ Call::Call(std::string code)
 			case ' ':
 				break;
 			case ',':
-				if (keller.size() == 1){
+				if (keller.size() > 0){ //if it isn't a comma that separates parameters of this call
 					currentArgument += c;
 				}
 				break;
