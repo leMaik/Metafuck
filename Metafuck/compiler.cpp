@@ -54,7 +54,7 @@ void Compiler::evaluate(Argument& arg) {
 		Call& c = static_cast<Call&>(arg);
 		auto& method = predef_methods.find(c.getSignature());
 		if (method != predef_methods.end())
-			(this->*predef_methods[c.getSignature()])(c);
+			predef_methods[c.getSignature()]->Call(c);
 		else
 			std::cerr << "Unknown method: " << c << std::endl;
 		/*
@@ -83,11 +83,11 @@ void Compiler::evaluate(Argument& arg) {
 	//TODO: Evaluate other types
 }
 
-void Compiler::set(Call c) {
+void Compiler::set(Call& c) {
 	generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
 }
 
-void Compiler::print(Call c) {
+void Compiler::print(Call& c) {
 	switch (c.getArg(0).getType()){
 	case Argument::STRING:
 		generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
@@ -110,15 +110,19 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
+void test(Compiler* me, Call c) {
+	std::cout << "Das geht!";
+}
+
 CompilerEasyRegister& Compiler::reg() {
 	return *new CompilerEasyRegister(*this);
 }
 
-void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call)){
-	predef_methods[CallSignature(callname, args)] = fptr;
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&)){
+	predef_methods[CallSignature(callname, args)] = new TSpecificFunctor<Compiler, Call&>(this, fptr);
 }
 
-void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call)){
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&)){
 	std::cout << callname << " with " << args.size() << " params" << std::endl;
 }
 
@@ -131,12 +135,12 @@ Compiler::Compiler(std::string c) : code_(c) {
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
 
-CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call)) {
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
 }
 
-CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call)) {
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
 }

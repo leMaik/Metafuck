@@ -6,6 +6,7 @@
 #include "Call.h"
 #include "CallList.h"
 #include "Variable.h"
+#include "Functor.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -23,7 +24,7 @@ private:
 	std::string code_;
 	std::stringstream generated_;
 	CallList lexed_;
-	std::map<CallSignature, void (Compiler::*) (Call)> predef_methods;
+	std::map<CallSignature, TFunctor<Call&>*> predef_methods;
 	std::map<std::string, unsigned int> vars_;
 
 	unsigned int getVar(const Variable& variable);
@@ -36,25 +37,27 @@ public:
 	Compiler(std::string c);
 
 	CompilerEasyRegister& reg();
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call));
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call));
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&));
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&));
 
 	bool validate();
 	std::size_t lex();
 	void compile();
 
-	void set(Call c);
-	void print(Call c);
+	void set(Call& c);
+	void print(Call& c);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
 };
 
+void test(Compiler* me, Call c);
+
 class CompilerEasyRegister {
 public:
 	CompilerEasyRegister(Compiler& owner);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call));
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call));
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&));
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&));
 private:
 	Compiler& owner_;
 };
