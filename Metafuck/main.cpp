@@ -1,6 +1,6 @@
 #include "compiler.h"
 #include "brainfuck.h"
-#include "Interpreter\ConvenienceFuck.h"
+#include "Interpreter/ConvenienceFuck.h"
 #include "boost/program_options.hpp" 
 #include <iostream>
 #include <fstream>

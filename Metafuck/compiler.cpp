@@ -24,13 +24,13 @@ unsigned int Compiler::getVar(const Variable& variable) {
 unsigned int Compiler::evaluateTo(Argument& arg) {
 	switch (arg.getType()){
 	case Argument::Type::CALL:{
-			Call&c = static_cast<Call&>(arg);
-			if (c.getFunction() == "iseq"){
-				unsigned int result = bf_.allocCell(1);
-				generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
-				return result;
-			}
-	    }
+								  Call&c = static_cast<Call&>(arg);
+								  if (c.getFunction() == "iseq"){
+									  unsigned int result = bf_.allocCell(1);
+									  generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
+									  return result;
+								  }
+	}
 		break;
 	case Argument::Type::VARIABLE:
 		return getVar(static_cast<Variable&>(arg));
@@ -52,21 +52,14 @@ void Compiler::evaluate(Argument& arg) {
 		break;
 	case Argument::Type::CALL:
 		Call& c = static_cast<Call&>(arg);
-		if (c.getFunction() == "print"){
-			if (c.getArg(0).getType() == Argument::Type::STRING) {
-				generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
-			}
-			else if (c.getArg(0).getType() == Argument::Type::VARIABLE){
-				generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0))));
-			}
-		}
+		auto& method = predef_methods.find(c.getSignature());
+		if (method != predef_methods.end())
+			(this->*predef_methods[c.getSignature()])(c);
+		else
+			std::cerr << "Unknown method: " << c << std::endl;
+		/*
 		else if (c.getFunction() == "input"){
 			generated_ << bf_.input(evaluateTo(c.getArg(0)));
-		}
-		else if (c.getFunction() == "set"){
-			if (c.getArg(0).getType() == Argument::Type::VARIABLE) {
-				generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
-			}
 		}
 		else if (c.getFunction() == "if"){
 			unsigned int temp0 = bf_.allocCell(1);
@@ -85,8 +78,24 @@ void Compiler::evaluate(Argument& arg) {
 			bf_.freeCell(temp1);
 			bf_.freeCell(x);
 		}
+		*/
 	}
 	//TODO: Evaluate other types
+}
+
+void Compiler::set(Call c) {
+	generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
+}
+
+void Compiler::print(Call c) {
+	switch (c.getArg(0).getType()){
+	case Argument::STRING:
+		generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
+		break;
+	case Argument::VARIABLE:
+		generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0))));
+		break;
+	}
 }
 
 void Compiler::compile() {
@@ -101,4 +110,33 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-Compiler::Compiler(std::string c) : code_(c) { }
+CompilerEasyRegister& Compiler::reg() {
+	return *new CompilerEasyRegister(*this);
+}
+
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call)){
+	predef_methods[CallSignature(callname, args)] = fptr;
+}
+
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call)){
+	std::cout << callname << " with " << args.size() << " params" << std::endl;
+}
+
+Compiler::Compiler(std::string c) : code_(c) {
+	reg()
+		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
+		("print", { Argument::STRING }, &Compiler::print)
+		("print", { Argument::VARIABLE }, &Compiler::print);
+}
+
+CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
+
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call)) {
+	owner_.reg(callname, args, fptr);
+	return *this;
+}
+
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call)) {
+	owner_.reg(callname, args, fptr);
+	return *this;
+}

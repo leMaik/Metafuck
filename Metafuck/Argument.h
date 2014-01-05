@@ -2,11 +2,12 @@
 #define ARGUMENT_H
 
 #include <string>
+#include <map>
 
 class Argument
 {
 public:
-	enum Type{ CALL, CALLLIST, STRING, VARIABLE, INTEGER };
+	const enum Type{ CALL, CALLLIST, STRING, VARIABLE, INTEGER };
 
 	virtual Argument::Type getType() const = 0;
 	virtual ~Argument() = default;
