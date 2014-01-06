@@ -96,6 +96,18 @@ void Compiler::if_fn(const Call& c) {
 	bf_.freeCell(x);
 }
 
+void Compiler::while_fn(const Call& c) {
+	unsigned int temp = evaluateTo(c.getArg(0));
+	generated_ << bf_.move(temp) << "[";
+	evaluate(c.getArg(1));
+	unsigned int temp2 = evaluateTo(c.getArg(0));
+	generated_ << bf_.move(temp2) << "]";
+	if (c.getArg(1).getType() == Argument::CALL) {
+		bf_.freeCell(temp);
+		bf_.freeCell(temp2);
+	}
+}
+
 int Compiler::iseq(const Call& c) {
 	unsigned int result = bf_.allocCell(1);
 	generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
@@ -131,12 +143,13 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::VARIABLE }, &Compiler::print)
-		("input", { Argument::VARIABLE }, &Compiler::input)
+		("getchar", { Argument::VARIABLE }, &Compiler::input)
 		("if", { Argument::CALL, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
 		("if", { Argument::INTEGER, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
 		("iseq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::iseq)
 		("iseq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::iseq)
-		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq);
+		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq)
+		("while", { Argument::CALL, Argument::CALLLIST }, &Compiler::while_fn);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }

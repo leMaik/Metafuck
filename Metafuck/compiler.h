@@ -49,6 +49,7 @@ public:
 	void print(const Call& c);
 	void input(const Call& c);
 	void if_fn(const Call& c);
+	void while_fn(const Call& c);
 
 	int iseq(const Call &c);
 
