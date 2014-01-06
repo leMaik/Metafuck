@@ -135,6 +135,7 @@ std::string Brainfuck::copy(unsigned int source, unsigned int target) {
 	unsigned int tmp = allocCell(1);
 	std::stringstream r;
 	r << set(tmp, 0);
+	r << set(target, 0);
 	r << move(source) << "[";
 	r << move(tmp) << "+";
 	r << move(target) << "+";
@@ -204,19 +205,21 @@ std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int ta
 
 std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex){
 	std::stringstream result;
+	unsigned int tempIndexB = allocCell(1);
 	result << copy(indexA, resultIndex);
+	result << copy(indexB, tempIndexB);
 	unsigned int temp0 = allocCell(1);
 	unsigned int temp1 = allocCell(1);
 	result << set(temp0, 0);
 	result << set(temp1, 0);
 	result << addAway(resultIndex, temp1);
 	result << add(resultIndex, 1);
-	result << move(indexB) << "[";
+	result << move(tempIndexB) << "[";
 	result << move(temp1) << "-";
 	result << move(temp0) << "+";
-	result << move(indexB) << "-]";
+	result << move(tempIndexB) << "-]";
 	result << move(temp0) << "[";
-	result << move(indexB) << "+";
+	result << move(tempIndexB) << "+";
 	result << move(temp0) << "-]";
 	result << move(temp1) << "[";
 	result << move(resultIndex) << "-";
