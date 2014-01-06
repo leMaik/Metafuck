@@ -3,26 +3,21 @@ class TFunctor
 {
 public:
 
-	// two possible functions to call member function. virtual cause derived
+	// two possible functions to call member function. virtual because derived
 	// classes will use a pointer to an object and a pointer to a member function
 	// to make the function call
 	virtual RtrnT operator()(T...) = 0;  // call using operator
 	virtual RtrnT Call(T...) = 0;        // call using function
 };
 
-
-// derived template class
 template <typename RtrnT, class TClass, typename... T>
 class TSpecificFunctor : public TFunctor<RtrnT, T...>
 {
 private:
-	RtrnT (TClass::*fpt)(T...);   // pointer to member function
-	TClass* pt2Object;                  // pointer to object
+	RtrnT (TClass::*fpt)(T...);
+	TClass* pt2Object;
 
 public:
-
-	// constructor - takes pointer to an object and pointer to a member and stores
-	// them in two private variables
 	TSpecificFunctor(TClass* _pt2Object, RtrnT(TClass::*_fpt)(T...))
 		: pt2Object(_pt2Object), fpt(_fpt) {};
 
