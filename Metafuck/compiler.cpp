@@ -8,7 +8,6 @@
 #include <locale>
 
 std::size_t Compiler::lex() {
-	//Phase 1: Statements ermitteln
 	lexed_ = CallList(code_);
 	return 0;
 }
@@ -23,18 +22,18 @@ unsigned int Compiler::getVar(const Variable& variable) {
 
 unsigned int Compiler::evaluateTo(Argument& arg) {
 	switch (arg.getType()){
-	case Argument::Type::CALL:{
-								  Call&c = static_cast<Call&>(arg);
-								  if (c.getFunction() == "iseq"){
-									  unsigned int result = bf_.allocCell(1);
-									  generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
-									  return result;
-								  }
-	}
+	case Argument::Type::CALL:
+		{
+			Call& c = static_cast<Call&>(arg);
+			auto& function = predef_functions.find(c.getSignature());
+			if (function != predef_functions.end())
+				return function->second->Call(c);
+			else
+				std::cerr << "Unknown function: " << c << std::endl;
+		}
 		break;
 	case Argument::Type::VARIABLE:
 		return getVar(static_cast<Variable&>(arg));
-		break;
 	case Argument::Type::INTEGER:
 		unsigned int t = bf_.allocCell(1);
 		generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
@@ -54,40 +53,17 @@ void Compiler::evaluate(Argument& arg) {
 		Call& c = static_cast<Call&>(arg);
 		auto& method = predef_methods.find(c.getSignature());
 		if (method != predef_methods.end())
-			predef_methods[c.getSignature()]->Call(c);
+			method->second->Call(c);
 		else
 			std::cerr << "Unknown method: " << c << std::endl;
-		/*
-		else if (c.getFunction() == "input"){
-			generated_ << bf_.input(evaluateTo(c.getArg(0)));
-		}
-		else if (c.getFunction() == "if"){
-			unsigned int temp0 = bf_.allocCell(1);
-			unsigned int temp1 = bf_.allocCell(1);
-			unsigned int x = evaluateTo(c.getArg(0));
-			generated_ << bf_.copy(x, temp1);
-			generated_ << bf_.set(temp0, 1);
-			generated_ << bf_.move(temp1) << "[";
-			evaluate(static_cast<CallList&>(c.getArg(1)));
-			generated_ << bf_.move(temp0) << "-";
-			generated_ << bf_.set(temp1, 0) << "]";
-			generated_ << bf_.move(temp0) << "[";
-			evaluate(static_cast<CallList&>(c.getArg(2)));
-			generated_ << bf_.move(temp0) << "-]";
-			bf_.freeCell(temp0);
-			bf_.freeCell(temp1);
-			bf_.freeCell(x);
-		}
-		*/
 	}
-	//TODO: Evaluate other types
 }
 
-void Compiler::set(Call& c) {
+void Compiler::set(const Call& c) {
 	generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
 }
 
-void Compiler::print(Call& c) {
+void Compiler::print(const Call& c) {
 	switch (c.getArg(0).getType()){
 	case Argument::STRING:
 		generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
@@ -96,6 +72,34 @@ void Compiler::print(Call& c) {
 		generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0))));
 		break;
 	}
+}
+
+void Compiler::input(const Call& c) {
+	generated_ << bf_.input(evaluateTo(c.getArg(0)));
+}
+
+void Compiler::if_fn(const Call& c) {
+	unsigned int temp0 = bf_.allocCell(1);
+	unsigned int temp1 = bf_.allocCell(1);
+	unsigned int x = evaluateTo(c.getArg(0));
+	generated_ << bf_.copy(x, temp1);
+	generated_ << bf_.set(temp0, 1);
+	generated_ << bf_.move(temp1) << "[";
+	evaluate(static_cast<CallList&>(c.getArg(1)));
+	generated_ << bf_.move(temp0) << "-";
+	generated_ << bf_.set(temp1, 0) << "]";
+	generated_ << bf_.move(temp0) << "[";
+	evaluate(static_cast<CallList&>(c.getArg(2)));
+	generated_ << bf_.move(temp0) << "-]";
+	bf_.freeCell(temp0);
+	bf_.freeCell(temp1);
+	bf_.freeCell(x);
+}
+
+int Compiler::iseq(const Call& c) {
+	unsigned int result = bf_.allocCell(1);
+	generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
+	return result;
 }
 
 void Compiler::compile() {
@@ -110,37 +114,39 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-void test(Compiler* me, Call c) {
-	std::cout << "Das geht!";
-}
-
 CompilerEasyRegister& Compiler::reg() {
 	return *new CompilerEasyRegister(*this);
 }
 
-void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&)){
-	predef_methods[CallSignature(callname, args)] = new TSpecificFunctor<Compiler, Call&>(this, fptr);
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)){
+	predef_methods[CallSignature(callname, args)] = new TSpecificFunctor<void, Compiler, const Call&>(this, fptr);
 }
 
-void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&)){
-	std::cout << callname << " with " << args.size() << " params" << std::endl;
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (const Call&)){
+	predef_functions[CallSignature(callname, args)] = new TSpecificFunctor<int, Compiler, const Call&>(this, fptr);
 }
 
 Compiler::Compiler(std::string c) : code_(c) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
 		("print", { Argument::STRING }, &Compiler::print)
-		("print", { Argument::VARIABLE }, &Compiler::print);
+		("print", { Argument::VARIABLE }, &Compiler::print)
+		("input", { Argument::VARIABLE }, &Compiler::input)
+		("if", { Argument::CALL, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
+		("if", { Argument::INTEGER, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
+		("iseq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::iseq)
+		("iseq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::iseq)
+		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
 
-CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (Call&)) {
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
 }
 
-CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (Call&)) {
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (const Call&)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
 }
