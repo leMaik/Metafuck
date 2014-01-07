@@ -1,7 +1,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-#include "cell.h"
 #include "brainfuck.h"
 #include "Call.h"
 #include "CallList.h"

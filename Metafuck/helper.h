@@ -1,3 +1,6 @@
+#ifndef HELPER_H
+#define HELPER_H
+
 #include <stack>
 
 template <typename T>
@@ -9,3 +12,5 @@ T pop(std::stack<T> &s) {
 	s.pop();
 	return l;
 }
+
+#endif

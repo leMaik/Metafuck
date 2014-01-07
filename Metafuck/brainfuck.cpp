@@ -7,13 +7,13 @@ unsigned int Brainfuck::allocCell(unsigned int count) {
 	//TODO: Das hier klappt nur für count == 1
 	if (count == 1) {
 		for (unsigned int i = 0; i < cells_.size(); i++) {
-			if (!cells_[i].isInUse()) {
-				cells_[i].setUsed(true);
+			if (!cells_[i]) {
+				cells_[i] = true;
 				return i;
 			}
 		}
 		//Okay, keine ungenutzte Zelle gefunden.
-		cells_.push_back(Cell());
+		cells_.push_back(true);
 		return cells_.size() - 1;
 	}
 	else {
@@ -30,7 +30,7 @@ unsigned int Brainfuck::allocCellNear(unsigned int index) {
 	unsigned int currBest;
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
-		if (!cells_[i].isInUse()) {
+		if (!cells_[i]) {
 			found = true;
 			if (absdiff(i, index) < absdiff(index, currBest) || !found){
 				currBest = i;
@@ -41,18 +41,18 @@ unsigned int Brainfuck::allocCellNear(unsigned int index) {
 		}
 	}
 	if (found){
-		cells_[currBest].setUsed(true);
+		cells_[currBest] = true;
 		return currBest;
 	}
 	else {
-		cells_.push_back(Cell());
+		cells_.push_back(true);
 		return cells_.size() - 1;
 	}
 }
 
 void Brainfuck::freeCell(unsigned int index) {
 	if (cells_.size() > index) {
-		cells_[index].setUsed(false);
+		cells_[index] = false;
 	}
 }
 
