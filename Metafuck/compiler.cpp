@@ -23,14 +23,14 @@ unsigned int Compiler::getVar(const Variable& variable) {
 unsigned int Compiler::evaluateTo(Argument& arg) {
 	switch (arg.getType()){
 	case Argument::Type::CALL:
-		{
-			Call& c = static_cast<Call&>(arg);
-			auto& function = predef_functions.find(c.getSignature());
-			if (function != predef_functions.end())
-				return function->second(c);
-			else
-				std::cerr << "Unknown function: " << c << std::endl;
-		}
+	{
+								 Call& c = static_cast<Call&>(arg);
+								 auto& function = predef_functions.find(c.getSignature());
+								 if (function != predef_functions.end())
+									 return function->second(c);
+								 else
+									 std::cerr << "Unknown function: " << c << std::endl;
+	}
 		break;
 	case Argument::Type::VARIABLE:
 		return getVar(static_cast<Variable&>(arg));
@@ -83,6 +83,15 @@ void Compiler::input(const Call& c) {
 }
 
 void Compiler::if_fn(const Call& c) {
+	unsigned int temp = bf_.allocCell(1);
+	unsigned int x = evaluateTo(c.getArg(0));
+	generated_ << bf_.set(temp, 0);
+	generated_ << bf_.move(x) << "[";
+	evaluate(static_cast<CallList&>(c.getArg(1)));
+	generated_ << bf_.move(temp) << "]";
+}
+
+void Compiler::if_else_fn(const Call& c) {
 	unsigned int temp0 = bf_.allocCell(1);
 	unsigned int temp1 = bf_.allocCell(1);
 	unsigned int x = evaluateTo(c.getArg(0));
@@ -161,8 +170,8 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::VARIABLE }, &Compiler::print)
 		("getchar", { Argument::VARIABLE }, &Compiler::input)
-		("if", { Argument::CALL, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
-		("if", { Argument::INTEGER, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_fn)
+		("if", { Argument::CALL, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_else_fn)
+		("if", { Argument::CALL, Argument::CALLLIST }, &Compiler::if_fn)
 		("iseq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::iseq)
 		("iseq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::iseq)
 		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq)
