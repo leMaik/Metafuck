@@ -51,7 +51,9 @@ public:
 	void if_fn(const Call& c);
 	void while_fn(const Call& c);
 
-	int iseq(const Call &c);
+	int iseq(const Call& c);
+	int isneq(const Call& c);
+	int not(const Call& c);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;

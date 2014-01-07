@@ -118,6 +118,18 @@ int Compiler::iseq(const Call& c) {
 	return result;
 }
 
+int Compiler::isneq(const Call& c) {
+	unsigned int result = bf_.allocCell(1);
+	generated_ << bf_.isNotEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
+	return result;
+}
+
+int Compiler::not(const Call& c) {
+	unsigned int result = bf_.allocCell(1);
+	generated_ << bf_.not(evaluateTo(c.getArg(0)), result);
+	return result;
+}
+
 void Compiler::compile() {
 	evaluate(lexed_);
 }
@@ -154,7 +166,11 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("iseq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::iseq)
 		("iseq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::iseq)
 		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq)
-		("while", { Argument::CALL, Argument::CALLLIST }, &Compiler::while_fn);
+		("isneq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::isneq)
+		("isneq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::isneq)
+		("isneq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::isneq)
+		("while", { Argument::CALL, Argument::CALLLIST }, &Compiler::while_fn)
+		("not", { Argument::CALL }, &Compiler::not);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }

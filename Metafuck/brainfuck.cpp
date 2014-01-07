@@ -229,4 +229,45 @@ std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigne
 	return result.str();
 }
 
+std::string Brainfuck::isNotEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex) {
+	std::stringstream result;
+	unsigned int tempIndexB = allocCell(1);
+	result << copy(indexA, resultIndex);
+	result << copy(indexB, tempIndexB);
+	unsigned int temp0 = allocCell(1);
+	unsigned int temp1 = allocCell(1);
+	result << set(temp0, 0);
+	result << set(temp1, 0);
+	result << move(resultIndex) << "[";
+	result << move(temp1) << "+";
+	result << move(resultIndex) << "-]";
+	result << move(tempIndexB) << "[";
+	result << move(temp1) << "-";
+	result << move(temp0) << "+";
+	result << move(tempIndexB) << "-]";
+	result << move(temp0) << "[";
+	result << move(tempIndexB) << "+";
+	result << move(temp0) << "-]";
+	result << move(temp1) << "[";
+	result << move(resultIndex) << "+";
+	result << set(temp1, 0) << "]";
+	freeCell(temp0);
+	freeCell(temp1);
+	return result.str();
+}
+
+std::string Brainfuck::not(unsigned int cell, unsigned int resultIndex) {
+	std::stringstream result;
+	unsigned int temp = allocCell(0);
+	result << set(temp, 0);
+	result << copy(cell, resultIndex);
+	result << move(resultIndex) << "[";
+	result << move(temp) << "+";
+	result << set(resultIndex, 0) << "]+";
+	result << move(temp) << "[";
+	result << move(resultIndex) << "-";
+	result << move(temp) << "-]";
+	return result.str();
+}
+
 Brainfuck::Brainfuck() : pointer_(0) { }
