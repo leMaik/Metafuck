@@ -27,7 +27,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			Call& c = static_cast<Call&>(arg);
 			auto& function = predef_functions.find(c.getSignature());
 			if (function != predef_functions.end())
-				return function->second->Call(c);
+				return function->second(c);
 			else
 				std::cerr << "Unknown function: " << c << std::endl;
 		}
@@ -53,7 +53,7 @@ void Compiler::evaluate(Argument& arg) {
 		Call& c = static_cast<Call&>(arg);
 		auto& method = predef_methods.find(c.getSignature());
 		if (method != predef_methods.end())
-			method->second->Call(c);
+			method->second(c);
 		else
 			std::cerr << "Unknown method: " << c << std::endl;
 	}
@@ -61,6 +61,10 @@ void Compiler::evaluate(Argument& arg) {
 
 void Compiler::set(const Call& c) {
 	generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
+}
+
+void Compiler::add_const(const Call& c) {
+	generated_ << bf_.add(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
 }
 
 void Compiler::print(const Call& c) {
@@ -99,11 +103,11 @@ void Compiler::if_fn(const Call& c) {
 void Compiler::while_fn(const Call& c) {
 	unsigned int temp = evaluateTo(c.getArg(0));
 	generated_ << bf_.move(temp) << "[";
+	bf_.freeCell(temp);
 	evaluate(c.getArg(1));
 	unsigned int temp2 = evaluateTo(c.getArg(0));
 	generated_ << bf_.move(temp2) << "]";
 	if (c.getArg(1).getType() == Argument::CALL) {
-		bf_.freeCell(temp);
 		bf_.freeCell(temp2);
 	}
 }
@@ -126,21 +130,22 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-CompilerEasyRegister& Compiler::reg() {
-	return *new CompilerEasyRegister(*this);
+CompilerEasyRegister Compiler::reg() {
+	return CompilerEasyRegister(*this);
 }
 
 void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)){
-	predef_methods[CallSignature(callname, args)] = new TSpecificFunctor<void, Compiler, const Call&>(this, fptr);
+	predef_methods[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);// new TSpecificFunctor<void, Compiler, const Call&>(this, fptr);
 }
 
 void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (const Call&)){
-	predef_functions[CallSignature(callname, args)] = new TSpecificFunctor<int, Compiler, const Call&>(this, fptr);
+	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
 }
 
 Compiler::Compiler(std::string c) : code_(c) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
+		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::VARIABLE }, &Compiler::print)
 		("getchar", { Argument::VARIABLE }, &Compiler::input)
