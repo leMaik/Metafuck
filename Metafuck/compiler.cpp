@@ -28,8 +28,13 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 								 auto& function = predef_functions.find(c.getSignature());
 								 if (function != predef_functions.end())
 									 return function->second(c);
-								 else
-									 std::cerr << "Unknown function: " << c << std::endl;
+								 else {
+									 auto& function2 = predef_functions.find(c.getSignature(true));
+									 if (function2 != predef_functions.end())
+										 return function2->second(c);
+									 else
+										 std::cerr << "Unknown function: " << c << std::endl;
+								 }
 	}
 		break;
 	case Argument::Type::VARIABLE:
@@ -54,8 +59,13 @@ void Compiler::evaluate(Argument& arg) {
 		auto& method = predef_methods.find(c.getSignature());
 		if (method != predef_methods.end())
 			method->second(c);
-		else
-			std::cerr << "Unknown method: " << c << std::endl;
+		else {
+			auto& method2 = predef_methods.find(c.getSignature(true));
+			if (method2 != predef_methods.end())
+				method2->second(c);
+			else
+				std::cerr << "Unknown method: " << c << std::endl;
+		}
 	}
 }
 
@@ -165,21 +175,17 @@ void Compiler::reg(const std::string& callname, const std::initializer_list<Argu
 
 Compiler::Compiler(std::string c) : code_(c) {
 	reg()
-		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
+		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
 		("print", { Argument::STRING }, &Compiler::print)
-		("print", { Argument::VARIABLE }, &Compiler::print)
+		("print", { Argument::EVALUATABLE }, &Compiler::print)
 		("getchar", { Argument::VARIABLE }, &Compiler::input)
-		("if", { Argument::CALL, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_else_fn)
-		("if", { Argument::CALL, Argument::CALLLIST }, &Compiler::if_fn)
-		("iseq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::iseq)
-		("iseq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::iseq)
-		("iseq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::iseq)
-		("isneq", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::isneq)
-		("isneq", { Argument::INTEGER, Argument::VARIABLE }, &Compiler::isneq)
-		("isneq", { Argument::VARIABLE, Argument::VARIABLE }, &Compiler::isneq)
-		("while", { Argument::CALL, Argument::CALLLIST }, &Compiler::while_fn)
-		("not", { Argument::CALL }, &Compiler::not);
+		("if", { Argument::EVALUATABLE, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_else_fn)
+		("if", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::if_fn)
+		("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
+		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isneq)
+		("while", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::while_fn)
+		("not", { Argument::EVALUATABLE }, &Compiler::not);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }

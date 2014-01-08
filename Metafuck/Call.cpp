@@ -97,6 +97,9 @@ std::ostream& operator<<(std::ostream &strm, const Call &c) {
 		case Argument::INTEGER:
 			strm << "Integer";
 			break;
+		case Argument::EVALUATABLE:
+			strm << "Evaluatable";
+			break;
 		}
 	}
 	return strm << ")";
@@ -106,10 +109,13 @@ Argument::Type Call::getType() const {
 	return CALL;
 }
 
-CallSignature Call::getSignature() const {
+CallSignature Call::getSignature(bool evaluatable) const {
 	std::vector<Argument::Type> params;
 	for (auto &a : arguments_) {
-		params.push_back(a->getType());
+		if (evaluatable && (a->getType() == Argument::CALL || a->getType() == Argument::VARIABLE || a->getType() == Argument::INTEGER))
+			params.push_back(Argument::EVALUATABLE);
+		else
+			params.push_back(a->getType());
 	}
 	CallSignature r;
 	r.first = getFunction();
