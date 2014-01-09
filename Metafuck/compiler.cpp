@@ -139,6 +139,19 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 		}
 	}
 
+	void Compiler::do_while_fn(const Call& c) {
+		unsigned int temp = bf_.allocCell(1);
+		generated_ << bf_.set(temp, 1);
+		generated_ << bf_.move(temp) << "[";
+		bf_.freeCell(temp);
+		evaluate(c.getArg(0));
+		temp = evaluateTo(c.getArg(1));
+		generated_ << bf_.move(temp) << "]";
+		if (c.getArg(1).getType() == Argument::CALL) {
+			bf_.freeCell(temp);
+		}
+	}
+
 	int Compiler::iseq(const Call& c) {
 		unsigned int result = bf_.allocCell(1);
 		generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
@@ -193,6 +206,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
 			("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 			("while", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::while_fn)
+			("dowhile", { Argument::CALLLIST, Argument::EVALUATABLE }, &Compiler::do_while_fn)
 			("not", { Argument::EVALUATABLE }, &Compiler::not);
 	}
 

@@ -51,6 +51,7 @@ public:
 	void if_fn(const Call& c);
 	void if_else_fn(const Call& c);
 	void while_fn(const Call& c);
+	void do_while_fn(const Call& c);
 
 	int iseq(const Call& c);
 	int isnoteq(const Call& c);
