@@ -30,13 +30,13 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 				return c.matches(k.first);
 			});
 			if (function != predef_functions.end()){
-				std::cout << "now: " << c;
 				return function->second(c);
 			}
 			else {
 				std::cerr << "Unknown function: " << c << std::endl;
 			}
 		}
+			break;
 		case Argument::Type::VARIABLE:
 			return getVar(static_cast<Variable&>(arg));
 		case Argument::Type::INTEGER:
@@ -57,6 +57,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			}
 			break;
 		case Argument::Type::CALL:
+		{
 			Call& c = static_cast<Call&>(arg);
 			auto& method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
 				[&c](std::pair<CallSignature, std::function<void(const Call&)>> k) -> bool {
@@ -68,12 +69,16 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			else {
 				std::cerr << "Unknown method: " << c << std::endl;
 			}
-			break;
+		}
+		break;
 		}
 	}
 
 	void Compiler::set(const Call& c) {
-		generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
+		if (c.getArg(1).getType() == Argument::INTEGER)
+			generated_ << bf_.set(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
+		else
+			generated_ << bf_.copy(evaluateTo(c.getArg(1)), getVar(static_cast<Variable&>(c.getArg(0))));
 	}
 
 	void Compiler::add_const(const Call& c) {
@@ -141,7 +146,6 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	int Compiler::isnoteq(const Call& c) {
-		std::cout << "isneq called";
 		unsigned int result = bf_.allocCell(1);
 		generated_ << bf_.isNotEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
 		return result;
@@ -179,7 +183,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 
 	Compiler::Compiler(std::string c) : code_(c) {
 		reg()
-			("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
+			("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 			("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
 			("print", { Argument::STRING }, &Compiler::print)
 			("print", { Argument::EVALUATABLE }, &Compiler::print)
