@@ -123,6 +123,20 @@ CallSignature Call::getSignature(bool evaluatable) const {
 	return r;
 }
 
+bool Call::matches(CallSignature sig) const {
+	if (arguments_.size() != sig.second.size() || sig.first != function_) //TODO: Make case-insensitive check here?
+		return false;
+	//assert: lengths are now equal
+	std::vector<Type>::iterator itr = sig.second.begin();
+	for (auto& i : arguments_) {
+		if (i->getType() != *itr &&
+			!(*itr == Type::EVALUATABLE && (i->getType() == Type::CALL || i->getType() == Type::INTEGER || i->getType() == Type::VARIABLE)))
+			return false;
+		itr++;
+	}
+	return true;
+}
+
 std::string Call::getFunction() const {
 	return function_;
 }

@@ -15,31 +15,29 @@ std::size_t Compiler::lex() {
 unsigned int Compiler::getVar(const Variable& variable) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
-		return vars_[variable.getName()] = bf_.allocCell(1);
+		return (vars_[variable.getName()] = bf_.allocCell(1));
 	}
 	return var->second;
 }
 
 unsigned int Compiler::evaluateTo(Argument& arg) {
-	switch (arg.getType()){
-	case Argument::Type::CALL:
-	{
-								 Call& c = static_cast<Call&>(arg);
-								 auto& function = predef_functions.find(c.getSignature());
-								 if (function != predef_functions.end())
-									 return function->second(c);
-								 else {
-									 auto& function2 = predef_functions.find(c.getSignature(true));
-									 if (function2 != predef_functions.end())
-										 return function2->second(c);
-									 else
-										 std::cerr << "Unknown function: " << c << std::endl;
-								 }
+	if (arg.getType() == Argument::CALL){
+		Call& c = static_cast<Call&>(arg);
+		auto& function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
+			[&c](std::pair<CallSignature, std::function<int(const Call&)>> k) -> bool {
+			return c.matches(k.first);
+		});
+		if (function != predef_functions.end()){
+			std::cout << "now: " << c;
+			return function->second(c);
+		}
+		else {
+			std::cerr << "Unknown function: " << c << std::endl;
+		}
 	}
-		break;
-	case Argument::Type::VARIABLE:
+	else if (arg.getType() == Argument::Type::VARIABLE)
 		return getVar(static_cast<Variable&>(arg));
-	case Argument::Type::INTEGER:
+	else if (arg.getType() == Argument::Type::INTEGER) {
 		unsigned int t = bf_.allocCell(1);
 		generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
 		return t;
@@ -56,16 +54,17 @@ void Compiler::evaluate(Argument& arg) {
 		break;
 	case Argument::Type::CALL:
 		Call& c = static_cast<Call&>(arg);
-		auto& method = predef_methods.find(c.getSignature());
-		if (method != predef_methods.end())
+		auto& method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
+			[&c](std::pair<CallSignature, std::function<void(const Call&)>> k) -> bool {
+			return c.matches(k.first);
+		});
+		if (method != std::end(predef_methods)){
 			method->second(c);
-		else {
-			auto& method2 = predef_methods.find(c.getSignature(true));
-			if (method2 != predef_methods.end())
-				method2->second(c);
-			else
-				std::cerr << "Unknown method: " << c << std::endl;
 		}
+		else {
+			std::cerr << "Unknown method: " << c << std::endl;
+		}
+		break;
 	}
 }
 
@@ -78,6 +77,7 @@ void Compiler::add_const(const Call& c) {
 }
 
 void Compiler::print(const Call& c) {
+	std::cout << "This is print for " << c << std::endl;
 	switch (c.getArg(0).getType()){
 	case Argument::STRING:
 		generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
@@ -89,6 +89,7 @@ void Compiler::print(const Call& c) {
 }
 
 void Compiler::input(const Call& c) {
+	std::cout << "This is input for " << c << std::endl;
 	generated_ << bf_.input(evaluateTo(c.getArg(0)));
 }
 
@@ -137,7 +138,8 @@ int Compiler::iseq(const Call& c) {
 	return result;
 }
 
-int Compiler::isneq(const Call& c) {
+int Compiler::isnoteq(const Call& c) {
+	std::cout << "isneq called";
 	unsigned int result = bf_.allocCell(1);
 	generated_ << bf_.isNotEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
 	return result;
@@ -166,7 +168,7 @@ CompilerEasyRegister Compiler::reg() {
 }
 
 void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)){
-	predef_methods[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);// new TSpecificFunctor<void, Compiler, const Call&>(this, fptr);
+	predef_methods[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
 }
 
 void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, int (Compiler::*fptr) (const Call&)){
@@ -175,7 +177,7 @@ void Compiler::reg(const std::string& callname, const std::initializer_list<Argu
 
 Compiler::Compiler(std::string c) : code_(c) {
 	reg()
-		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
+		("set", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::EVALUATABLE }, &Compiler::print)
@@ -183,7 +185,7 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("if", { Argument::EVALUATABLE, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_else_fn)
 		("if", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::if_fn)
 		("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
-		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isneq)
+		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 		("while", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::while_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not);
 }
