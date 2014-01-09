@@ -11,6 +11,7 @@ Call::Call(std::string code)
 
 	std::string currentArgument = "";
 	bool isString = false;
+	bool isEscaped = false;
 	std::stack<char> keller;
 
 	for (size_t i = 0; i < code.length(); i++) {
@@ -54,8 +55,16 @@ Call::Call(std::string code)
 			}
 		}
 		else {
-			if (c == '"') {
-				isString = false;
+			if (!isEscaped){
+				if (c == '"') {
+					isString = false;
+				}
+				else if (c == '\\'){
+					isEscaped = true;
+				}
+			}
+			else {
+				isEscaped = false;
 			}
 			currentArgument += c;
 		}

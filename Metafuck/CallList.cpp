@@ -10,6 +10,7 @@ CallList::CallList(std::string code)
 	std::string currentCall = "";
 	bool isString = false;
 	bool isStatement = false;
+	bool isEscaped = false;
 
 	std::stack<char> keller;
 	for (const char& c : code) {
@@ -50,14 +51,23 @@ CallList::CallList(std::string code)
 				break;
 			}
 			if (keller.empty() && isStatement){
+				std::cout << currentCall;
 				statements.push_back(Call(currentCall));
 				currentCall = "";
 				isStatement = false;
 			}
 		}
 		else {
-			if (c == '"') {
-				isString = false;
+			if (!isEscaped){
+				if (c == '"') {
+					isString = false;
+				}
+				else if (c == '\\'){
+					isEscaped = true;
+				}
+			}
+			else {
+				isEscaped = false;	
 			}
 			currentCall += c;
 		}
