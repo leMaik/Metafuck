@@ -13,4 +13,6 @@ T pop(std::stack<T> &s) {
 	return l;
 }
 
+void ReplaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace);
+
 #endif
