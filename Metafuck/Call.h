@@ -27,4 +27,4 @@ private:
 
 std::ostream& operator<<(std::ostream &strm, const Call &c);
 
-#endif;
+#endif

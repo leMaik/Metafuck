@@ -17,4 +17,4 @@ public:
 	Argument::Type getType() const;
 };
 
-#endif;
+#endif
