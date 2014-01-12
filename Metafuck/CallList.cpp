@@ -51,7 +51,6 @@ CallList::CallList(std::string code)
 				break;
 			}
 			if (keller.empty() && isStatement){
-				std::cout << currentCall;
 				statements.push_back(Call(currentCall));
 				currentCall = "";
 				isStatement = false;

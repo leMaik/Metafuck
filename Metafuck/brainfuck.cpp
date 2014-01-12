@@ -1,38 +1,31 @@
 #include "brainfuck.h"
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 
 unsigned int Brainfuck::allocCell(unsigned int count) {
-	return allocCellNear(pointer_);
-	//TODO: Das hier klappt nur für count == 1
-	if (count == 1) {
-		for (unsigned int i = 0; i < cells_.size(); i++) {
-			if (!cells_[i]) {
-				cells_[i] = true;
-				return i;
-			}
-		}
-		//Okay, keine ungenutzte Zelle gefunden.
-		cells_.push_back(true);
-		return cells_.size() - 1;
-	}
-	else {
-		//cout << "allocCell is not implemented for count > 1\ n";
-		return -1;
-	}
+	return allocCellNear(pointer_, count);
 }
 
-unsigned int absdiff(unsigned int &a, unsigned int &b) {
+unsigned int absdiff(unsigned int a, unsigned int b) {
 	return a > b ? a - b : b - a;
 }
 
-unsigned int Brainfuck::allocCellNear(unsigned int index) {
+bool Brainfuck::hasFreeCellsAt(unsigned int index, unsigned int count) const {
+	for (unsigned int i = index; i <= std::min(index + count - 1, cells_.size() - 1); i++){
+		if (cells_[i])
+			return false;
+	}
+	return true;
+}
+
+unsigned int Brainfuck::allocCellNear(unsigned int index, unsigned int count) {
 	unsigned int currBest;
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
-		if (!cells_[i]) {
-			found = true;
-			if (absdiff(i, index) < absdiff(index, currBest) || !found){
+		if (hasFreeCellsAt(i, count)) {
+			if (!found || absdiff(i, index) < absdiff(index, currBest)){
+				found = true;
 				currBest = i;
 			}
 			else {
@@ -40,13 +33,23 @@ unsigned int Brainfuck::allocCellNear(unsigned int index) {
 			}
 		}
 	}
-	if (found){
-		cells_[currBest] = true;
+	if (found) {
+		for (unsigned int i = currBest; i < currBest + count; i++){
+			if (cells_.size() > i)
+				cells_[i] = true;
+			else
+				cells_.push_back(true);
+		}
 		return currBest;
 	}
 	else {
-		cells_.push_back(true);
-		return cells_.size() - 1;
+		//allocate cells at the end of the memory
+		unsigned int index = cells_.size();
+		while (count > 0){
+			cells_.push_back(true);
+			count--;
+		}
+		return index;
 	}
 }
 
@@ -124,7 +127,7 @@ std::string Brainfuck::dec(unsigned int amount) {
 	return result.str();
 }
 
-std::string Brainfuck::set(unsigned int const &index, unsigned int const &value) {
+std::string Brainfuck::set(unsigned int const index, unsigned int const value) {
 	std::stringstream result;
 	result << move(index) << "[-]";
 	result << inc(value);
@@ -132,7 +135,7 @@ std::string Brainfuck::set(unsigned int const &index, unsigned int const &value)
 }
 
 std::string Brainfuck::copy(unsigned int source, unsigned int target) {
-	unsigned int tmp = allocCell(1);
+	unsigned int tmp = allocCell();
 	std::stringstream r;
 	r << set(tmp, 0);
 	r << set(target, 0);
@@ -153,7 +156,7 @@ std::string Brainfuck::print(unsigned int index) {
 
 std::string Brainfuck::printString(std::string s) {
 	std::stringstream result;
-	unsigned int tmp = allocCell(1);
+	unsigned int tmp = allocCell();
 	result << set(tmp, 0);
 	char prev = (char)0;
 	for (char c : s) {
@@ -193,7 +196,7 @@ std::string Brainfuck::addAway(unsigned int source, unsigned int target) {
 
 std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int target) {
 	std::stringstream result;
-	unsigned int tmp = allocCell(1);
+	unsigned int tmp = allocCell();
 	if (a != target) {
 		result << copy(a, target);
 	}
@@ -205,11 +208,11 @@ std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int ta
 
 std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex){
 	std::stringstream result;
-	unsigned int tempIndexB = allocCell(1);
+	unsigned int tempIndexB = allocCell();
 	result << copy(indexA, resultIndex);
 	result << copy(indexB, tempIndexB);
-	unsigned int temp0 = allocCell(1);
-	unsigned int temp1 = allocCell(1);
+	unsigned int temp0 = allocCell();
+	unsigned int temp1 = allocCell();
 	result << set(temp0, 0);
 	result << set(temp1, 0);
 	result << addAway(resultIndex, temp1);
@@ -231,11 +234,11 @@ std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigne
 
 std::string Brainfuck::isNotEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex) {
 	std::stringstream result;
-	unsigned int tempIndexB = allocCell(1);
+	unsigned int tempIndexB = allocCell();
 	result << copy(indexA, resultIndex);
 	result << copy(indexB, tempIndexB);
-	unsigned int temp0 = allocCell(1);
-	unsigned int temp1 = allocCell(1);
+	unsigned int temp0 = allocCell();
+	unsigned int temp1 = allocCell();
 	result << set(temp0, 0);
 	result << set(temp1, 0);
 	result << move(resultIndex) << "[";

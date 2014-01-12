@@ -15,7 +15,7 @@ std::size_t Compiler::lex() {
 unsigned int Compiler::getVar(const Variable& variable) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
-		return (vars_[variable.getName()] = bf_.allocCell(1));
+		return (vars_[variable.getName()] = bf_.allocCell());
 	}
 	return var->second;
 }
@@ -41,7 +41,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			return getVar(static_cast<Variable&>(arg));
 		case Argument::Type::INTEGER:
 		{
-			unsigned int t = bf_.allocCell(1);
+			unsigned int t = bf_.allocCell();
 			generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
 			return t;
 		}
@@ -101,7 +101,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	void Compiler::if_fn(const Call& c) {
-		unsigned int temp = bf_.allocCell(1);
+		unsigned int temp = bf_.allocCell();
 		unsigned int x = evaluateTo(c.getArg(0));
 		generated_ << bf_.set(temp, 0);
 		generated_ << bf_.move(x) << "[";
@@ -110,8 +110,8 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	void Compiler::if_else_fn(const Call& c) {
-		unsigned int temp0 = bf_.allocCell(1);
-		unsigned int temp1 = bf_.allocCell(1);
+		unsigned int temp0 = bf_.allocCell();
+		unsigned int temp1 = bf_.allocCell();
 		unsigned int x = evaluateTo(c.getArg(0));
 		generated_ << bf_.copy(x, temp1);
 		generated_ << bf_.set(temp0, 1);
@@ -140,7 +140,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	void Compiler::do_while_fn(const Call& c) {
-		unsigned int temp = bf_.allocCell(1);
+		unsigned int temp = bf_.allocCell();
 		generated_ << bf_.set(temp, 1);
 		generated_ << bf_.move(temp) << "[";
 		bf_.freeCell(temp);
@@ -153,19 +153,19 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	int Compiler::iseq(const Call& c) {
-		unsigned int result = bf_.allocCell(1);
+		unsigned int result = bf_.allocCell();
 		generated_ << bf_.isEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
 		return result;
 	}
 
 	int Compiler::isnoteq(const Call& c) {
-		unsigned int result = bf_.allocCell(1);
+		unsigned int result = bf_.allocCell();
 		generated_ << bf_.isNotEqual(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), result);
 		return result;
 	}
 
 	int Compiler::not(const Call& c) {
-		unsigned int result = bf_.allocCell(1);
+		unsigned int result = bf_.allocCell();
 		generated_ << bf_.not(evaluateTo(c.getArg(0)), result);
 		return result;
 	}

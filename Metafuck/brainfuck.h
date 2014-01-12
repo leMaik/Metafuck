@@ -9,17 +9,18 @@ class Brainfuck
 private:
 	std::vector<bool> cells_;
 	unsigned int pointer_;
+	bool hasFreeCellsAt(unsigned int index, unsigned int count = 1) const;
 
 public:
-	unsigned int allocCell(unsigned int count);
-	unsigned int allocCellNear(unsigned int index);
+	unsigned int allocCell(unsigned int count = 1);
+	unsigned int allocCellNear(unsigned int index, unsigned int count = 1);
 	void freeCell(unsigned int index);
 
 	//Grundfunktionen
 	std::string move(unsigned int to);
 	std::string inc(unsigned int amount);
 	std::string dec(unsigned int amount);
-	std::string set(unsigned int const &index, unsigned int const &value);
+	std::string set(unsigned int const index, unsigned int const value);
 	std::string copy(unsigned int source, unsigned int target);
 
 	//IO
