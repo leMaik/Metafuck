@@ -27,12 +27,12 @@ unsigned int absdiff(unsigned int &a, unsigned int &b) {
 }
 
 unsigned int Brainfuck::allocCellNear(unsigned int index) {
-	unsigned int currBest;
+	unsigned int currBest(0);
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
 		if (!cells_[i]) {
-			found = true;
-			if (absdiff(i, index) < absdiff(index, currBest) || !found){
+			if (!found || absdiff(i, index) < absdiff(index, currBest)){
+				found = true;
 				currBest = i;
 			}
 			else {
