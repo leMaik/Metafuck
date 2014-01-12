@@ -55,7 +55,7 @@ public:
 
 	int iseq(const Call& c);
 	int isnoteq(const Call& c);
-	int not(const Call& c);
+	int not_fn(const Call& c);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;

@@ -25,7 +25,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 		case Argument::CALL:
 		{
 			Call& c = static_cast<Call&>(arg);
-			auto& function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
+			auto function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
 				[&c](std::pair<CallSignature, std::function<int(const Call&)>> k) -> bool {
 				return c.matches(k.first);
 			});
@@ -45,6 +45,8 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
 			return t;
 		}
+		default:
+			return 0;
 	}
 		return 0;
 	}
@@ -59,7 +61,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 		case Argument::Type::CALL:
 		{
 			Call& c = static_cast<Call&>(arg);
-			auto& method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
+			auto method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
 				[&c](std::pair<CallSignature, std::function<void(const Call&)>> k) -> bool {
 				return c.matches(k.first);
 			});
@@ -70,7 +72,10 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 				std::cerr << "Unknown method: " << c << std::endl;
 			}
 		}
-		break;
+			break;
+		default:
+			std::cerr << "Argument is not evaluatable." << std::endl;
+			break;
 		}
 	}
 
@@ -86,14 +91,10 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 
 	void Compiler::print(const Call& c) {
-		switch (c.getArg(0).getType()){
-		case Argument::STRING:
+		if (c.getArg(0).getType() == Argument::STRING)
 			generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
-			break;
-		case Argument::VARIABLE:
-			generated_ << bf_.print(getVar(static_cast<Variable&>(c.getArg(0))));
-			break;
-		}
+		else
+			generated_ << bf_.print(evaluateTo(c.getArg(0)));
 	}
 
 	void Compiler::input(const Call& c) {
@@ -164,9 +165,9 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 		return result;
 	}
 
-	int Compiler::not(const Call& c) {
+	int Compiler::not_fn(const Call& c) {
 		unsigned int result = bf_.allocCell(1);
-		generated_ << bf_.not(evaluateTo(c.getArg(0)), result);
+		generated_ << bf_.isNot(evaluateTo(c.getArg(0)), result);
 		return result;
 	}
 
@@ -207,7 +208,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 			("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 			("while", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::while_fn)
 			("dowhile", { Argument::CALLLIST, Argument::EVALUATABLE }, &Compiler::do_while_fn)
-			("not", { Argument::EVALUATABLE }, &Compiler::not);
+			("not", { Argument::EVALUATABLE }, &Compiler::not_fn);
 	}
 
 	CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }

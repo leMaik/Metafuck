@@ -1,6 +1,6 @@
 #include "brainfuck.h"
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 unsigned int Brainfuck::allocCell(unsigned int count) {
 	return allocCellNear(pointer_);
@@ -79,7 +79,7 @@ std::string Brainfuck::move(unsigned int to) {
 std::string Brainfuck::inc(unsigned int amount) {
 	std::stringstream result;
 	unsigned int tempCell = allocCellNear(pointer_);
-	unsigned int prt = (unsigned int)std::sqrt(amount);
+	unsigned int prt = (unsigned int)sqrt(amount);
 	if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
 		unsigned int p = pointer_;
 		if (prt*prt < amount){
@@ -256,7 +256,7 @@ std::string Brainfuck::isNotEqual(unsigned int indexA, unsigned int indexB, unsi
 	return result.str();
 }
 
-std::string Brainfuck::not(unsigned int cell, unsigned int resultIndex) {
+std::string Brainfuck::isNot(unsigned int cell, unsigned int resultIndex) {
 	std::stringstream result;
 	unsigned int temp = allocCell(0);
 	result << set(temp, 0);
