@@ -165,15 +165,9 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 		return result;
 	}
 
-<<<<<<< HEAD
-	int Compiler::not(const Call& c) {
-		unsigned int result = bf_.allocCell();
-		generated_ << bf_.not(evaluateTo(c.getArg(0)), result);
-=======
 	int Compiler::not_fn(const Call& c) {
 		unsigned int result = bf_.allocCell(1);
 		generated_ << bf_.isNot(evaluateTo(c.getArg(0)), result);
->>>>>>> 246e0c1c295701309a50547a425656f48c98db42
 		return result;
 	}
 

@@ -1,11 +1,7 @@
 #include "brainfuck.h"
 #include <sstream>
-<<<<<<< HEAD
-#include <math.h>
 #include <algorithm>
-=======
 #include <cmath>
->>>>>>> 246e0c1c295701309a50547a425656f48c98db42
 
 unsigned int Brainfuck::allocCell(unsigned int count) {
 	return allocCellNear(pointer_, count);
@@ -15,7 +11,6 @@ unsigned int absdiff(unsigned int a, unsigned int b) {
 	return a > b ? a - b : b - a;
 }
 
-<<<<<<< HEAD
 bool Brainfuck::hasFreeCellsAt(unsigned int index, unsigned int count) const {
 	for (unsigned int i = index; i <= std::min(index + count - 1, cells_.size() - 1); i++){
 		if (cells_[i])
@@ -29,13 +24,6 @@ unsigned int Brainfuck::allocCellNear(unsigned int index, unsigned int count) {
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
 		if (hasFreeCellsAt(i, count)) {
-=======
-unsigned int Brainfuck::allocCellNear(unsigned int index) {
-	unsigned int currBest(0);
-	bool found = false;
-	for (unsigned int i = 0; i < cells_.size(); i++) {
-		if (!cells_[i]) {
->>>>>>> 246e0c1c295701309a50547a425656f48c98db42
 			if (!found || absdiff(i, index) < absdiff(index, currBest)){
 				found = true;
 				currBest = i;
