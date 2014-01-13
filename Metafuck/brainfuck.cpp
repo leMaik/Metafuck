@@ -12,7 +12,7 @@ unsigned int absdiff(unsigned int a, unsigned int b) {
 }
 
 bool Brainfuck::hasFreeCellsAt(unsigned int index, unsigned int count) const {
-	for (unsigned int i = index; i <= std::min(index + count - 1, cells_.size() - 1); i++){
+	for (unsigned int i = index; i <= std::min((decltype(cells_)::size_type)(index + count - 1), cells_.size() - 1); i++){
 		if (cells_[i])
 			return false;
 	}
@@ -20,7 +20,7 @@ bool Brainfuck::hasFreeCellsAt(unsigned int index, unsigned int count) const {
 }
 
 unsigned int Brainfuck::allocCellNear(unsigned int index, unsigned int count) {
-	unsigned int currBest;
+	unsigned int currBest(0);
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
 		if (hasFreeCellsAt(i, count)) {

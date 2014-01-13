@@ -1,7 +1,8 @@
+BOOST_PATH = /home/maik/boost/boost_1_55_0/
+
 CC = g++
-CFLAGS = -std=c++11 -Wall
-INCLUDE_BOOST = -isystem/home/maik/boost/boost_1_55_0/
-LDFLAGS = -static -lboost_program_options -L/home/maik/boost/boost_1_55_0/stage/lib/
+CFLAGS = -std=c++11 -Wall -O2
+LDFLAGS = -static -lboost_program_options -L$(BOOST_PATH)stage/lib/
 OUTPUT = mf
 
 all: mf
@@ -10,7 +11,7 @@ mf: Argument.o brainfuck.o Call.o CallList.o compiler.o helper.o main.o Number.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 main.o: main.cpp
-	$(CC) -c $(CFLAGS) $(INCLUDE_BOOST) $<
+	$(CC) -c $(CFLAGS) -isystem$(BOOST_PATH) $<
 
 Argument.o: Argument.cpp Argument.h
 	$(CC) -c $(CFLAGS) $<

@@ -109,6 +109,9 @@ std::ostream& operator<<(std::ostream &strm, const Call &c) {
 		case Argument::EVALUATABLE:
 			strm << "Evaluatable";
 			break;
+		case Argument::CALLABLE:
+		   strm << "Callable";
+		   break;
 		}
 	}
 	return strm << ")";
