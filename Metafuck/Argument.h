@@ -7,7 +7,7 @@
 class Argument
 {
 public:
-	const enum Type{
+	enum Type{
 		CALL, CALLLIST, STRING, VARIABLE, INTEGER,
 		EVALUATABLE  // = CALL, VARIABLE or INTEGER
 	};

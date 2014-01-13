@@ -2,6 +2,7 @@
 #define HELPER_H
 
 #include <stack>
+#include <string>
 
 template <typename T>
 T pop(std::stack<T> &s);
