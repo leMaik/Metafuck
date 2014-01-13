@@ -6,6 +6,8 @@ Metafuck is a compiler that translates an awesome programming language to Brainf
 How to compile
 --------------
 
-Metafuck compiles lovely with Visual C++ (not that we love that compiler but we like the IDE). It _should_ also compile with other compilers.
+Metafuck will always compile lovely with the Visual C++ Compiler. Not that we love it but the IDE is pretty nice. Our goal is to make Metafuck compile with g++ and we will make sure that it does frequently. Still some commits may not compile with g++.
 
 Boost is required by Metafuck (i.e. for the command line options), so you should get that first if you don't already have it installed.
+
+To compile, you can simply use the makefile provided, simply specify the boost path before you run it.
