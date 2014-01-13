@@ -38,6 +38,7 @@ public:
 	std::string isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
 	std::string isNotEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
 	std::string isNot(unsigned int cell, unsigned int resultIndex);
+	std::string logicalAnd(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
 
 	//Komplexere Funktionen
 	std::string printString(std::string s);

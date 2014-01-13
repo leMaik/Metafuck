@@ -273,4 +273,33 @@ std::string Brainfuck::isNot(unsigned int cell, unsigned int resultIndex) {
 	return result.str();
 }
 
+std::string Brainfuck::logicalAnd(unsigned int indexA, unsigned int indexB, unsigned int resultIndex) {
+	std::stringstream result;
+	unsigned int tempB = allocCell();
+	result << copy(indexB, tempB);
+	unsigned int temp0 = allocCell();
+	unsigned int temp1 = allocCell();
+	result << set(temp0, 0);
+	result << set(resultIndex, 0);
+	result << copy(indexA, temp1);
+	result << move(temp1) << "[";
+	result << set(temp1, 0);
+	result << move(tempB) << "[";
+	result << move(temp1) << "+";
+	result << move(temp0) << "+";
+	result << move(tempB) << "-]";
+	result << move(temp0) << "[";
+	result << move(tempB) << "+";
+	result << move(temp0) << "-]";
+	result << move(temp1) << "[";
+	result << move(resultIndex) << "+";
+	result << set(temp1, 0) << "]]";
+
+	freeCell(temp0);
+	freeCell(temp1);
+	freeCell(tempB);
+
+	return result.str();
+}
+
 Brainfuck::Brainfuck() : pointer_(0) { }
