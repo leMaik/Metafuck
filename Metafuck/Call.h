@@ -14,7 +14,7 @@ public:
 	Call(std::string code);
 	~Call();
 	Argument::Type getType() const;
-	CallSignature getSignature(bool evaluatable = false) const;
+	CallSignature getSignature() const;
 	bool matches(CallSignature sig) const;
 
 	std::string getFunction() const;

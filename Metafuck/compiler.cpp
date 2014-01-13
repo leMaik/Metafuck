@@ -208,12 +208,12 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::EVALUATABLE }, &Compiler::print)
 		("getchar", { Argument::VARIABLE }, &Compiler::input)
-		("if", { Argument::EVALUATABLE, Argument::CALLLIST, Argument::CALLLIST }, &Compiler::if_else_fn)
-		("if", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::if_fn)
+		("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
+		("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)
 		("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
 		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
-		("while", { Argument::EVALUATABLE, Argument::CALLLIST }, &Compiler::while_fn)
-		("dowhile", { Argument::CALLLIST, Argument::EVALUATABLE }, &Compiler::do_while_fn)
+		("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
+		("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
 		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn);
 }

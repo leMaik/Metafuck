@@ -118,13 +118,10 @@ Argument::Type Call::getType() const {
 	return CALL;
 }
 
-CallSignature Call::getSignature(bool evaluatable) const {
+CallSignature Call::getSignature() const {
 	std::vector<Argument::Type> params;
 	for (auto &a : arguments_) {
-		if (evaluatable && (a->getType() == Argument::CALL || a->getType() == Argument::VARIABLE || a->getType() == Argument::INTEGER))
-			params.push_back(Argument::EVALUATABLE);
-		else
-			params.push_back(a->getType());
+		params.push_back(a->getType());
 	}
 	CallSignature r;
 	r.first = getFunction();
@@ -138,8 +135,10 @@ bool Call::matches(CallSignature sig) const {
 	//assert: lengths are now equal
 	std::vector<Type>::iterator itr = sig.second.begin();
 	for (auto& i : arguments_) {
-		if (i->getType() != *itr &&
-			!(*itr == Type::EVALUATABLE && (i->getType() == Type::CALL || i->getType() == Type::INTEGER || i->getType() == Type::VARIABLE)))
+		if (i->getType() != *itr
+			&& !(*itr == Type::EVALUATABLE && isEvaluatable(i->getType()))
+			&& !(*itr == Type::CALLABLE && isCallable(i->getType()))
+			)
 			return false;
 		itr++;
 	}
