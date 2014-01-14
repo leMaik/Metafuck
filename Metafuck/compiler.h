@@ -34,7 +34,7 @@ private:
 	void evaluate(Argument& arg);
 
 public:
-	Compiler(std::string c);
+	Compiler(std::string code);
 
 	CompilerEasyRegister reg();
 	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
@@ -73,4 +73,6 @@ public:
 private:
 	Compiler& owner_;
 };
+
+std::string remove_comments(const std::string& code);
 #endif

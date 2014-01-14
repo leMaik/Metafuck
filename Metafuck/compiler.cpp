@@ -221,7 +221,7 @@ void Compiler::reg(const std::string& callname, const std::initializer_list<Argu
 	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
 }
 
-Compiler::Compiler(std::string c) : code_(c) {
+Compiler::Compiler(std::string code) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
@@ -239,6 +239,9 @@ Compiler::Compiler(std::string c) : code_(c) {
 		("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
 		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn);
+
+	//Remove comments from code before we do anything else
+	code_ = remove_comments(code);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
@@ -251,4 +254,35 @@ CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, c
 CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
+}
+
+std::string remove_comments(const std::string& code) {
+	std::stringstream uncommentedCode;
+	bool isString = false;
+	bool isOneLineComment = false;
+	bool isMultiLineComment = false;
+	for (std::string::const_iterator i = std::begin(code); i != std::end(code); i++) {
+		if (!isString) {
+			if (!isOneLineComment && !isMultiLineComment) {
+				if (i != std::end(code) - 1 && *i == '\/' && *(i + 1) == '\/')
+					isOneLineComment = true;
+				else if (i != std::end(code) - 1 && *i == '\/' && *(i + 1) == '*')
+					isMultiLineComment = true;
+				else
+					uncommentedCode << *i;
+			}
+			else if (*i == '\n')
+				isOneLineComment = false;
+			else if (i != std::end(code) - 1 && *i == '*' && *(i + 1) == '\/'){
+				isMultiLineComment = false;
+				i++;
+			}
+		}
+		else {
+			uncommentedCode << *i;
+		}
+		if (*i == '"' && (i == std::begin(code) || *(i - 1) != '\\'))
+			isString = !isString;
+	}
+	return uncommentedCode.str();
 }
