@@ -90,11 +90,31 @@ void Compiler::add_const(const Call& c) {
 	generated_ << bf_.add(getVar(static_cast<Variable&>(c.getArg(0))), static_cast<Number&>(c.getArg(1)).getValue());
 }
 
+void Compiler::div(const Call& c) {
+	unsigned int cells = bf_.allocCell(2);
+	generated_ << bf_.divmod(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), cells);
+	generated_ << bf_.copy(cells, getVar(static_cast<Variable&>(c.getArg(2))));
+	bf_.freeCell(cells);
+	bf_.freeCell(cells + 1);
+}
+
+void Compiler::mod(const Call& c) {
+	unsigned int cells = bf_.allocCell(2);
+	generated_ << bf_.divmod(evaluateTo(c.getArg(0)), evaluateTo(c.getArg(1)), cells);
+	generated_ << bf_.copy(cells + 1, getVar(static_cast<Variable&>(c.getArg(2))));
+	bf_.freeCell(cells);
+	bf_.freeCell(cells + 1);
+}
+
 void Compiler::print(const Call& c) {
 	if (c.getArg(0).getType() == Argument::STRING)
 		generated_ << bf_.printString(static_cast<String&>(c.getArg(0)).getValue());
 	else
 		generated_ << bf_.print(evaluateTo(c.getArg(0)));
+}
+
+void Compiler::printNumber(const Call& c) {
+	generated_ << bf_.printNumber(evaluateTo(c.getArg(0)));
 }
 
 void Compiler::input(const Call& c) {
@@ -205,8 +225,11 @@ Compiler::Compiler(std::string c) : code_(c) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
+		("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
+		("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
 		("print", { Argument::STRING }, &Compiler::print)
 		("print", { Argument::EVALUATABLE }, &Compiler::print)
+		//("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
 		("getchar", { Argument::VARIABLE }, &Compiler::input)
 		("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
 		("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)

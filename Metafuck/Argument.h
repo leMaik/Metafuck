@@ -19,6 +19,11 @@ public:
 
 Argument* parseArgument(std::string const& code);
 
-bool isEvaluatable(const Argument::Type t);
-bool isCallable(const Argument::Type t);
+inline bool isEvaluatable(const Argument::Type t) {
+	return t == Argument::Type::CALL || t == Argument::Type::INTEGER || t == Argument::Type::VARIABLE;
+}
+
+inline bool isCallable(const Argument::Type t) {
+	return t == Argument::Type::CALL || t == Argument::Type::CALLLIST;
+}
 #endif

@@ -51,13 +51,3 @@ Argument* parseArgument(std::string const& code)
 	//return nullptr;
 	throw; //TODO: Create an exception class for that
 }
-
-bool isEvaluatable(const Argument::Type t)
-{
-	return t == Argument::Type::CALL || t == Argument::Type::INTEGER || t == Argument::Type::VARIABLE;
-}
-
-bool isCallable(const Argument::Type t)
-{
-	return t == Argument::Type::CALL || t == Argument::Type::CALLLIST;
-}

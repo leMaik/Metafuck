@@ -46,7 +46,10 @@ public:
 
 	void set(const Call& c);
 	void add_const(const Call& c);
+	void div(const Call& c);
+	void mod(const Call& c);
 	void print(const Call& c);
+	void printNumber(const Call& c);
 	void input(const Call& c);
 	void if_fn(const Call& c);
 	void if_else_fn(const Call& c);

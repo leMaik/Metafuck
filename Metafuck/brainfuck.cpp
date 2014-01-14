@@ -175,6 +175,31 @@ std::string Brainfuck::printString(std::string s) {
 	return result.str();
 }
 
+std::string Brainfuck::divmod(unsigned int dividend, unsigned int devisor, unsigned int target) {
+	//target has to be the first of two consecutive cells
+	std::stringstream result;
+	unsigned int tempFive = allocCell(10);
+	result << copy(dividend, tempFive);
+	result << set(tempFive + 1, 0);
+	result << copy(devisor, tempFive + 2);
+	result << move(tempFive) << "[->+>-[>+>>]>[+[-<+>]>+>>]<<<<<<]";
+	result << copy(tempFive + 3, target + 1);
+	result << copy(tempFive + 4, target);
+	for (int i = 5; i < 10; i++) {
+		freeCell(tempFive + i);
+	}
+	return result.str();
+}
+
+std::string Brainfuck::printNumber(unsigned int index) {
+	std::stringstream result;
+	unsigned int temp = allocCell(2);
+
+
+
+	return result.str();
+}
+
 std::string Brainfuck::input(unsigned int target) {
 	return move(target) + ",";
 }

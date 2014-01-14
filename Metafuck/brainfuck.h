@@ -34,6 +34,9 @@ public:
 
 	//Subtraktion
 
+	//Division
+	std::string divmod(unsigned int dividend, unsigned int devisor, unsigned int target);
+
 	//Logik
 	std::string isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
 	std::string isNotEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex);
@@ -42,6 +45,7 @@ public:
 
 	//Komplexere Funktionen
 	std::string printString(std::string s);
+	std::string printNumber(unsigned int index);
 
 	Brainfuck();
 };
