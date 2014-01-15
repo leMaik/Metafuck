@@ -264,16 +264,16 @@ std::string remove_comments(const std::string& code) {
 	for (std::string::const_iterator i = std::begin(code); i != std::end(code); i++) {
 		if (!isString) {
 			if (!isOneLineComment && !isMultiLineComment) {
-				if (i != std::end(code) - 1 && *i == '\/' && *(i + 1) == '\/')
+				if (i != std::end(code) - 1 && *i == '/' && *(i + 1) == '/')
 					isOneLineComment = true;
-				else if (i != std::end(code) - 1 && *i == '\/' && *(i + 1) == '*')
+				else if (i != std::end(code) - 1 && *i == '/' && *(i + 1) == '*')
 					isMultiLineComment = true;
 				else
 					uncommentedCode << *i;
 			}
 			else if (*i == '\n')
 				isOneLineComment = false;
-			else if (i != std::end(code) - 1 && *i == '*' && *(i + 1) == '\/'){
+			else if (i != std::end(code) - 1 && *i == '*' && *(i + 1) == '/'){
 				isMultiLineComment = false;
 				i++;
 			}
