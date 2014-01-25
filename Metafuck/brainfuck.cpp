@@ -254,6 +254,7 @@ std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigne
 	result << set(temp1, 0) << "]";
 	freeCell(temp0);
 	freeCell(temp1);
+	freeCell(tempIndexB);
 	return result.str();
 }
 
@@ -281,6 +282,7 @@ std::string Brainfuck::isNotEqual(unsigned int indexA, unsigned int indexB, unsi
 	result << set(temp1, 0) << "]";
 	freeCell(temp0);
 	freeCell(temp1);
+	freeCell(tempIndexB);
 	return result.str();
 }
 

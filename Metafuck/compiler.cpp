@@ -151,11 +151,13 @@ void Compiler::if_else_fn(const Call& c) {
 void Compiler::while_fn(const Call& c) {
 	unsigned int temp = evaluateTo(c.getArg(0));
 	generated_ << bf_.move(temp) << "[";
-	bf_.freeCell(temp);
+	if (c.getArg(0).getType() == Argument::CALL) {
+		bf_.freeCell(temp);
+	}
 	evaluate(c.getArg(1));
 	unsigned int temp2 = evaluateTo(c.getArg(0));
 	generated_ << bf_.move(temp2) << "]";
-	if (c.getArg(1).getType() == Argument::CALL) {
+	if (c.getArg(0).getType() == Argument::CALL) {
 		bf_.freeCell(temp2);
 	}
 }
