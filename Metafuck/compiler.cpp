@@ -51,6 +51,35 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	return 0;
 }
 
+void Compiler::evaluateTo(Argument& arg, unsigned int target) {
+	switch (arg.getType()){
+	case Argument::CALL:
+	{
+						   Call& c = static_cast<Call&>(arg);
+						   auto function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
+							   [&c](std::pair<CallSignature, std::function<int(const Call&)>> k) -> bool {
+							   return c.matches(k.first);
+						   });
+						   if (function != predef_functions.end()){
+							   generated_ << bf_.copy(function->second(c), target);//TODO nicht kopieren, sondern lieber direkt in target produzieren
+						   }
+						   else {
+							   std::cerr << "Unknown function: " << c << std::endl;
+						   }
+	}
+		break;
+	case Argument::Type::VARIABLE:
+		generated_ << bf_.copy(getVar(static_cast<Variable&>(arg)), target);
+		break;
+	case Argument::Type::INTEGER:
+		generated_ << bf_.set(target, static_cast<Number&>(arg).getValue());
+		break;
+	default:
+		//TODO: Exception
+		break;
+	}
+}
+
 void Compiler::evaluate(Argument& arg) {
 	switch (arg.getType()) {
 	case Argument::Type::CALLLIST:
@@ -122,12 +151,11 @@ void Compiler::input(const Call& c) {
 }
 
 void Compiler::if_fn(const Call& c) {
-	unsigned int temp = bf_.allocCell();
-	unsigned int x = evaluateTo(c.getArg(0));
-	generated_ << bf_.set(temp, 0);
+	unsigned int x = bf_.allocCell();
+	evaluateTo(c.getArg(0), x);
 	generated_ << bf_.move(x) << "[";
 	evaluate(static_cast<CallList&>(c.getArg(1)));
-	generated_ << bf_.move(temp) << "]";
+	generated_ << bf_.set(x, 0) << "]";
 }
 
 void Compiler::if_else_fn(const Call& c) {
@@ -151,14 +179,11 @@ void Compiler::if_else_fn(const Call& c) {
 void Compiler::while_fn(const Call& c) {
 	unsigned int temp = evaluateTo(c.getArg(0));
 	generated_ << bf_.move(temp) << "[";
+	evaluate(c.getArg(1));
+	evaluateTo(c.getArg(0), temp);
+	generated_ << bf_.move(temp) << "]";
 	if (c.getArg(0).getType() == Argument::CALL) {
 		bf_.freeCell(temp);
-	}
-	evaluate(c.getArg(1));
-	unsigned int temp2 = evaluateTo(c.getArg(0));
-	generated_ << bf_.move(temp2) << "]";
-	if (c.getArg(0).getType() == Argument::CALL) {
-		bf_.freeCell(temp2);
 	}
 }
 
@@ -166,9 +191,8 @@ void Compiler::do_while_fn(const Call& c) {
 	unsigned int temp = bf_.allocCell();
 	generated_ << bf_.set(temp, 1);
 	generated_ << bf_.move(temp) << "[";
-	bf_.freeCell(temp);
 	evaluate(c.getArg(0));
-	temp = evaluateTo(c.getArg(1));
+	evaluateTo(c.getArg(1), temp);
 	generated_ << bf_.move(temp) << "]";
 	if (c.getArg(1).getType() == Argument::CALL) {
 		bf_.freeCell(temp);

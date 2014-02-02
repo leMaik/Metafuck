@@ -31,6 +31,7 @@ private:
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
 	unsigned int evaluateTo(Argument& arg);
+	void evaluateTo(Argument& arg, unsigned int target);
 	void evaluate(Argument& arg);
 
 public:
