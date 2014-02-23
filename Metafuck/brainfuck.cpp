@@ -195,7 +195,7 @@ std::string Brainfuck::printNumber(unsigned int index) {
 	std::stringstream result;
 	unsigned int temp = allocCell(2);
 
-
+	//TODO
 
 	return result.str();
 }
@@ -325,6 +325,44 @@ std::string Brainfuck::logicalAnd(unsigned int indexA, unsigned int indexB, unsi
 	freeCell(temp0);
 	freeCell(temp1);
 	freeCell(tempB);
+
+	return result.str();
+}
+
+unsigned int Brainfuck::initArray(unsigned int length)
+{
+	return allocCell(2 * length + 3);
+}
+
+std::string Brainfuck::arraySet(unsigned int array, unsigned int index, unsigned int source)
+{
+	std::stringstream result;
+
+	result << copy(index, array + 2);
+	result << copy(source, array + 1);
+
+	result << move(array);
+	result << ">>[[>>]+[<<]>>-]+[>>]<[-]<[<<]>[>[>>]<+<[<<]>-]>[>>]<<[-<<]";
+	//pointer is now at array, so everything is fine.
+
+	return result.str();
+}
+
+std::string Brainfuck::arrayGet(unsigned int array, unsigned int index, unsigned int target)
+{
+	std::stringstream result;
+
+	result << set(target, 0);
+	result << copy(index, array + 2);
+	result << set(array + 1, 0);
+
+	result << move(array);
+	result << "y>>[[>>]+[<<]>>-]+[>>]<[<[<<]>+<";
+	//pointer is now at array, so everything is fine.
+	result << move(target) << "+";
+	result << move(array);
+	result << "y>>[>>]<-]<[<<]>[>[>>]<+<[<<]>-]>[>>]<<[-<<]";
+	//pointer is now at array, so everything is still fine.
 
 	return result.str();
 }

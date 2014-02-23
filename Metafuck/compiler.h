@@ -62,6 +62,10 @@ public:
 	unsigned int not_fn(const Call& c);
 	unsigned int and_fn(const Call& c);
 
+	void array_init(const Call& c);
+	void array_set(const Call& c);
+	unsigned int array_get(const Call& c);
+
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
 };

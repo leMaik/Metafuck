@@ -223,6 +223,22 @@ unsigned int Compiler::and_fn(const Call& c) {
 	return result;
 }
 
+void Compiler::array_init(const Call& c) {
+	unsigned int result = bf_.initArray(static_cast<Number&>(c.getArg(1)).getValue());
+	generated_ << bf_.set(result, 0);
+	vars_[static_cast<Variable&>(c.getArg(0)).getName()] = result;
+}
+
+void Compiler::array_set(const Call& c) {
+	generated_ << bf_.arraySet(getVar(static_cast<Variable&>(c.getArg(0))), evaluateTo(c.getArg(1)), evaluateTo(c.getArg(2)));
+}
+
+unsigned int Compiler::array_get(const Call& c) {
+	unsigned int result = bf_.allocCell();
+	generated_ << bf_.arrayGet(getVar(static_cast<Variable&>(c.getArg(0))), evaluateTo(c.getArg(1)), result);
+	return result;
+}
+
 void Compiler::compile() {
 	evaluate(lexed_);
 }
@@ -264,7 +280,10 @@ Compiler::Compiler(std::string code) {
 		("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
 		("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
-		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn);
+		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
+		("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
+		("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
+		("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
 
 	//Remove comments from code before we do anything else
 	code_ = remove_comments(code);
