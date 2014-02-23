@@ -364,4 +364,9 @@ std::string Brainfuck::arrayGet(unsigned int array, unsigned int index, unsigned
 	return result.str();
 }
 
+unsigned int Brainfuck::getArrayPointer(unsigned int array, unsigned int index) const
+{
+	return 2 * index + 3;
+}
+
 Brainfuck::Brainfuck() : pointer_(0) { }

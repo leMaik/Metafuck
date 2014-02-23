@@ -51,6 +51,7 @@ public:
 	unsigned int initArray(unsigned int length);
 	std::string arraySet(unsigned int array, unsigned int index, unsigned int source);
 	std::string arrayGet(unsigned int array, unsigned int index, unsigned int target);
+	unsigned int getArrayPointer(unsigned int array, unsigned int index) const;
 
 	Brainfuck();
 };

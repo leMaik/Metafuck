@@ -152,10 +152,6 @@ std::string Call::getFunction() const {
 	return function_;
 }
 
-Argument& Call::getArg(unsigned int index) const {
-	return *arguments_.at(index);
-}
-
 Call::~Call()
 {
 }

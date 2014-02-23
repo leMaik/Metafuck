@@ -18,7 +18,14 @@ public:
 	bool matches(CallSignature sig) const;
 
 	std::string getFunction() const;
-	Argument& getArg(unsigned int index) const;
+	inline Argument& arg(unsigned int index) const {
+		return *arguments_.at(index);
+	}
+
+	template<class T>
+	inline T& arg(unsigned int index) const {
+		return static_cast<T&>(*arguments_[index]);
+	}
 
 private:
 	std::string function_;
