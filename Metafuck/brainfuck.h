@@ -28,7 +28,7 @@ public:
 	std::string input(unsigned int target);
 
 	//Addition
-	std::string add(unsigned int index, unsigned int conrstant); //index + constant =: index
+	std::string add(unsigned int index, unsigned int constant); //index + constant =: index
 	std::string addAway(unsigned int source, unsigned int target); //source + target =: target, source := 0
 	std::string addCellTo(unsigned int a, unsigned int b, unsigned int target); //a + b =: target, target may be a or b.
 

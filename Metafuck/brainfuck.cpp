@@ -329,13 +329,11 @@ std::string Brainfuck::logicalAnd(unsigned int indexA, unsigned int indexB, unsi
 	return result.str();
 }
 
-unsigned int Brainfuck::initArray(unsigned int length)
-{
+unsigned int Brainfuck::initArray(unsigned int length) {
 	return allocCell(2 * length + 3);
 }
 
-std::string Brainfuck::arraySet(unsigned int array, unsigned int index, unsigned int source)
-{
+std::string Brainfuck::arraySet(unsigned int array, unsigned int index, unsigned int source) {
 	std::stringstream result;
 
 	result << copy(index, array + 2);
@@ -348,8 +346,7 @@ std::string Brainfuck::arraySet(unsigned int array, unsigned int index, unsigned
 	return result.str();
 }
 
-std::string Brainfuck::arrayGet(unsigned int array, unsigned int index, unsigned int target)
-{
+std::string Brainfuck::arrayGet(unsigned int array, unsigned int index, unsigned int target) {
 	std::stringstream result;
 
 	result << set(target, 0);
