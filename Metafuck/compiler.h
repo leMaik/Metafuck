@@ -47,6 +47,9 @@ public:
 
 	void set(const Call& c);
 	void add_const(const Call& c);
+	void add_ev(const Call& c);
+	void sub_const(const Call& c);
+	void sub_ev(const Call& c);
 	void div(const Call& c);
 	void mod(const Call& c);
 	void print(const Call& c);

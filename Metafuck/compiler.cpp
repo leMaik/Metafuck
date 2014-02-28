@@ -119,6 +119,18 @@ void Compiler::add_const(const Call& c) {
 	generated_ << bf_.add(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
 }
 
+void Compiler::add_ev(const Call& c) {
+	generated_ << bf_.addCellTo(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
+}
+
+void Compiler::sub_const(const Call& c) {
+	generated_ << bf_.sub(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
+}
+
+void Compiler::sub_ev(const Call& c) {
+	generated_ << bf_.subCellFrom(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
+}
+
 void Compiler::div(const Call& c) {
 	unsigned int cells = bf_.allocCell(2);
 	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
@@ -278,6 +290,9 @@ Compiler::Compiler(std::string code) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
+		("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
+		("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
+		("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
 		("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
 		("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
 		("print", { Argument::STRING }, &Compiler::print)

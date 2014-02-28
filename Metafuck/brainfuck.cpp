@@ -231,6 +231,33 @@ std::string Brainfuck::addCellTo(unsigned int a, unsigned int b, unsigned int ta
 	return result.str();
 }
 
+std::string Brainfuck::sub(unsigned int index, unsigned int constant) {
+	std::stringstream result;
+	result << move(index);
+	result << dec(constant);
+	return result.str();
+}
+
+std::string Brainfuck::subAway(unsigned int source, unsigned int target) {
+	std::stringstream result;
+	result << move(source);
+	result << "[" << move(target) << "-";
+	result << move(source) << "-]";
+	return result.str();
+}
+
+std::string Brainfuck::subCellFrom(unsigned int a, unsigned int b, unsigned int target) {
+	std::stringstream result;
+	unsigned int tmp = allocCell();
+	if (a != target) {
+		result << copy(a, target);
+	}
+	result << copy(b, tmp);
+	result << subAway(tmp, target);
+	freeCell(tmp);
+	return result.str();
+}
+
 std::string Brainfuck::isEqual(unsigned int indexA, unsigned int indexB, unsigned int resultIndex){
 	std::stringstream result;
 	unsigned int tempIndexB = allocCell();

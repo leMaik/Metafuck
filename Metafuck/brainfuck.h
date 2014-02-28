@@ -33,6 +33,9 @@ public:
 	std::string addCellTo(unsigned int a, unsigned int b, unsigned int target); //a + b =: target, target may be a or b.
 
 	//Subtraktion
+	std::string sub(unsigned int index, unsigned int constant); //index - constant =: index
+	std::string subAway(unsigned int source, unsigned int target); //target - source =: target, source := 0
+	std::string subCellFrom(unsigned int a, unsigned int b, unsigned int target); //a - b =: target, target may be a or b.
 
 	//Division
 	std::string divmod(unsigned int dividend, unsigned int devisor, unsigned int target);
