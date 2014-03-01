@@ -26,11 +26,11 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	{
 						   Call& c = static_cast<Call&>(arg);
 						   auto function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
-							   [&c](std::pair<CallSignature, std::function<int(const Call&)>> k) -> bool {
+							   [&c](std::pair<CallSignature, std::function<int(const Call&, unsigned int)>> k) -> bool {
 							   return c.matches(k.first);
 						   });
 						   if (function != predef_functions.end()){
-							   return function->second(c);
+							   return function->second(c, bf_.allocCell());
 						   }
 						   else {
 							   std::cerr << "Unknown function: " << c << std::endl;
@@ -57,11 +57,11 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 	{
 						   Call& c = static_cast<Call&>(arg);
 						   auto function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
-							   [&c](std::pair<CallSignature, std::function<int(const Call&)>> k) -> bool {
+							   [&c](std::pair<CallSignature, std::function<int(const Call&, unsigned int)>> k) -> bool {
 							   return c.matches(k.first);
 						   });
 						   if (function != predef_functions.end()){
-							   generated_ << bf_.copy(function->second(c), target);//TODO nicht kopieren, sondern lieber direkt in target produzieren
+							   generated_ << function->second(c, target);
 						   }
 						   else {
 							   std::cerr << "Unknown function: " << c << std::endl;
@@ -69,6 +69,7 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 	}
 		break;
 	case Argument::Type::VARIABLE:
+		//TODO: In this case, the produced variable is temporary and should be treated as such
 		generated_ << bf_.copy(getVar(static_cast<Variable&>(arg)), target);
 		break;
 	case Argument::Type::INTEGER:
@@ -163,8 +164,7 @@ void Compiler::input(const Call& c) {
 }
 
 void Compiler::if_fn(const Call& c) {
-	unsigned int x = bf_.allocCell();
-	evaluateTo(c.arg(0), x);
+	unsigned int x = evaluateTo(c.arg(0));
 	generated_ << bf_.move(x) << "[";
 	evaluate(static_cast<CallList&>(c.arg(1)));
 	generated_ << bf_.set(x, 0) << "]";
@@ -211,26 +211,22 @@ void Compiler::do_while_fn(const Call& c) {
 	}
 }
 
-unsigned int Compiler::iseq(const Call& c) {
-	unsigned int result = bf_.allocCell();
+unsigned int Compiler::iseq(const Call& c, unsigned int result) {
 	generated_ << bf_.isEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
 	return result;
 }
 
-unsigned int Compiler::isnoteq(const Call& c) {
-	unsigned int result = bf_.allocCell();
+unsigned int Compiler::isnoteq(const Call& c, unsigned int result) {
 	generated_ << bf_.isNotEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
 	return result;
 }
 
-unsigned int Compiler::not_fn(const Call& c) {
-	unsigned int result = bf_.allocCell();
+unsigned int Compiler::not_fn(const Call& c, unsigned int result) {
 	generated_ << bf_.isNot(evaluateTo(c.arg(0)), result);
 	return result;
 }
 
-unsigned int Compiler::and_fn(const Call& c) {
-	unsigned int result = bf_.allocCell();
+unsigned int Compiler::and_fn(const Call& c, unsigned int result) {
 	generated_ << bf_.logicalAnd(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
 	return result;
 }
@@ -253,8 +249,7 @@ void Compiler::array_set(const Call& c) {
 		generated_ << bf_.arraySet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), evaluateTo(c.arg(2)));
 }
 
-unsigned int Compiler::array_get(const Call& c) {
-	unsigned int result = bf_.allocCell();
+unsigned int Compiler::array_get(const Call& c, unsigned int result) {
 	if (c.arg(1).getType() == Argument::INTEGER)
 		generated_ << bf_.copy(bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue()), result);
 	else
@@ -282,8 +277,8 @@ void Compiler::reg(const std::string& callname, const std::initializer_list<Argu
 	predef_methods[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
 }
 
-void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&)){
-	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int)){
+	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 Compiler::Compiler(std::string code) {
@@ -322,7 +317,7 @@ CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, c
 	return *this;
 }
 
-CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&)) {
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int)) {
 	owner_.reg(callname, args, fptr);
 	return *this;
 }

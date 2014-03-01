@@ -24,7 +24,7 @@ private:
 	std::stringstream generated_;
 	CallList lexed_;
 	std::map<CallSignature, std::function<void(const Call&)>> predef_methods;
-	std::map<CallSignature, std::function<unsigned int(const Call&)>> predef_functions;
+	std::map<CallSignature, std::function<unsigned int(const Call&, unsigned int)>> predef_functions;
 	std::map<std::string, unsigned int> vars_;
 
 	unsigned int getVar(const Variable& variable);
@@ -39,7 +39,7 @@ public:
 
 	CompilerEasyRegister reg();
 	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&));
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
 
 	bool validate();
 	std::size_t lex();
@@ -60,14 +60,14 @@ public:
 	void while_fn(const Call& c);
 	void do_while_fn(const Call& c);
 
-	unsigned int iseq(const Call& c);
-	unsigned int isnoteq(const Call& c);
-	unsigned int not_fn(const Call& c);
-	unsigned int and_fn(const Call& c);
+	unsigned int iseq(const Call& c, unsigned int result);
+	unsigned int isnoteq(const Call& c, unsigned int result);
+	unsigned int not_fn(const Call& c, unsigned int result);
+	unsigned int and_fn(const Call& c, unsigned int result);
 
 	void array_init(const Call& c);
 	void array_set(const Call& c);
-	unsigned int array_get(const Call& c);
+	unsigned int array_get(const Call& c, unsigned int result);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
@@ -77,7 +77,7 @@ class CompilerEasyRegister {
 public:
 	CompilerEasyRegister(Compiler& owner);
 	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&));
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
 private:
 	Compiler& owner_;
 };
