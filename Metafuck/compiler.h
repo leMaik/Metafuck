@@ -68,6 +68,7 @@ public:
 	unsigned int isnoteq(const Call& c, unsigned int result);
 	unsigned int not_fn(const Call& c, unsigned int result);
 	unsigned int and_fn(const Call& c, unsigned int result);
+	unsigned int or_fn(const Call& c, unsigned int result);
 
 	void array_init(const Call& c);
 	void array_set(const Call& c);

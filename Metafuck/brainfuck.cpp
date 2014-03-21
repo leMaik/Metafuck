@@ -356,6 +356,27 @@ std::string Brainfuck::logicalAnd(unsigned int indexA, unsigned int indexB, unsi
 	return result.str();
 }
 
+std::string Brainfuck::logicalOr(unsigned int indexA, unsigned int indexB, unsigned int resultIndex) {
+	std::stringstream result;
+	unsigned int temp0 = allocCell();
+	unsigned int temp1 = allocCell();
+
+	result << copy(indexA, temp1);
+	result << set(temp0, 0);
+	result << set(resultIndex, 0);
+	result << move(temp1) << "[";
+	result << move(resultIndex) << "-";
+	result << set(temp1, 0) << "]";
+	result << copy(indexB, temp1);
+	result << move(temp1) << "[";
+	result << set(resultIndex, 0) << "-";
+	result << set(temp1, 0) << "]";
+
+	freeCell(temp0);
+	freeCell(temp1);
+	return result.str();
+}
+
 unsigned int Brainfuck::initArray(unsigned int length) {
 	return allocCell(2 * length + 3);
 }

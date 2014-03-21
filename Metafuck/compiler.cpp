@@ -170,7 +170,8 @@ void Compiler::input(const Call& c) {
 }
 
 void Compiler::if_fn(const Call& c) {
-	unsigned int x = evaluateTo(c.arg(0));
+	unsigned int x = bf_.allocCell();
+	evaluateTo(c.arg(0), x);
 	generated_ << bf_.move(x) << "[";
 	evaluate(static_cast<CallList&>(c.arg(1)));
 	generated_ << bf_.set(x, 0) << "]";
@@ -179,8 +180,7 @@ void Compiler::if_fn(const Call& c) {
 void Compiler::if_else_fn(const Call& c) {
 	unsigned int temp0 = bf_.allocCell();
 	unsigned int temp1 = bf_.allocCell();
-	unsigned int x = evaluateTo(c.arg(0));
-	generated_ << bf_.copy(x, temp1);
+	evaluateTo(c.arg(0), temp1);
 	generated_ << bf_.set(temp0, 1);
 	generated_ << bf_.move(temp1) << "[";
 	evaluate(static_cast<CallList&>(c.arg(1)));
@@ -191,7 +191,6 @@ void Compiler::if_else_fn(const Call& c) {
 	generated_ << bf_.move(temp0) << "-]";
 	bf_.freeCell(temp0);
 	bf_.freeCell(temp1);
-	bf_.freeCell(x);
 }
 
 void Compiler::while_fn(const Call& c) {
@@ -250,6 +249,11 @@ unsigned int Compiler::not_fn(const Call& c, unsigned int result) {
 
 unsigned int Compiler::and_fn(const Call& c, unsigned int result) {
 	generated_ << bf_.logicalAnd(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
+	return result;
+}
+
+unsigned int Compiler::or_fn(const Call& c, unsigned int result) {
+	generated_ << bf_.logicalOr(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
 	return result;
 }
 
@@ -325,6 +329,7 @@ Compiler::Compiler(std::string code) {
 		("for", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::for_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
 		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
+		("or", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::or_fn)
 		("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
 		("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
 		("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
