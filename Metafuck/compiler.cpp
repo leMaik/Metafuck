@@ -110,10 +110,16 @@ void Compiler::evaluate(Argument& arg) {
 }
 
 void Compiler::set(const Call& c) {
-	if (c.arg(1).getType() == Argument::INTEGER)
-		generated_ << bf_.set(getVar(static_cast<Variable&>(c.arg(0))), static_cast<Number&>(c.arg(1)).getValue());
+	set(getVar(c.arg<Variable&>(0)), c.arg(1));
+}
+
+void Compiler::set(unsigned int target, Argument& evaluatable){
+	//generates the code that sets ´target´ to the evaluated value of ´evaluated´
+
+	if (evaluatable.getType() == Argument::INTEGER)
+		generated_ << bf_.set(target, static_cast<Number&>(evaluatable).getValue());
 	else
-		generated_ << bf_.copy(evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
+		evaluateTo(evaluatable, target);
 }
 
 void Compiler::add_const(const Call& c) {
@@ -211,6 +217,22 @@ void Compiler::do_while_fn(const Call& c) {
 	}
 }
 
+void Compiler::for_fn(const Call& c) {
+	unsigned int var = getVar(c.arg<Variable>(0));
+	set(var, c.arg(1)); //set iteration variable to start value
+
+	//now, it's similar to while_fn...
+	unsigned int temp = bf_.allocCell();
+	evaluateTo(c.arg(2), temp);
+	generated_ << bf_.move(temp) << "[";
+	evaluate(c.arg(4)); //code in the loop
+	evaluate(c.arg(3)); //step
+	evaluateTo(c.arg(2), temp);
+	generated_ << bf_.move(temp) << "]";
+
+	bf_.freeCell(temp);
+}
+
 unsigned int Compiler::iseq(const Call& c, unsigned int result) {
 	generated_ << bf_.isEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
 	return result;
@@ -300,6 +322,7 @@ Compiler::Compiler(std::string code) {
 		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 		("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
 		("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
+		("for", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::for_fn)
 		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
 		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
 		("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
