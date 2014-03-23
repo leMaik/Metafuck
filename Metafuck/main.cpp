@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <stack>
+#include <stdlib.h>
 
 namespace
 {
@@ -26,11 +27,11 @@ int main(int argc, char** argv)
 		po::options_description desc("Options");
 		desc.add_options()
 			("help", "Print help messages")
-			("output,o", po::value<std::string>(), "Output filename (default is <input filename>.bf")
+			("output,o", po::value<std::string>(), "Output filename (default is <input filename>.bf)")
 			("input,i", po::value<std::string>()->required(), "File to compile")
 			("print,p", "Print the program on the screen after compiling (does not save it if --output is not set)")
 			("run,r", "Run the program after compiling it")
-			("nasm,n", "Convert generated brainfuck code to NASM");
+			("nasm,n", po::value<std::string>(), "Convert generated brainfuck code to NASM (specify target platform by this parameter, may be win32 or unix)");
 
 		po::positional_options_description positionalOptions;
 		positionalOptions.add("input", 1);
@@ -67,14 +68,29 @@ int main(int argc, char** argv)
 		Compiler com(mfstream.str());
 		com.lex();
 		com.compile();
-		//com.optimize();
 
 		if (vm.count("nasm")) {
-			if (vm.count("output") || !vm.count("print")) {
+			TargetPlatform target = TargetPlatform::UNKNOWN;
+			if (vm["nasm"].as<std::string>() == "win32")
+				target = TargetPlatform::WIN32NT;
+			else if (vm["nasm"].as<std::string>() == "unix")
+				target = TargetPlatform::UNIX;
+
+			if (target != TargetPlatform::UNKNOWN && (vm.count("output") || !vm.count("print"))) {
 				std::ofstream out;
-				out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".asm");
-				out << bf2nasm(com.getGeneratedCode());
+				std::string asmFilename = vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".asm";
+				out.open(asmFilename);
+				out << bf2nasm(com.getGeneratedCode(), target);
 				out.close();
+
+				if (target == TargetPlatform::WIN32NT){
+					system(("nasm -fobj \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
+					system(("alink -oPE -subsys console \"" + asmFilename + ".obj\" -o \"" + asmFilename + ".exe\"").c_str());
+				}
+				else {
+					system(("nasm -felf \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
+					system(("ld -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
+				}
 			}
 		}
 		else {
