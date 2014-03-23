@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "brainfuck.h"
 #include "Interpreter/ConvenienceFuck.h"
+#include "NasmGenerator/BrainfuckNasmConverter.h"
 #include "boost/program_options.hpp" 
 #include <iostream>
 #include <fstream>
@@ -28,7 +29,8 @@ int main(int argc, char** argv)
 			("output,o", po::value<std::string>(), "Output filename (default is <input filename>.bf")
 			("input,i", po::value<std::string>()->required(), "File to compile")
 			("print,p", "Print the program on the screen after compiling (does not save it if --output is not set)")
-			("run,r", "Run the program after compiling it");
+			("run,r", "Run the program after compiling it")
+			("nasm,n", "Convert generated brainfuck code to NASM");
 
 		po::positional_options_description positionalOptions;
 		positionalOptions.add("input", 1);
@@ -67,12 +69,23 @@ int main(int argc, char** argv)
 		com.compile();
 		//com.optimize();
 
-		if (vm.count("output") || !vm.count("print")) {
-			std::ofstream out;
-			out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".bf");
-			out << com.getGeneratedCode();
-			out.close();
+		if (vm.count("nasm")) {
+			if (vm.count("output") || !vm.count("print")) {
+				std::ofstream out;
+				out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".asm");
+				out << bf2nasm(com.getGeneratedCode());
+				out.close();
+			}
 		}
+		else {
+			if (vm.count("output") || !vm.count("print")) {
+				std::ofstream out;
+				out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".bf");
+				out << com.getGeneratedCode();
+				out.close();
+			}
+		}
+
 		if (vm.count("print")) {
 			std::cout << com.getGeneratedCode() << std::endl;
 		}
