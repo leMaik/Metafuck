@@ -34,6 +34,8 @@ private:
 	void evaluateTo(Argument& arg, unsigned int target);
 	void evaluate(Argument& arg);
 
+	void set(unsigned int target, Argument& evaluatable);
+
 public:
 	Compiler(std::string code);
 
@@ -55,15 +57,18 @@ public:
 	void print(const Call& c);
 	void printNumber(const Call& c);
 	void input(const Call& c);
+
 	void if_fn(const Call& c);
 	void if_else_fn(const Call& c);
 	void while_fn(const Call& c);
 	void do_while_fn(const Call& c);
+	void for_fn(const Call& c);
 
 	unsigned int iseq(const Call& c, unsigned int result);
 	unsigned int isnoteq(const Call& c, unsigned int result);
 	unsigned int not_fn(const Call& c, unsigned int result);
 	unsigned int and_fn(const Call& c, unsigned int result);
+	unsigned int or_fn(const Call& c, unsigned int result);
 
 	void array_init(const Call& c);
 	void array_set(const Call& c);
