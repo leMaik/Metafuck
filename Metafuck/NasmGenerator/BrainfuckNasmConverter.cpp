@@ -381,10 +381,45 @@ std::string MovePointer::toNasm(){
 	}
 }
 
+std::string GetChar::toNasm(){
+	return "call _get_char"	"\n";
+}
+
+std::string PrintChar::toNasm(){
+	return "call _print_char"	"\n";
+}
+
 std::string ClearValue::toNasm(){
 	return
-		"mov ecx, [ptr]"		"\n"
-		"mov ebx, memory"		"\n"
-		"mov al, 0"				"\n"
-		"mov[ebx + ecx], al"	"\n";
+		"mov ecx,[ptr]"		"\n"
+		"mov ebx,memory"	"\n"
+		"mov al,0"			"\n"
+		"mov[ebx+ecx],al"	"\n";
+}
+
+Loop::Loop(unsigned int uniqueNumber, BrainfuckInstructions inner) : number(uniqueNumber), innerInstructions(inner) {}
+
+std::string Loop::toNasm(){
+	std::stringstream out;
+
+	out <<
+		"mov ecx,[ptr]"						"\n"
+		"mov ebx,memory"					"\n"
+		"mov al,[ebx + ecx]"				"\n"
+		"cmp al,0"							"\n"
+		"jz loop" << number << "_after"		"\n"
+		"loop" << number << ":"				"\n";
+
+	for (auto& instruction : innerInstructions)
+		out << instruction->toNasm();
+
+	out <<
+		"mov ecx,[ptr]"					"\n"
+		"mov ebx,memory"				"\n"
+		"mov al,[ebx + ecx]"			"\n"
+		"cmp al,0"						"\n"
+		"jnz loop" << number << "\n"
+		"loop" << number << "_after:"	"\n";
+
+	return out.str();
 }

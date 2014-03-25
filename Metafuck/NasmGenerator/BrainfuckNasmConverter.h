@@ -62,5 +62,6 @@ public:
 	Loop(unsigned int uniqueNumber, BrainfuckInstructions inner);
 private:
 	BrainfuckInstructions innerInstructions;
+	unsigned int number;
 };
 #endif
