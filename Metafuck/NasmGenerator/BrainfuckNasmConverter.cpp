@@ -1,19 +1,20 @@
 #include "BrainfuckNasmConverter.h"
 #include <sstream>
 #include <stack>
+#include <vector>
+#include <memory>
 
 std::string bf2nasm(std::string bf, TargetPlatform target)
 {
 	std::stringstream nasm;
 	unsigned int nextLoop = 0;
-	std::stack<unsigned int> loops;
 
 	if (target == TargetPlatform::UNIX)
 		nasm <<
 		"global _start"			"\n"
 		"section .bss"			"\n"
 		"ptr: resq 1"			"\n"
-		"memory: resb 1024"	"\n"
+		"memory: resb 1024"		"\n"
 		"section .text"			"\n"
 		"global _start"			"\n"
 		"_start:"				"\n"
@@ -34,8 +35,8 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"import WriteConsoleA kernel32.dll"				"\n"
 		"section .bss"									"\n"
 		"ptr: resq 1"									"\n"
-		"memory: resb 1024"							"\n"
-		"curr: resb 1"								"\n"
+		"memory: resb 1024"								"\n"
+		"curr: resb 1"									"\n"
 		"hStdOut: resd 1"								"\n"
 		"hStdIn: resd 1"								"\n"
 		"nBytes: resd 1"								"\n"
@@ -51,50 +52,106 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"call [GetStdHandle]"							"\n"
 		"mov [hStdIn],eax"								"\n";
 
-	for (char& c : bf) {
+	std::stack<BrainfuckInstructions> instructions;
+	instructions.push(BrainfuckInstructions());
+	BrainfuckInstruction::Type currentType = BrainfuckInstruction::Type::NONE;
+
+	unsigned int length = bf.length();
+	unsigned int i = 0;
+	while (i < length) {
+		auto c = bf.at(i);
 		switch (c) {
 		case '>':
-			nasm << "call _inc_ptr"		"\n";
+			if (currentType != BrainfuckInstruction::Type::MOVE_POINTER){
+				instructions.top().push_back(std::shared_ptr<MovePointer>(new MovePointer));
+				currentType = BrainfuckInstruction::Type::MOVE_POINTER;
+			}
+			static_cast<MovePointer&>(*instructions.top().back()).inc();
 			break;
 		case '<':
-			nasm << "call _dec_ptr"		"\n";
+			if (currentType != BrainfuckInstruction::Type::MOVE_POINTER){
+				instructions.top().push_back(std::shared_ptr<MovePointer>(new MovePointer));
+				currentType = BrainfuckInstruction::Type::MOVE_POINTER;
+			}
+			static_cast<MovePointer&>(*instructions.top().back()).dec();
 			break;
 		case '+':
-			nasm << "call _inc_at_ptr"	"\n";
+			if (currentType != BrainfuckInstruction::Type::CHANGE_VALUE){
+				instructions.top().push_back(std::shared_ptr<ChangeValue>());
+				currentType = BrainfuckInstruction::Type::CHANGE_VALUE;
+			}
+			static_cast<ChangeValue&>(*instructions.top().back()).inc();
 			break;
 		case '-':
-			nasm << "call _dec_at_ptr"	"\n";
+			if (currentType != BrainfuckInstruction::Type::CHANGE_VALUE){
+				instructions.top().push_back(std::shared_ptr<ChangeValue>(new ChangeValue));
+				currentType = BrainfuckInstruction::Type::CHANGE_VALUE;
+			}
+			static_cast<ChangeValue&>(*instructions.top().back()).dec();
 			break;
 		case '.':
-			nasm << "call _print_char"	"\n";
+			instructions.top().push_back(std::shared_ptr<PrintChar>(new PrintChar));
+			currentType = BrainfuckInstruction::Type::NONE;
 			break;
 		case ',':
-			nasm << "call _get_char"	"\n";
+			instructions.top().push_back(std::shared_ptr<GetChar>(new GetChar));
+			currentType = BrainfuckInstruction::Type::NONE;
 			break;
 		case '[':
-			loops.push(nextLoop);
-			nasm <<
+			if (i + 2 < length && bf.at(i + 1) == '-' && bf.at(i + 2) == ']') {
+				i += 2;
+				instructions.top().push_back(std::shared_ptr<ClearValue>(new ClearValue));
+				currentType = BrainfuckInstruction::Type::NONE;
+			}
+			else {
+				instructions.push(BrainfuckInstructions());
+				currentType = BrainfuckInstruction::Type::NONE;
+			}
+			break;
+		case ']':
+			auto loopContent = instructions.top();
+			instructions.pop();
+			instructions.top().push_back(std::shared_ptr<Loop>(new Loop(nextLoop++, loopContent)));
+			currentType = BrainfuckInstruction::Type::NONE;
+			/*case '[':
+				if (i + 2 < length && bf.at(i + 1) == '-' && bf.at(i + 2) == ']') {
+				i += 2;
+				nasm <<
+				"mov ecx,[ptr]"						"\n"
+				"mov ebx,memory"					"\n"
+				"mov al,0"							"\n"
+				"mov [ebx + ecx],al"				"\n";
+				}
+				else {
+				loops.push(nextLoop);
+				nasm <<
 				"mov ecx,[ptr]"						"\n"
 				"mov ebx,memory"					"\n"
 				"mov al,[ebx + ecx]"				"\n"
 				"cmp al,0"							"\n"
 				"jz loop" << nextLoop << "_after"	"\n"
 				"loop" << nextLoop << ":"			"\n";
-			nextLoop++;
-			break;
-		case ']':
-			unsigned int loop = loops.top();
-			loops.pop();
-			nasm <<
+				nextLoop++;
+				}
+				break;
+				case ']':
+				unsigned int loop = loops.top();
+				loops.pop();
+				nasm <<
 				"mov ecx,[ptr]"				"\n"
 				"mov ebx,memory"			"\n"
 				"mov al,[ebx + ecx]"		"\n"
 				"cmp al,0"					"\n"
-				"jnz loop" << loop <<		"\n"
+				"jnz loop" << loop << "\n"
 				"loop" << loop << "_after:"	"\n";
-			break;
+				break;*/
 		}
+
+		i++;
 	}
+
+	for (auto& instruction : instructions.top())
+		nasm << instruction->toNasm();
 
 	if (target == TargetPlatform::UNIX)
 		nasm <<
@@ -232,4 +289,102 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"popa"					"\n"
 		"ret"					"\n";
 	return nasm.str();
+}
+
+void ChangeValue::inc(){
+	count++;
+}
+
+void ChangeValue::dec(){
+	count--;
+}
+
+std::string ChangeValue::toNasm(){
+	if (count == 0)
+		return "";
+	if (count > 0){
+		if (count == 1) {
+			return
+				"mov ecx,[ptr]"			"\n"
+				"mov ebx,memory"		"\n"
+				"mov al,[ebx+ecx]"		"\n"
+				"inc al"				"\n"
+				"mov [ebx+ecx],al"		"\n";
+		}
+		else {
+			return
+				"mov ecx,[ptr]"			"\n"
+				"mov ebx,memory"		"\n"
+				"mov al,[ebx+ecx]"		"\n"
+				"add al," + std::to_string(count) + "\n"
+				"mov [ebx+ecx],al"		"\n";
+		}
+	}
+	else {
+		if (count == -1) {
+			return
+				"mov ecx,[ptr]"			"\n"
+				"mov ebx,memory"		"\n"
+				"mov al,[ebx+ecx]"		"\n"
+				"dec al"				"\n"
+				"mov [ebx+ecx],al"		"\n";
+		}
+		else {
+			return
+				"mov ecx,[ptr]"			"\n"
+				"mov ebx,memory"		"\n"
+				"mov al,[ebx+ecx]"		"\n"
+				"sub al," + std::to_string(-count) + "\n"
+				"mov [ebx+ecx],al"		"\n";
+		}
+	}
+}
+
+void MovePointer::inc(){
+	count++;
+}
+
+void MovePointer::dec(){
+	count--;
+}
+
+std::string MovePointer::toNasm(){
+	if (count == 0)
+		return "";
+	if (count > 0){
+		if (count == 1) {
+			return
+				"mov al,[ptr]"			"\n"
+				"inc al"				"\n"
+				"mov [ptr],al"			"\n";
+		}
+		else {
+			return
+				"mov al,[ptr]"			"\n"
+				"add al," + std::to_string(count) + "\n"
+				"mov [ptr],al"			"\n";
+		}
+	}
+	else {
+		if (count == -1) {
+			return
+				"mov al,[ptr]"			"\n"
+				"dec al"				"\n"
+				"mov [ptr],al"			"\n";
+		}
+		else {
+			return
+				"mov al,[ptr]"			"\n"
+				"sub al," + std::to_string(-count) + "\n"
+				"mov [ptr],al"			"\n";
+		}
+	}
+}
+
+std::string ClearValue::toNasm(){
+	return
+		"mov ecx, [ptr]"		"\n"
+		"mov ebx, memory"		"\n"
+		"mov al, 0"				"\n"
+		"mov[ebx + ecx], al"	"\n";
 }
