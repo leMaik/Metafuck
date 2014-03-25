@@ -81,49 +81,61 @@ std::string Brainfuck::move(unsigned int to) {
 
 std::string Brainfuck::inc(unsigned int amount) {
 	std::stringstream result;
-	unsigned int tempCell = allocCellNear(pointer_);
-	unsigned int prt = (unsigned int)sqrt(amount);
-	if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
-		unsigned int p = pointer_;
-		if (prt*prt < amount){
-			result << inc(amount - prt*prt);
+	if (optimizeValueChanging_){
+		unsigned int tempCell = allocCellNear(pointer_);
+		unsigned int prt = (unsigned int)sqrt(amount);
+		if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
+			unsigned int p = pointer_;
+			if (prt*prt < amount){
+				result << inc(amount - prt*prt);
+			}
+			result << set(tempCell, prt);
+			result << move(tempCell) << "[";
+			result << move(p);
+			for (unsigned int i = 0; i < prt; i++)
+				result << "+";
+			result << move(tempCell) << "-]";
 		}
-		result << set(tempCell, prt);
-		result << move(tempCell) << "[";
-		result << move(p);
-		for (unsigned int i = 0; i < prt; i++)
-			result << "+";
-		result << move(tempCell) << "-]";
+		else {
+			for (unsigned int i = 0; i < amount; i++)
+				result << "+";
+		}
+		freeCell(tempCell);
 	}
 	else {
-		for (unsigned int i = 0; i < amount; i++)
+		for (int i = 0; i < amount; i++)
 			result << "+";
 	}
-	freeCell(tempCell);
 	return result.str();
 }
 
 std::string Brainfuck::dec(unsigned int amount) {
 	std::stringstream result;
-	unsigned int tempCell = allocCellNear(pointer_);
-	unsigned int prt = (unsigned int)std::sqrt(amount);
-	if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
-		unsigned int p = pointer_;
-		if (prt*prt < amount){
-			result << dec(amount - prt*prt);
+	if (optimizeValueChanging_){
+		unsigned int tempCell = allocCellNear(pointer_);
+		unsigned int prt = (unsigned int)std::sqrt(amount);
+		if (absdiff(pointer_, tempCell) * 2 + 8 + 2 * prt + (amount - prt*prt) < amount) {
+			unsigned int p = pointer_;
+			if (prt*prt < amount){
+				result << dec(amount - prt*prt);
+			}
+			result << set(tempCell, prt);
+			result << move(tempCell) << "[";
+			result << move(p);
+			for (unsigned int i = 0; i < prt; i++)
+				result << "-";
+			result << move(tempCell) << "-]";
 		}
-		result << set(tempCell, prt);
-		result << move(tempCell) << "[";
-		result << move(p);
-		for (unsigned int i = 0; i < prt; i++)
-			result << "-";
-		result << move(tempCell) << "-]";
+		else {
+			for (unsigned int i = 0; i < amount; i++)
+				result << "-";
+		}
+		freeCell(tempCell);
 	}
 	else {
-		for (unsigned int i = 0; i < amount; i++)
+		for (int i = 0; i < amount; i++)
 			result << "-";
 	}
-	freeCell(tempCell);
 	return result.str();
 }
 
@@ -417,4 +429,4 @@ unsigned int Brainfuck::getArrayPointer(unsigned int array, unsigned int index) 
 	return 2 * index + 3;
 }
 
-Brainfuck::Brainfuck() : pointer_(0) { }
+Brainfuck::Brainfuck(bool optimizeValueChanging) : pointer_(0), optimizeValueChanging_(optimizeValueChanging) { }

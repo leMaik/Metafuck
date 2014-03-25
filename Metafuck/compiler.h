@@ -37,7 +37,7 @@ private:
 	void set(unsigned int target, Argument& evaluatable);
 
 public:
-	Compiler(std::string code);
+	Compiler(std::string code, bool optimizeForSize);
 
 	CompilerEasyRegister reg();
 	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));

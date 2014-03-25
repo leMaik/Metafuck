@@ -9,6 +9,7 @@ class Brainfuck
 private:
 	std::vector<bool> cells_;
 	unsigned int pointer_;
+	bool optimizeValueChanging_; //if this is true, multiple +/- will be replaced with shorter loops
 	bool hasFreeCellsAt(unsigned int index, unsigned int count = 1) const;
 
 public:
@@ -57,6 +58,6 @@ public:
 	std::string arrayGet(unsigned int array, unsigned int index, unsigned int target);
 	unsigned int getArrayPointer(unsigned int array, unsigned int index) const;
 
-	Brainfuck();
+	Brainfuck(bool optimizeValueChanging = true);
 };
 #endif

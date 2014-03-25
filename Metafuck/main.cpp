@@ -65,7 +65,9 @@ int main(int argc, char** argv)
 		mfstream << in.rdbuf();//read the file
 		in.close();
 
-		Compiler com(mfstream.str());
+		bool shallOptimize = !vm.count("nasm"); //TODO: add a command-line parameter for this
+
+		Compiler com(mfstream.str(), shallOptimize);
 		com.lex();
 		com.compile();
 

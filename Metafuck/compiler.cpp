@@ -307,7 +307,7 @@ void Compiler::reg(const std::string& callname, const std::initializer_list<Argu
 	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1, std::placeholders::_2);
 }
 
-Compiler::Compiler(std::string code) {
+Compiler::Compiler(std::string code, bool optimizeForSize) {
 	reg()
 		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
@@ -336,6 +336,7 @@ Compiler::Compiler(std::string code) {
 
 	//Remove comments from code before we do anything else
 	code_ = remove_comments(code);
+	bf_ = Brainfuck(optimizeForSize);
 }
 
 CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
