@@ -3,6 +3,7 @@
 #include <stack>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 std::string bf2nasm(std::string bf, TargetPlatform target)
 {
@@ -43,7 +44,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"section .text use32"							"\n"
 		"..start:"										"\n"
 		"mov eax, 0"									"\n"
-		"mov[ptr],eax"									"\n"
+		"mov [ptr],eax"									"\n"
 		//"; call[AllocConsole]; get da console!"			"\n"
 		"push dword -11 ;stdout"						"\n"
 		"call [GetStdHandle] ;handle is now in eax"		"\n"
@@ -77,7 +78,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 			break;
 		case '+':
 			if (currentType != BrainfuckInstruction::Type::CHANGE_VALUE){
-				instructions.top().push_back(std::shared_ptr<ChangeValue>());
+				instructions.top().push_back(std::shared_ptr<ChangeValue>(new ChangeValue));
 				currentType = BrainfuckInstruction::Type::CHANGE_VALUE;
 			}
 			static_cast<ChangeValue&>(*instructions.top().back()).inc();
@@ -113,44 +114,13 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 			instructions.pop();
 			instructions.top().push_back(std::shared_ptr<Loop>(new Loop(nextLoop++, loopContent)));
 			currentType = BrainfuckInstruction::Type::NONE;
-			/*case '[':
-				if (i + 2 < length && bf.at(i + 1) == '-' && bf.at(i + 2) == ']') {
-				i += 2;
-				nasm <<
-				"mov ecx,[ptr]"						"\n"
-				"mov ebx,memory"					"\n"
-				"mov al,0"							"\n"
-				"mov [ebx + ecx],al"				"\n";
-				}
-				else {
-				loops.push(nextLoop);
-				nasm <<
-				"mov ecx,[ptr]"						"\n"
-				"mov ebx,memory"					"\n"
-				"mov al,[ebx + ecx]"				"\n"
-				"cmp al,0"							"\n"
-				"jz loop" << nextLoop << "_after"	"\n"
-				"loop" << nextLoop << ":"			"\n";
-				nextLoop++;
-				}
-				break;
-				case ']':
-				unsigned int loop = loops.top();
-				loops.pop();
-				nasm <<
-				"mov ecx,[ptr]"				"\n"
-				"mov ebx,memory"			"\n"
-				"mov al,[ebx + ecx]"		"\n"
-				"cmp al,0"					"\n"
-				"jnz loop" << loop << "\n"
-				"loop" << loop << "_after:"	"\n";
-				break;*/
+			break;
 		}
 
 		i++;
 	}
 
-	for (auto& instruction : instructions.top())
+	for (auto instruction : instructions.top())
 		nasm << instruction->toNasm();
 
 	if (target == TargetPlatform::UNIX)
@@ -192,7 +162,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"ret"					"\n"
 		"_print_char:"			"\n"
 		"pusha"					"\n"
-		//";push esp"				"\n"
+		//"push esp"				"\n"
 		"mov ecx,[ptr]"			"\n"
 		"mov ebx,memory"		"\n"
 		"mov al,[ebx+ecx]"		"\n"
@@ -202,12 +172,12 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"mov ecx,esp"			"\n"
 		"mov edx,1"				"\n"
 		"int 80h"				"\n"
-		//";pop esp"				"\n"
+		//"pop esp"				"\n"
 		"popa"					"\n"
 		"ret"					"\n"
 		"_get_char:"			"\n"
 		"pusha"					"\n"
-		//";push esp"				"\n"
+		//"push esp"				"\n"
 		"mov eax,3"				"\n"
 		"mov ebx,0"				"\n"
 		"mov ecx,esp"			"\n"
@@ -217,7 +187,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"mov ebx,memory"		"\n"
 		"mov al,[esp]"			"\n"
 		"mov [ebx+ecx],al"		"\n"
-		//";pop esp"				"\n"
+		//"pop esp"				"\n"
 		"popa"					"\n"
 		"ret"					"\n";
 	else if (target == TargetPlatform::WIN32NT)
@@ -258,7 +228,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"ret"					"\n"
 		"_print_char:"			"\n"
 		"pusha"					"\n"
-		//";push esp"				"\n"
+		//"push esp"				"\n"
 		"mov ecx,[ptr]"			"\n"
 		"mov ebx,memory"		"\n"
 		"mov al,[ebx+ecx]"		"\n"
@@ -269,12 +239,12 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"push dword curr"		"\n"
 		"push dword [hStdOut]"	"\n"
 		"call [WriteConsoleA]"	"\n"
-		//";pop esp"				"\n"
+		//"pop esp"				"\n"
 		"popa"					"\n"
 		"ret"					"\n"
 		"_get_char:"			"\n"
 		"pusha"					"\n"
-		//";push esp"				"\n"
+		//"push esp"				"\n"
 		"push dword 0"			"\n"
 		"push dword nBytes"		"\n"
 		"push dword 1"			"\n"
@@ -285,7 +255,7 @@ std::string bf2nasm(std::string bf, TargetPlatform target)
 		"mov ebx,memory"		"\n"
 		"mov eax,[curr]"		"\n"
 		"mov [ebx+ecx],al"		"\n"
-		//";pop esp"				"\n"
+		//"pop esp"				"\n"
 		"popa"					"\n"
 		"ret"					"\n";
 	return nasm.str();
@@ -307,17 +277,13 @@ std::string ChangeValue::toNasm(){
 			return
 				"mov ecx,[ptr]"			"\n"
 				"mov ebx,memory"		"\n"
-				"mov al,[ebx+ecx]"		"\n"
-				"inc al"				"\n"
-				"mov [ebx+ecx],al"		"\n";
+				"inc byte [ebx+ecx]"	"\n";
 		}
 		else {
 			return
 				"mov ecx,[ptr]"			"\n"
 				"mov ebx,memory"		"\n"
-				"mov al,[ebx+ecx]"		"\n"
-				"add al," + std::to_string(count) + "\n"
-				"mov [ebx+ecx],al"		"\n";
+				"add byte [ebx+ecx]," + std::to_string(count) + "\n";
 		}
 	}
 	else {
@@ -325,17 +291,13 @@ std::string ChangeValue::toNasm(){
 			return
 				"mov ecx,[ptr]"			"\n"
 				"mov ebx,memory"		"\n"
-				"mov al,[ebx+ecx]"		"\n"
-				"dec al"				"\n"
-				"mov [ebx+ecx],al"		"\n";
+				"dec byte [ebx+ecx]"	"\n";
 		}
 		else {
 			return
 				"mov ecx,[ptr]"			"\n"
 				"mov ebx,memory"		"\n"
-				"mov al,[ebx+ecx]"		"\n"
-				"sub al," + std::to_string(-count) + "\n"
-				"mov [ebx+ecx],al"		"\n";
+				"sub byte [ebx+ecx]," + std::to_string(-count) + "\n";
 		}
 	}
 }
@@ -353,30 +315,18 @@ std::string MovePointer::toNasm(){
 		return "";
 	if (count > 0){
 		if (count == 1) {
-			return
-				"mov al,[ptr]"			"\n"
-				"inc al"				"\n"
-				"mov [ptr],al"			"\n";
+			return "inc byte [ptr]"	"\n";
 		}
 		else {
-			return
-				"mov al,[ptr]"			"\n"
-				"add al," + std::to_string(count) + "\n"
-				"mov [ptr],al"			"\n";
+			return "add byte [ptr]," + std::to_string(count) + "\n";
 		}
 	}
 	else {
 		if (count == -1) {
-			return
-				"mov al,[ptr]"			"\n"
-				"dec al"				"\n"
-				"mov [ptr],al"			"\n";
+			return "dec byte [ptr]"	"\n";
 		}
 		else {
-			return
-				"mov al,[ptr]"			"\n"
-				"sub al," + std::to_string(-count) + "\n"
-				"mov [ptr],al"			"\n";
+			return "sub byte [ptr]," + std::to_string(-count) + "\n";
 		}
 	}
 }
@@ -391,10 +341,9 @@ std::string PrintChar::toNasm(){
 
 std::string ClearValue::toNasm(){
 	return
-		"mov ecx,[ptr]"		"\n"
-		"mov ebx,memory"	"\n"
-		"mov al,0"			"\n"
-		"mov[ebx+ecx],al"	"\n";
+		"mov ecx,[ptr]"			"\n"
+		"mov ebx,memory"		"\n"
+		"mov byte [ebx+ecx],0"	"\n";
 }
 
 Loop::Loop(unsigned int uniqueNumber, BrainfuckInstructions inner) : number(uniqueNumber), innerInstructions(inner) {}
@@ -407,7 +356,7 @@ std::string Loop::toNasm(){
 		"mov ebx,memory"					"\n"
 		"mov al,[ebx + ecx]"				"\n"
 		"cmp al,0"							"\n"
-		"jz loop" << number << "_after"		"\n"
+		"je loop" << number << "_after"		"\n"
 		"loop" << number << ":"				"\n";
 
 	for (auto& instruction : innerInstructions)
@@ -418,7 +367,7 @@ std::string Loop::toNasm(){
 		"mov ebx,memory"				"\n"
 		"mov al,[ebx + ecx]"			"\n"
 		"cmp al,0"						"\n"
-		"jnz loop" << number << "\n"
+		"jne loop" << number << "\n"
 		"loop" << number << "_after:"	"\n";
 
 	return out.str();
