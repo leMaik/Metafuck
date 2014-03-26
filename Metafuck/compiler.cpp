@@ -61,7 +61,7 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 							   return c.matches(k.first);
 						   });
 						   if (function != predef_functions.end()){
-							   generated_ << function->second(c, target);
+							   function->second(c, target);
 						   }
 						   else {
 							   std::cerr << "Unknown function: " << c << std::endl;
