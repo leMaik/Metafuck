@@ -80,6 +80,9 @@ std::string Brainfuck::move(unsigned int to) {
 }
 
 std::string Brainfuck::inc(unsigned int amount) {
+	if (amount == 0)
+		return "";
+
 	std::stringstream result;
 	if (optimizeValueChanging_){
 		unsigned int tempCell = allocCellNear(pointer_);
@@ -110,6 +113,9 @@ std::string Brainfuck::inc(unsigned int amount) {
 }
 
 std::string Brainfuck::dec(unsigned int amount) {
+	if (amount == 0)
+		return "";
+
 	std::stringstream result;
 	if (optimizeValueChanging_){
 		unsigned int tempCell = allocCellNear(pointer_);
