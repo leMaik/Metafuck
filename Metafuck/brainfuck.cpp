@@ -106,7 +106,7 @@ std::string Brainfuck::inc(unsigned int amount) {
 		freeCell(tempCell);
 	}
 	else {
-		for (int i = 0; i < amount; i++)
+		for (unsigned int i = 0; i < amount; i++)
 			result << "+";
 	}
 	return result.str();
@@ -139,7 +139,7 @@ std::string Brainfuck::dec(unsigned int amount) {
 		freeCell(tempCell);
 	}
 	else {
-		for (int i = 0; i < amount; i++)
+		for (unsigned int i = 0; i < amount; i++)
 			result << "-";
 	}
 	return result.str();
@@ -210,12 +210,13 @@ std::string Brainfuck::divmod(unsigned int dividend, unsigned int devisor, unsig
 }
 
 std::string Brainfuck::printNumber(unsigned int index) {
-	std::stringstream result;
-	unsigned int temp = allocCell(2);
+	//std::stringstream result;
+	//unsigned int temp = allocCell(2);
 
 	//TODO
 
-	return result.str();
+	//return result.str();
+	return "";
 }
 
 std::string Brainfuck::input(unsigned int target) {
