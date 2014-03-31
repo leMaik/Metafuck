@@ -86,12 +86,28 @@ int main(int argc, char** argv)
 				out.close();
 
 				if (target == TargetPlatform::WIN32NT){
-					system(("nasm -fobj \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
-					system(("alink -oPE -subsys console \"" + asmFilename + ".obj\" -o \"" + asmFilename + ".exe\"").c_str());
+					int nasm_res = system(("nasm -fobj \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
+					if (nasm_res == 0) {
+					   int alink_res = system(("alink -oPE -subsys console \"" + asmFilename + ".obj\" -o \"" + asmFilename + ".exe\"").c_str());
+					   if (alink_res != 0) {
+					      std::cerr << "alink failed" << std::endl;
+				      }
+			      }
+			      else {
+			         std::cerr << "nasm failed" << std::endl;
+		         }
 				}
 				else {
-					system(("nasm -felf \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
-					system(("ld -melf_i386 -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
+					int nasm_res = system(("nasm -felf \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
+					if (nasm_res == 0) {
+					   int ld_res = system(("ld -melf_i386 -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
+					   if (ld_res != 0) {
+					      std::cerr << "ld failed" << std::endl;
+				      }
+			      }
+			      else {
+			         std::cerr << "nasm failed" << std::endl;
+		         }
 				}
 			}
 		}
