@@ -7,7 +7,7 @@ OUTPUT = mf
 
 all: mf
 
-mf: Argument.o brainfuck.o Call.o CallList.o compiler.o helper.o main.o Number.o String.o Variable.o ConvenienceFuck.o PrecomFuck.o
+mf: Argument.o brainfuck.o Call.o CallList.o compiler.o helper.o main.o Number.o String.o Variable.o ConvenienceFuck.o PrecomFuck.o BrainfuckNasmConverter.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 main.o: main.cpp
@@ -44,6 +44,9 @@ ConvenienceFuck.o: Interpreter/ConvenienceFuck.cpp Interpreter/ConvenienceFuck.h
 	$(CC) -c $(CFLAGS) $<
 
 PrecomFuck.o: Interpreter/PrecomFuck.cpp Interpreter/PrecomFuck.h
+	$(CC) -c $(CFLAGS) $<
+
+BrainfuckNasmConverter.o: NasmGenerator/BrainfuckNasmConverter.cpp NasmGenerator/BrainfuckNasmConverter.h
 	$(CC) -c $(CFLAGS) $<
 
 .PHONY: clean cleanest

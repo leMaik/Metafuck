@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 				}
 				else {
 					system(("nasm -felf \"" + asmFilename + "\" -o \"" + asmFilename + ".obj\"").c_str());
-					system(("ld -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
+					system(("ld -melf_i386 -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
 				}
 			}
 		}
