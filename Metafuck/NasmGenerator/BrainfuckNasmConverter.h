@@ -61,7 +61,7 @@ public:
 	std::string toNasm();
 	Loop(unsigned int uniqueNumber, BrainfuckInstructions inner);
 private:
-	BrainfuckInstructions innerInstructions;
 	unsigned int number;
+	BrainfuckInstructions innerInstructions;
 };
 #endif
