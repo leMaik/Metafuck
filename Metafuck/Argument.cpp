@@ -4,6 +4,7 @@
 #include "String.h"
 #include "Variable.h"
 #include "Number.h"
+#include "Char.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -31,6 +32,10 @@ inline bool isString(std::string const& s) {
 	return s.length() >= 2 && *s.begin() == '"' && *s.rbegin() == '"';
 }
 
+inline bool isChar(std::string const& s) {
+	return s.length() >= 3 && *s.begin() == '\'' && *s.rbegin() == '\'';
+}
+
 Argument* parseArgument(std::string const& code)
 {
 	if (isString(code)) {
@@ -41,6 +46,9 @@ Argument* parseArgument(std::string const& code)
 	}
 	else if (isNumber(code)) {
 		return new Number(code);
+	}
+	else if (isChar(code)){
+		return new Char(code);
 	}
 	else if (isVar(code)) {
 		return new Variable(code);

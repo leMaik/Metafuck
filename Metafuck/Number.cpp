@@ -5,6 +5,9 @@ Number::Number(const std::string code) : value_(std::stol(code))
 {
 }
 
+Number::Number()
+{
+}
 
 Number::~Number()
 {

@@ -11,12 +11,13 @@ Call::Call(std::string code)
 
 	std::string currentArgument = "";
 	bool isString = false;
+	bool isChar = false;
 	bool isEscaped = false;
 	std::stack<char> keller;
 
 	for (size_t i = 0; i < code.length(); i++) {
 		char c = code[i];
-		if (!isString){
+		if (!isString && !isChar){
 			switch (c) {
 			case '(':
 			case '{':
@@ -42,6 +43,10 @@ Call::Call(std::string code)
 				isString = true;
 				currentArgument += c;
 				break;
+			case '\'':
+				isChar = true;
+				currentArgument += c;
+				break;
 			case ' ':
 				break;
 			case ',':
@@ -59,7 +64,10 @@ Call::Call(std::string code)
 				if (c == '"') {
 					isString = false;
 				}
-				else if (c == '\\'){
+				else if (c == '\'') {
+					isChar = false;
+				}
+				else if (c == '\\') {
 					isEscaped = true;
 				}
 			}
@@ -69,7 +77,7 @@ Call::Call(std::string code)
 			currentArgument += c;
 		}
 
-		if (keller.empty() && !isString && (i == code.length() - 1 || code[i + 1] == ',')) {
+		if (keller.empty() && !isString && !isChar && (i == code.length() - 1 || code[i + 1] == ',')) {
 			std::shared_ptr<Argument> arg(parseArgument(currentArgument));
 			arguments_.push_back(arg);
 			currentArgument = "";
@@ -110,8 +118,8 @@ std::ostream& operator<<(std::ostream &strm, const Call &c) {
 			strm << "Evaluatable";
 			break;
 		case Argument::CALLABLE:
-		   strm << "Callable";
-		   break;
+			strm << "Callable";
+			break;
 		}
 	}
 	return strm << ")";

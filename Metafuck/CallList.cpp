@@ -9,12 +9,13 @@ CallList::CallList(std::string code)
 {
 	std::string currentCall = "";
 	bool isString = false;
+	bool isChar = false;
 	bool isStatement = false;
 	bool isEscaped = false;
 
 	std::stack<char> keller;
 	for (const char& c : code) {
-		if (!isString){
+		if (!isString && !isChar){
 			switch (c) {
 			case '(':
 				isStatement = true;
@@ -41,6 +42,10 @@ CallList::CallList(std::string code)
 				isString = true;
 				currentCall += c;
 				break;
+			case '\'':
+				isChar = true;
+				currentCall += c;
+				break;
 			case '\n':
 			case '\r':
 			case '\t':
@@ -57,16 +62,19 @@ CallList::CallList(std::string code)
 			}
 		}
 		else {
-			if (!isEscaped){
-				if (c == '"') {
+			if (!isEscaped) {
+				if (isString && c == '"') {
 					isString = false;
 				}
-				else if (c == '\\'){
+				else if (isChar && c == '\'') {
+					isChar = false;
+				}
+				else if (c == '\\') {
 					isEscaped = true;
 				}
 			}
 			else {
-				isEscaped = false;	
+				isEscaped = false;
 			}
 			currentCall += c;
 		}

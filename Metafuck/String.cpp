@@ -9,6 +9,7 @@ String::String(std::string s) : value_(s)
 	ReplaceStringInPlace(value_, "\\\"", "\"");
 	ReplaceStringInPlace(value_, "\\/", "/");
 	ReplaceStringInPlace(value_, "\\\\", "\\");
+	ReplaceStringInPlace(value_, "\\\'", "\'");
 }
 
 String::~String()

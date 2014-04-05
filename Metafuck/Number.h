@@ -5,8 +5,9 @@
 
 class Number : public Argument
 {
-private:
+protected:
 	unsigned int value_;
+	Number();
 
 public:
 	Number(const std::string code);
