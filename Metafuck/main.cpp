@@ -79,6 +79,8 @@ int main(int argc, char** argv)
 				target = TargetPlatform::UNIX;
 
 			if (target != TargetPlatform::UNKNOWN && (vm.count("output") || !vm.count("print"))) {
+				std::cout << "___" << std::endl;
+
 				std::ofstream out;
 				std::string asmFilename = vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".asm";
 				out.open(asmFilename);
@@ -92,6 +94,10 @@ int main(int argc, char** argv)
 						if (alink_res != 0) {
 							std::cerr << "alink failed" << std::endl;
 						}
+						else if (vm.count("run")) {
+							std::cout << "___" << std::endl << "Running:" << std::endl;
+							system((asmFilename + ".exe").c_str());
+						}
 					}
 					else {
 						std::cerr << "nasm failed" << std::endl;
@@ -103,6 +109,10 @@ int main(int argc, char** argv)
 						int ld_res = system(("ld -melf_i386 -s -o \"" + asmFilename + ".out\" \"" + asmFilename + ".obj\"").c_str());
 						if (ld_res != 0) {
 							std::cerr << "ld failed" << std::endl;
+						}
+						else if (vm.count("run")) {
+							std::cout << "___" << std::endl << "Running:" << std::endl;
+							system((asmFilename + ".out").c_str());
 						}
 					}
 					else {
@@ -124,7 +134,7 @@ int main(int argc, char** argv)
 			std::cout << com.getGeneratedCode() << std::endl;
 		}
 
-		if (vm.count("run")) {
+		if (vm.count("run") && !vm.count("nasm")) {
 			std::cout << "___" << std::endl << "Running:" << std::endl;
 			RunBrainfuckProgram(com.getGeneratedCode());
 		}
