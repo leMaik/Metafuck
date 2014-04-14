@@ -4,10 +4,11 @@
 #include <iostream>
 #include <vector>
 #include <stack>
+#include <sstream>
 
 CallList::CallList(std::string code)
 {
-	std::string currentCall = "";
+	std::stringstream statement;
 	bool isString = false;
 	bool isChar = false;
 	bool isStatement = false;
@@ -21,30 +22,30 @@ CallList::CallList(std::string code)
 				isStatement = true;
 			case '{':
 				keller.push(c);
-				currentCall += c;
+				statement << c;
 				break;
 			case ')':
 				if (keller.empty() || pop(keller) != '(')
 					throw;
-				currentCall += c;
+				statement << c;
 				break;
 			case '}':
 				if (keller.empty() || pop(keller) != '{')
 					throw;
-				currentCall += c;
+				statement << c;
 				break;
 			case ';':
 				if (!keller.empty()) {
-					currentCall += c;
+					statement << c;
 				}
 				break;
 			case '"':
 				isString = true;
-				currentCall += c;
+				statement << c;
 				break;
 			case '\'':
 				isChar = true;
-				currentCall += c;
+				statement << c;
 				break;
 			case '\n':
 			case '\r':
@@ -52,12 +53,12 @@ CallList::CallList(std::string code)
 			case ' ':
 				break;
 			default:
-				currentCall += c;
+				statement << c;
 				break;
 			}
 			if (keller.empty() && isStatement){
-				statements.push_back(Call(currentCall));
-				currentCall = "";
+				statements.push_back(Call(statement.str()));
+				statement.clear();
 				isStatement = false;
 			}
 		}
@@ -76,7 +77,7 @@ CallList::CallList(std::string code)
 			else {
 				isEscaped = false;
 			}
-			currentCall += c;
+			statement << c;
 		}
 	}
 
