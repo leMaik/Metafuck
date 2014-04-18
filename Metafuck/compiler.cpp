@@ -81,34 +81,6 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 	}
 }
 
-void Compiler::evaluate(Argument& arg) {
-	switch (arg.getType()) {
-	case Argument::Type::CALLLIST:
-		for (Call statement : static_cast<CallList&>(arg).statements) {
-			evaluate(statement);
-		}
-		break;
-	case Argument::Type::CALL:
-	{
-								 Call& c = static_cast<Call&>(arg);
-								 auto method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
-									 [&c](std::pair<CallSignature, std::function<void(const Call&)>> k) -> bool {
-									 return c.matches(k.first);
-								 });
-								 if (method != std::end(predef_methods)){
-									 method->second(c);
-								 }
-								 else {
-									 std::cerr << "Unknown method: " << c << std::endl;
-								 }
-	}
-		break;
-	default:
-		std::cerr << "Argument is not evaluatable." << std::endl;
-		break;
-	}
-}
-
 void Compiler::set(const Call& c) {
 	set(getVar(c.arg<Variable&>(0)), c.arg(1));
 }

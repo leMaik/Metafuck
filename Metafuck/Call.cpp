@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stack>
 
-Call::Call(std::string code)
+Call::Call(std::string code) : Statement(code)
 {
 	std::size_t p = code.find('(');
 	function_ = code.substr(0, p);

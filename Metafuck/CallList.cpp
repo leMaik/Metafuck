@@ -1,6 +1,7 @@
 #include "CallList.h"
 #include "Call.h"
 #include "helper.h"
+#include "StatementFinder.h"
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -57,7 +58,13 @@ CallList::CallList(std::string code)
 				break;
 			}
 			if (keller.empty() && isStatement){
-				statements.push_back(Call(statement.str()));
+				auto ptr = std::unique_ptr<Statement>(getStatement(statement.str()));
+				if (ptr == nullptr){
+					std::cout << "Could not compile " << statement.str() << std::endl;
+				}
+				else {
+					statements.push_back(std::move(ptr));
+				}
 				statement.clear();
 				isStatement = false;
 			}

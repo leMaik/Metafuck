@@ -3,8 +3,10 @@
 
 #include "Argument.h"
 #include "Call.h"
+#include "Statement.h"
 #include <string>
 #include <stack>
+#include <memory>
 
 class CallList : public Argument
 {
@@ -14,7 +16,7 @@ public:
 	~CallList();
 	Argument::Type getType() const;
 
-	std::vector<Call> statements;
+	std::vector<std::unique_ptr<Statement>> statements;
 };
 
 #endif

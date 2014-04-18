@@ -1,6 +1,7 @@
 #ifndef CALL_H
 #define CALL_H
 
+#include "Statement.h"
 #include "Argument.h"
 #include <string>
 #include <vector>
@@ -8,7 +9,7 @@
 
 typedef std::pair<std::string, std::vector<Argument::Type>> CallSignature;
 
-class Call : public Argument
+class Call : public Statement
 {
 public:
 	Call(std::string code);
