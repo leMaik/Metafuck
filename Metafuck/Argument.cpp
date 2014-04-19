@@ -5,6 +5,7 @@
 #include "Variable.h"
 #include "Number.h"
 #include "Char.h"
+#include "StatementFinder.h"
 #include <iostream>
 #include <ctype.h>
 
@@ -54,7 +55,7 @@ Argument* parseArgument(std::string const& code)
 		return new Variable(code);
 	}
 	else if (code[code.length() - 1] == ')') {
-		return new Call(code);
+		return getStatement(code);
 	}
 	//return nullptr;
 	throw; //TODO: Create an exception class for that

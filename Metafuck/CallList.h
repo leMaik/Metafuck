@@ -2,21 +2,24 @@
 #define CALLLIST_H
 
 #include "Argument.h"
-#include "Call.h"
 #include "Statement.h"
 #include <string>
-#include <stack>
 #include <memory>
+#include <vector>
 
-class CallList : public Argument
+class CallList : public Statement
 {
 public:
 	CallList();
 	CallList(std::string code);
-	~CallList();
+
+	std::string compile(Compiler& cmp, Brainfuck& bf);
+	std::string toString() const;
+	bool returns() const;
 	Argument::Type getType() const;
 
-	std::vector<std::unique_ptr<Statement>> statements;
+private:
+	std::vector<std::shared_ptr<Statement>> statements_;
 };
 
 #endif

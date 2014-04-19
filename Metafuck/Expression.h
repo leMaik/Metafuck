@@ -2,6 +2,7 @@
 #define EXPRESSION_H
 
 #include "Statement.h"
+#include "compiler.h"
 #include <string>
 
 class Expression : public Statement

@@ -7,7 +7,7 @@
 #include <stack>
 #include <sstream>
 
-CallList::CallList(std::string code)
+CallList::CallList(std::string code) : Statement(code)
 {
 	std::stringstream statement;
 	bool isString = false;
@@ -58,12 +58,12 @@ CallList::CallList(std::string code)
 				break;
 			}
 			if (keller.empty() && isStatement){
-				auto ptr = std::unique_ptr<Statement>(getStatement(statement.str()));
+				auto ptr = std::shared_ptr<Statement>(getStatement(statement.str()));
 				if (ptr == nullptr){
 					std::cout << "Could not compile " << statement.str() << std::endl;
 				}
 				else {
-					statements.push_back(std::move(ptr));
+					statements_.push_back(std::move(ptr));
 				}
 				statement.clear();
 				isStatement = false;
@@ -93,12 +93,24 @@ CallList::CallList(std::string code)
 	}
 }
 
-CallList::CallList()
+CallList::CallList() : Statement("")
 {
+
 }
 
-CallList::~CallList()
-{
+std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
+	std::stringstream output;
+	for (auto statement : statements_)
+		output << statement->compile(cmp, bf);
+	return output.str();
+}
+
+std::string CallList::toString() const{
+	return "CallList";
+}
+
+bool CallList::returns() const {
+	return false;
 }
 
 Argument::Type CallList::getType() const {

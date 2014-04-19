@@ -1,18 +1,21 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
-#include "brainfuck.h"
-#include "compiler.h"
+#include "Argument.h"
 #include <string>
 
-class Statement
+class Compiler;
+class Brainfuck;
+
+class Statement : public Argument
 {
 public:
 	Statement(std::string code);
-	virtual ~Statement() = default;
 
 	virtual std::string compile(Compiler& cmp, Brainfuck& bf) = 0;
 	virtual std::string toString() const = 0;
+	virtual bool returns() const = 0;
+	virtual Argument::Type getType() const = 0;
 
 protected:
 	std::string code_;

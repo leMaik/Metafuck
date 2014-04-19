@@ -14,8 +14,6 @@
 #include <utility>
 #include <functional>
 
-class CompilerEasyRegister;
-
 class Compiler
 {
 private:
@@ -23,8 +21,6 @@ private:
 	std::string code_;
 	std::stringstream generated_;
 	CallList lexed_;
-	std::map<CallSignature, std::function<void(const Call&)>> predef_methods;
-	std::map<CallSignature, std::function<unsigned int(const Call&, unsigned int)>> predef_functions;
 	std::map<std::string, unsigned int> vars_;
 
 	unsigned int getVar(const Variable& variable);
@@ -32,16 +28,11 @@ private:
 	bool isString(const std::string &s) const;
 	unsigned int evaluateTo(Argument& arg);
 	void evaluateTo(Argument& arg, unsigned int target);
-	void evaluate(Argument& arg);
 
 	void set(unsigned int target, Argument& evaluatable);
 
 public:
 	Compiler(std::string code, bool optimizeForSize);
-
-	CompilerEasyRegister reg();
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
 
 	bool validate();
 	std::size_t lex();
@@ -76,15 +67,6 @@ public:
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
-};
-
-class CompilerEasyRegister {
-public:
-	CompilerEasyRegister(Compiler& owner);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
-private:
-	Compiler& owner_;
 };
 
 std::string remove_comments(const std::string& code);

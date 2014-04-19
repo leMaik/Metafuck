@@ -89,56 +89,20 @@ Call::Call(std::string code) : Statement(code)
 	}
 }
 
-std::ostream& operator<<(std::ostream &strm, const Call &c) {
-	strm << c.getFunction() << "(";
-	bool first = true;
-	for (auto& a : c.getSignature().second){
-		if (!first)
-			strm << ", ";
-		else
-			first = false;
-
-		switch (a) {
-		case Argument::CALL:
-			strm << "Call";
-			break;
-		case Argument::CALLLIST:
-			strm << "CallList";
-			break;
-		case Argument::STRING:
-			strm << "String";
-			break;
-		case Argument::VARIABLE:
-			strm << "Variable";
-			break;
-		case Argument::INTEGER:
-			strm << "Integer";
-			break;
-		case Argument::EVALUATABLE:
-			strm << "Evaluatable";
-			break;
-		case Argument::CALLABLE:
-			strm << "Callable";
-			break;
-		}
-	}
-	return strm << ")";
-}
-
 Argument::Type Call::getType() const {
 	return CALL;
 }
 
-CallSignature Call::getSignature() const {
-	std::vector<Argument::Type> params;
-	for (auto &a : arguments_) {
-		params.push_back(a->getType());
-	}
-	CallSignature r;
-	r.first = getFunction();
-	r.second = params;
-	return r;
-}
+//CallSignature Call::getSignature() const {
+//	std::vector<Argument::Type> params;
+//	for (auto &a : arguments_) {
+//		params.push_back(a->getType());
+//	}
+//	CallSignature r;
+//	r.first = getFunction();
+//	r.second = params;
+//	return r;
+//}
 
 bool Call::matches(CallSignature sig) const {
 	if (arguments_.size() != sig.second.size() || sig.first != function_) //TODO: Make case-insensitive check here?
@@ -158,8 +122,4 @@ bool Call::matches(CallSignature sig) const {
 
 std::string Call::getFunction() const {
 	return function_;
-}
-
-Call::~Call()
-{
 }
