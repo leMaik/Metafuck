@@ -3,17 +3,14 @@
 #include "../brainfuck.h"
 #include "../String.h"
 
-Print::Print(std::string code) : Procedure(code)
-{
-
-}
+Print::Print(Call const& call) : Procedure(call){}
 
 std::string Print::compile(Compiler& cmp, Brainfuck& bf)
 {
 	return bf.printString(arg<String>(0).getValue());
 }
 
-bool Print::matches(std::string code)
+bool Print::matches(Call const& call) //TODO use CallSignature here
 {
-	return true;
+	return call.getFunction() == "print" && call.arg(0).getType() == Argument::STRING;
 }

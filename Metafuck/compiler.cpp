@@ -83,183 +83,183 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 	//}
 }
 
-void Compiler::set(const Call& c) {
-	set(getVar(c.arg<Variable&>(0)), c.arg(1));
-}
+//void Compiler::set(const Call& c) {
+//	set(getVar(c.arg<Variable&>(0)), c.arg(1));
+//}
+//
+//void Compiler::set(unsigned int target, Argument& evaluatable){
+//	//generates the code that sets ´target´ to the evaluated value of ´evaluated´
+//
+//	if (evaluatable.getType() == Argument::INTEGER)
+//		generated_ << bf_.set(target, static_cast<Number&>(evaluatable).getValue());
+//	else
+//		evaluateTo(evaluatable, target);
+//}
+//
+//void Compiler::add_const(const Call& c) {
+//	generated_ << bf_.add(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
+//}
+//
+//void Compiler::add_ev(const Call& c) {
+//	generated_ << bf_.addCellTo(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
+//}
+//
+//void Compiler::sub_const(const Call& c) {
+//	generated_ << bf_.sub(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
+//}
+//
+//void Compiler::sub_ev(const Call& c) {
+//	generated_ << bf_.subCellFrom(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
+//}
+//
+//void Compiler::div(const Call& c) {
+//	unsigned int cells = bf_.allocCell(2);
+//	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
+//	generated_ << bf_.copy(cells, getVar(c.arg<Variable>(2)));
+//	bf_.freeCell(cells);
+//	bf_.freeCell(cells + 1);
+//}
+//
+//void Compiler::mod(const Call& c) {
+//	unsigned int cells = bf_.allocCell(2);
+//	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
+//	generated_ << bf_.copy(cells + 1, getVar(c.arg<Variable>(2)));
+//	bf_.freeCell(cells);
+//	bf_.freeCell(cells + 1);
+//}
+//
+//void Compiler::print(const Call& c) {
+//	if (c.arg(0).getType() == Argument::STRING)
+//		generated_ << bf_.printString(c.arg<String>(0).getValue());
+//	else
+//		generated_ << bf_.print(evaluateTo(c.arg(0)));
+//}
+//
+//void Compiler::printNumber(const Call& c) {
+//	generated_ << bf_.printNumber(evaluateTo(c.arg(0)));
+//}
+//
+//void Compiler::input(const Call& c) {
+//	generated_ << bf_.input(evaluateTo(c.arg(0)));
+//}
+//
+//void Compiler::if_fn(const Call& c) {
+//	unsigned int x = bf_.allocCell();
+//	evaluateTo(c.arg(0), x);
+//	generated_ << bf_.move(x) << "[";
+//	c.arg<CallList>(1).compile(*this, bf_);
+//	generated_ << bf_.set(x, 0) << "]";
+//}
+//
+//void Compiler::if_else_fn(const Call& c) {
+//	unsigned int temp0 = bf_.allocCell();
+//	unsigned int temp1 = bf_.allocCell();
+//	evaluateTo(c.arg(0), temp1);
+//	generated_ << bf_.set(temp0, 1);
+//	generated_ << bf_.move(temp1) << "[";
+//	c.arg<CallList>(1).compile(*this, bf_);
+//	generated_ << bf_.move(temp0) << "-";
+//	generated_ << bf_.set(temp1, 0) << "]";
+//	generated_ << bf_.move(temp0) << "[";
+//	c.arg<CallList>(2).compile(*this, bf_);
+//	generated_ << bf_.move(temp0) << "-]";
+//	bf_.freeCell(temp0);
+//	bf_.freeCell(temp1);
+//}
+//
+//void Compiler::while_fn(const Call& c) {
+//	unsigned int temp = evaluateTo(c.arg(0));
+//	generated_ << bf_.move(temp) << "[";
+//	c.arg<Statement>(1).compile(*this, bf_);
+//	evaluateTo(c.arg(0), temp);
+//	generated_ << bf_.move(temp) << "]";
+//	if (c.arg(0).getType() == Argument::CALL) {
+//		bf_.freeCell(temp);
+//	}
+//}
+//
+//void Compiler::do_while_fn(const Call& c) {
+//	unsigned int temp = bf_.allocCell();
+//	generated_ << bf_.set(temp, 1);
+//	generated_ << bf_.move(temp) << "[";
+//	c.arg<Statement>(0).compile(*this, bf_);
+//	evaluateTo(c.arg(1), temp);
+//	generated_ << bf_.move(temp) << "]";
+//	if (c.arg(1).getType() == Argument::CALL) {
+//		bf_.freeCell(temp);
+//	}
+//}
+//
+//void Compiler::for_fn(const Call& c) {
+//	unsigned int var = getVar(c.arg<Variable>(0));
+//	set(var, c.arg(1)); //set iteration variable to start value
+//
+//	//now, it's similar to while_fn...
+//	unsigned int temp = bf_.allocCell();
+//	evaluateTo(c.arg(2), temp);
+//	generated_ << bf_.move(temp) << "[";
+//	c.arg<Statement>(4).compile(*this, bf_); //code in the loop
+//	c.arg<Statement>(3).compile(*this, bf_); //step
+//	evaluateTo(c.arg(2), temp);
+//	generated_ << bf_.move(temp) << "]";
+//
+//	bf_.freeCell(temp);
+//}
+//
+//unsigned int Compiler::iseq(const Call& c, unsigned int result) {
+//	generated_ << bf_.isEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
+//	return result;
+//}
+//
+//unsigned int Compiler::isnoteq(const Call& c, unsigned int result) {
+//	generated_ << bf_.isNotEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
+//	return result;
+//}
+//
+//unsigned int Compiler::not_fn(const Call& c, unsigned int result) {
+//	generated_ << bf_.isNot(evaluateTo(c.arg(0)), result);
+//	return result;
+//}
+//
+//unsigned int Compiler::and_fn(const Call& c, unsigned int result) {
+//	generated_ << bf_.logicalAnd(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
+//	return result;
+//}
+//
+//unsigned int Compiler::or_fn(const Call& c, unsigned int result) {
+//	generated_ << bf_.logicalOr(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
+//	return result;
+//}
+//
+//void Compiler::array_init(const Call& c) {
+//	unsigned int result = bf_.initArray(c.arg<Number>(1).getValue());
+//	generated_ << bf_.set(result, 0);
+//	vars_[c.arg<Variable>(0).getName()] = result;
+//}
+//
+//void Compiler::array_set(const Call& c) {
+//	if (c.arg(1).getType() == Argument::INTEGER){
+//		auto target = bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
+//		if (c.arg(2).getType() == Argument::INTEGER)
+//			generated_ << bf_.set(target, c.arg<Number>(2).getValue());
+//		else
+//			generated_ << bf_.copy(evaluateTo(c.arg(2)), target);
+//	}
+//	else
+//		generated_ << bf_.arraySet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), evaluateTo(c.arg(2)));
+//}
+//
+//unsigned int Compiler::array_get(const Call& c, unsigned int result) {
+//	if (c.arg(1).getType() == Argument::INTEGER)
+//		generated_ << bf_.copy(bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue()), result);
+//	else
+//		generated_ << bf_.arrayGet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), result);
+//	return result;
+//}
 
-void Compiler::set(unsigned int target, Argument& evaluatable){
-	//generates the code that sets ´target´ to the evaluated value of ´evaluated´
-
-	if (evaluatable.getType() == Argument::INTEGER)
-		generated_ << bf_.set(target, static_cast<Number&>(evaluatable).getValue());
-	else
-		evaluateTo(evaluatable, target);
-}
-
-void Compiler::add_const(const Call& c) {
-	generated_ << bf_.add(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-}
-
-void Compiler::add_ev(const Call& c) {
-	generated_ << bf_.addCellTo(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
-}
-
-void Compiler::sub_const(const Call& c) {
-	generated_ << bf_.sub(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-}
-
-void Compiler::sub_ev(const Call& c) {
-	generated_ << bf_.subCellFrom(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
-}
-
-void Compiler::div(const Call& c) {
-	unsigned int cells = bf_.allocCell(2);
-	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
-	generated_ << bf_.copy(cells, getVar(c.arg<Variable>(2)));
-	bf_.freeCell(cells);
-	bf_.freeCell(cells + 1);
-}
-
-void Compiler::mod(const Call& c) {
-	unsigned int cells = bf_.allocCell(2);
-	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
-	generated_ << bf_.copy(cells + 1, getVar(c.arg<Variable>(2)));
-	bf_.freeCell(cells);
-	bf_.freeCell(cells + 1);
-}
-
-void Compiler::print(const Call& c) {
-	if (c.arg(0).getType() == Argument::STRING)
-		generated_ << bf_.printString(c.arg<String>(0).getValue());
-	else
-		generated_ << bf_.print(evaluateTo(c.arg(0)));
-}
-
-void Compiler::printNumber(const Call& c) {
-	generated_ << bf_.printNumber(evaluateTo(c.arg(0)));
-}
-
-void Compiler::input(const Call& c) {
-	generated_ << bf_.input(evaluateTo(c.arg(0)));
-}
-
-void Compiler::if_fn(const Call& c) {
-	unsigned int x = bf_.allocCell();
-	evaluateTo(c.arg(0), x);
-	generated_ << bf_.move(x) << "[";
-	c.arg<CallList>(1).compile(*this, bf_);
-	generated_ << bf_.set(x, 0) << "]";
-}
-
-void Compiler::if_else_fn(const Call& c) {
-	unsigned int temp0 = bf_.allocCell();
-	unsigned int temp1 = bf_.allocCell();
-	evaluateTo(c.arg(0), temp1);
-	generated_ << bf_.set(temp0, 1);
-	generated_ << bf_.move(temp1) << "[";
-	c.arg<CallList>(1).compile(*this, bf_);
-	generated_ << bf_.move(temp0) << "-";
-	generated_ << bf_.set(temp1, 0) << "]";
-	generated_ << bf_.move(temp0) << "[";
-	c.arg<CallList>(2).compile(*this, bf_);
-	generated_ << bf_.move(temp0) << "-]";
-	bf_.freeCell(temp0);
-	bf_.freeCell(temp1);
-}
-
-void Compiler::while_fn(const Call& c) {
-	unsigned int temp = evaluateTo(c.arg(0));
-	generated_ << bf_.move(temp) << "[";
-	c.arg<Statement>(1).compile(*this, bf_);
-	evaluateTo(c.arg(0), temp);
-	generated_ << bf_.move(temp) << "]";
-	if (c.arg(0).getType() == Argument::CALL) {
-		bf_.freeCell(temp);
-	}
-}
-
-void Compiler::do_while_fn(const Call& c) {
-	unsigned int temp = bf_.allocCell();
-	generated_ << bf_.set(temp, 1);
-	generated_ << bf_.move(temp) << "[";
-	c.arg<Statement>(0).compile(*this, bf_);
-	evaluateTo(c.arg(1), temp);
-	generated_ << bf_.move(temp) << "]";
-	if (c.arg(1).getType() == Argument::CALL) {
-		bf_.freeCell(temp);
-	}
-}
-
-void Compiler::for_fn(const Call& c) {
-	unsigned int var = getVar(c.arg<Variable>(0));
-	set(var, c.arg(1)); //set iteration variable to start value
-
-	//now, it's similar to while_fn...
-	unsigned int temp = bf_.allocCell();
-	evaluateTo(c.arg(2), temp);
-	generated_ << bf_.move(temp) << "[";
-	c.arg<Statement>(4).compile(*this, bf_); //code in the loop
-	c.arg<Statement>(3).compile(*this, bf_); //step
-	evaluateTo(c.arg(2), temp);
-	generated_ << bf_.move(temp) << "]";
-
-	bf_.freeCell(temp);
-}
-
-unsigned int Compiler::iseq(const Call& c, unsigned int result) {
-	generated_ << bf_.isEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-unsigned int Compiler::isnoteq(const Call& c, unsigned int result) {
-	generated_ << bf_.isNotEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-unsigned int Compiler::not_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.isNot(evaluateTo(c.arg(0)), result);
-	return result;
-}
-
-unsigned int Compiler::and_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.logicalAnd(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-unsigned int Compiler::or_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.logicalOr(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-void Compiler::array_init(const Call& c) {
-	unsigned int result = bf_.initArray(c.arg<Number>(1).getValue());
-	generated_ << bf_.set(result, 0);
-	vars_[c.arg<Variable>(0).getName()] = result;
-}
-
-void Compiler::array_set(const Call& c) {
-	if (c.arg(1).getType() == Argument::INTEGER){
-		auto target = bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-		if (c.arg(2).getType() == Argument::INTEGER)
-			generated_ << bf_.set(target, c.arg<Number>(2).getValue());
-		else
-			generated_ << bf_.copy(evaluateTo(c.arg(2)), target);
-	}
-	else
-		generated_ << bf_.arraySet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), evaluateTo(c.arg(2)));
-}
-
-unsigned int Compiler::array_get(const Call& c, unsigned int result) {
-	if (c.arg(1).getType() == Argument::INTEGER)
-		generated_ << bf_.copy(bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue()), result);
-	else
-		generated_ << bf_.arrayGet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-Statement* Compiler::getStatement(const std::string code)
+Statement* Compiler::getStatement(Call const& call)
 {
-	return get_statement<BOOST_PP_SEQ_ENUM(MF_METHODS)>(code);
+	return get_statement<BOOST_PP_SEQ_ENUM(MF_METHODS)>(call);
 }
 
 void Compiler::compile() {

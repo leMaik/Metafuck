@@ -1,6 +1,6 @@
 #include "Expression.h"
 
-Expression::Expression(std::string code) : Statement(code)
+Expression::Expression(std::string code) 
 {
 }
 

@@ -1,8 +1,7 @@
 #include "Procedure.h"
 #include <string>
 
-
-Procedure::Procedure(std::string code) : Call(code)
+Procedure::Procedure(Call const& call) : call_(call)
 {
 }
 

@@ -3,13 +3,14 @@
 
 #include "../Procedure.h"
 #include "../compiler.h"
+#include "../Call.h"
 
 class Print : public Procedure
 {
 public:
-	Print(std::string code);
+	Print(Call const& call);
 	std::string compile(Compiler& cmp, Brainfuck& bf);
-	static bool matches(std::string code);
+	static bool matches(Call const& call);
 };
 
 #endif

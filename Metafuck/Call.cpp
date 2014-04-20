@@ -1,10 +1,10 @@
 #include "Call.h"
+#include "Argument.h"
 #include "helper.h"
 #include <iostream>
 #include <stack>
 
-Call::Call(std::string code) : Statement(code)
-{
+Call::Call(std::string code){
 	std::size_t p = code.find('(');
 	function_ = code.substr(0, p);
 	code = code.substr(p + 1, code.length() - p - 2);

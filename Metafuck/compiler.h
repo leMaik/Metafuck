@@ -65,7 +65,7 @@ public:
 	void array_set(const Call& c);
 	unsigned int array_get(const Call& c, unsigned int result);
 
-	Statement* getStatement(const std::string code);
+	Statement* getStatement(Call const& call);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;

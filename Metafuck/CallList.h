@@ -3,14 +3,15 @@
 
 #include "Argument.h"
 #include "Statement.h"
+#include "Call.h"
 #include <string>
 #include <memory>
 #include <vector>
 
-class CallList : public Statement
+class CallList : public Call
 {
 public:
-	CallList();
+	CallList() = default;
 	CallList(std::string code);
 
 	std::string compile(Compiler& cmp, Brainfuck& bf);
@@ -19,7 +20,7 @@ public:
 	Argument::Type getType() const;
 
 private:
-	std::vector<std::string> statements_;
+	std::vector<Call> statements_;
 };
 
 #endif

@@ -7,7 +7,7 @@
 #include <stack>
 #include <sstream>
 
-CallList::CallList(std::string code) : Statement(code)
+CallList::CallList(std::string code)
 {
 	std::stringstream statement;
 	bool isString = false;
@@ -21,6 +21,9 @@ CallList::CallList(std::string code) : Statement(code)
 			switch (c) {
 			case '(':
 				isStatement = true;
+				keller.push(c);
+				statement << c;
+				break;
 			case '{':
 				keller.push(c);
 				statement << c;
@@ -58,7 +61,7 @@ CallList::CallList(std::string code) : Statement(code)
 				break;
 			}
 			if (keller.empty() && isStatement){
-				statements_.push_back(statement.str());
+				statements_.push_back(Call(statement.str()));
 				statement.clear();
 				isStatement = false;
 			}
@@ -87,17 +90,12 @@ CallList::CallList(std::string code) : Statement(code)
 	}
 }
 
-CallList::CallList() : Statement("")
-{
-
-}
-
 std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
 	std::stringstream output;
-	for (auto statement : statements_) {
-		auto ptr = std::shared_ptr<Statement>(cmp.getStatement(statement));
+	for (auto& statement : statements_) {
+		auto ptr = std::shared_ptr<Statement>(cmp.getStatement(statement)); //TODO use CallSignature
 		if (ptr == nullptr){
-			std::cout << "Could not compile " << statement << std::endl;
+			std::cout << "Unknown function '" << statement.getFunction() << "'." << std::endl;
 		}
 		else {
 			output << ptr->compile(cmp, bf);

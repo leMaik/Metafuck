@@ -9,14 +9,13 @@
 
 typedef std::pair<std::string, std::vector<Argument::Type>> CallSignature;
 
-class Call : public Statement
+class Call : public Argument
 {
 public:
 	Call(std::string code);
 	Argument::Type getType() const;
-	//bool matches(CallSignature sig) const;
-
 	std::string getFunction() const;
+
 	inline Argument& arg(unsigned int index) const {
 		return *arguments_.at(index);
 	}
@@ -25,6 +24,9 @@ public:
 	inline T& arg(unsigned int index) const {
 		return static_cast<T&>(*arguments_[index]);
 	}
+
+protected:
+	Call() = default;
 
 private:
 	std::string function_;
