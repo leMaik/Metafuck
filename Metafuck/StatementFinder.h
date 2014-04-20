@@ -7,9 +7,9 @@ struct StatementFinder
 	static Statement* find(std::string const& code)
 	{
 		if (!T::matches(code))
-			return A<List...>::find(code);
+			return StatementFinder<List...>::find(code);
 		else
-			return new T{};
+			return new T{ code };
 	}
 };
 
@@ -23,7 +23,7 @@ struct StatementFinder <void>
 };
 
 template <typename ... List>
-Statement* getStatement(std::string const& code)
+Statement* get_statement(std::string const& code)
 {
 	return StatementFinder<List..., void>::find(code);
 }

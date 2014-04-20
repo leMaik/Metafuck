@@ -4,6 +4,8 @@
 #include "String.h"
 #include "Number.h"
 #include "helper.h"
+#include "mfimpl/mfimpl.h"
+#include "StatementFinder.h"
 #include <algorithm>
 #include <locale>
 
@@ -255,8 +257,13 @@ unsigned int Compiler::array_get(const Call& c, unsigned int result) {
 	return result;
 }
 
+Statement* Compiler::getStatement(const std::string code)
+{
+	return get_statement<BOOST_PP_SEQ_ENUM(MF_METHODS)>(code);
+}
+
 void Compiler::compile() {
-	lexed_.compile(*this, bf_);
+	generated_ << lexed_.compile(*this, bf_);
 }
 
 std::string Compiler::getCode() const {

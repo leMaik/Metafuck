@@ -19,7 +19,7 @@ public:
 	Argument::Type getType() const;
 
 private:
-	std::vector<std::shared_ptr<Statement>> statements_;
+	std::vector<std::string> statements_;
 };
 
 #endif

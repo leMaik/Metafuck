@@ -55,7 +55,7 @@ Argument* parseArgument(std::string const& code)
 		return new Variable(code);
 	}
 	else if (code[code.length() - 1] == ')') {
-		return getStatement(code);
+		//return getStatement(code); //TODO!!!!!
 	}
 	//return nullptr;
 	throw; //TODO: Create an exception class for that

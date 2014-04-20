@@ -9,12 +9,12 @@
 
 typedef std::pair<std::string, std::vector<Argument::Type>> CallSignature;
 
-class Call : Statement
+class Call : public Statement
 {
 public:
 	Call(std::string code);
 	Argument::Type getType() const;
-	bool matches(CallSignature sig) const;
+	//bool matches(CallSignature sig) const;
 
 	std::string getFunction() const;
 	inline Argument& arg(unsigned int index) const {

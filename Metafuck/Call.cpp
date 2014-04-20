@@ -104,21 +104,21 @@ Argument::Type Call::getType() const {
 //	return r;
 //}
 
-bool Call::matches(CallSignature sig) const {
-	if (arguments_.size() != sig.second.size() || sig.first != function_) //TODO: Make case-insensitive check here?
-		return false;
-	//assert: lengths are now equal
-	std::vector<Type>::iterator itr = sig.second.begin();
-	for (auto& i : arguments_) {
-		if (i->getType() != *itr
-			&& !(*itr == Type::EVALUATABLE && isEvaluatable(i->getType()))
-			&& !(*itr == Type::CALLABLE && isCallable(i->getType()))
-			)
-			return false;
-		itr++;
-	}
-	return true;
-}
+//bool Call::matches(CallSignature sig) const {
+//	if (arguments_.size() != sig.second.size() || sig.first != function_) //TODO: Make case-insensitive check here?
+//		return false;
+//	//assert: lengths are now equal
+//	std::vector<Type>::iterator itr = sig.second.begin();
+//	for (auto& i : arguments_) {
+//		if (i->getType() != *itr
+//			&& !(*itr == Type::EVALUATABLE && isEvaluatable(i->getType()))
+//			&& !(*itr == Type::CALLABLE && isCallable(i->getType()))
+//			)
+//			return false;
+//		itr++;
+//	}
+//	return true;
+//}
 
 std::string Call::getFunction() const {
 	return function_;

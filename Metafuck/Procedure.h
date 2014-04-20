@@ -3,11 +3,12 @@
 
 #include "Call.h"
 #include <string>
-class Procedure : Call
+class Procedure : public Call
 {
 public:
 	Procedure(std::string code);
-	virtual bool returns() const;
+	bool returns() const;
+	std::string toString() const;
 };
 
 #endif
