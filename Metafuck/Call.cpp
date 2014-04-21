@@ -3,13 +3,14 @@
 #include "helper.h"
 #include <iostream>
 #include <stack>
+#include <sstream>
 
 Call::Call(std::string code){
 	std::size_t p = code.find('(');
 	function_ = code.substr(0, p);
 	code = code.substr(p + 1, code.length() - p - 2);
 
-	std::string currentArgument = "";
+	std::stringstream currentArgument;
 	bool isString = false;
 	bool isChar = false;
 	bool isEscaped = false;
@@ -22,40 +23,40 @@ Call::Call(std::string code){
 			case '(':
 			case '{':
 				keller.push(c);
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			case ')':
 				if (keller.empty() || pop(keller) != '(')
 					throw;
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			case '}':
 				if (keller.empty() || pop(keller) != '{')
 					throw;
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			case ';':
 				if (!keller.empty()) {
-					currentArgument += c;
+					currentArgument << c;
 				}
 				break;
 			case '"':
 				isString = true;
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			case '\'':
 				isChar = true;
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			case ' ':
 				break;
 			case ',':
 				if (keller.size() > 0){ //if it isn't a comma that separates parameters of this call
-					currentArgument += c;
+					currentArgument << c;
 				}
 				break;
 			default:
-				currentArgument += c;
+				currentArgument << c;
 				break;
 			}
 		}
@@ -74,13 +75,16 @@ Call::Call(std::string code){
 			else {
 				isEscaped = false;
 			}
-			currentArgument += c;
+			currentArgument << c;
 		}
 
 		if (keller.empty() && !isString && !isChar && (i == code.length() - 1 || code[i + 1] == ',')) {
-			std::shared_ptr<Argument> arg(parseArgument(currentArgument));
+			std::shared_ptr<Argument> arg(parseArgument(currentArgument.str()));
 			arguments_.push_back(arg);
-			currentArgument = "";
+
+			//this clears the stringstream
+			currentArgument.str(std::string());
+			currentArgument.clear();
 		}
 	}
 

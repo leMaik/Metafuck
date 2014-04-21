@@ -61,8 +61,13 @@ CallList::CallList(std::string code)
 				break;
 			}
 			if (keller.empty() && isStatement){
+				std::cout << statement.str() << std::endl;
 				statements_.push_back(Call(statement.str()));
+
+				//this clears the stringstream
+				statement.str(std::string());
 				statement.clear();
+
 				isStatement = false;
 			}
 		}
