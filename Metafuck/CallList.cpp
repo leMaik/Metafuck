@@ -2,10 +2,13 @@
 #include "Call.h"
 #include "helper.h"
 #include "compiler.h"
+#include "Expression.h"
+#include "ExpressionString.h"
 #include <iostream>
 #include <vector>
 #include <stack>
 #include <sstream>
+#include <memory>
 
 CallList::CallList(std::string code)
 {
@@ -39,7 +42,23 @@ CallList::CallList(std::string code)
 				statement << c;
 				break;
 			case ';':
-				if (!keller.empty()) {
+				if (keller.empty()) {
+					if (isStatement){
+						std::cout << statement.str() << std::endl;
+						statements_.push_back(std::unique_ptr<Call>(new Call(statement.str())));
+
+						isStatement = false;
+					}
+					else {
+						std::cout << "Expression: '" << statement.str() << "'" << std::endl;
+						statements_.push_back(std::unique_ptr<ExpressionString>(new ExpressionString(statement.str())));
+					}
+
+					//this clears the stringstream
+					statement.str(std::string());
+					statement.clear();
+				}
+				else {
 					statement << c;
 				}
 				break;
@@ -59,16 +78,6 @@ CallList::CallList(std::string code)
 			default:
 				statement << c;
 				break;
-			}
-			if (keller.empty() && isStatement){
-				std::cout << statement.str() << std::endl;
-				statements_.push_back(Call(statement.str()));
-
-				//this clears the stringstream
-				statement.str(std::string());
-				statement.clear();
-
-				isStatement = false;
 			}
 		}
 		else {
@@ -98,12 +107,18 @@ CallList::CallList(std::string code)
 std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
 	std::stringstream output;
 	for (auto& statement : statements_) {
-		auto ptr = std::shared_ptr<Statement>(cmp.getStatement(statement)); //TODO use CallSignature
-		if (ptr == nullptr){
-			std::cout << "Unknown function '" << statement.getFunction() << "'." << std::endl;
+		if (statement->getType() == Argument::CALL){
+			Call call = static_cast<Call&>(*statement);
+			auto ptr = std::unique_ptr<Statement>(cmp.getStatement(call)); //TODO use CallSignature
+			if (ptr == nullptr){
+				std::cout << "Unknown function '" << call.getFunction() << "'." << std::endl;
+			}
+			else {
+				output << ptr->compile(cmp, bf);
+			}
 		}
-		else {
-			output << ptr->compile(cmp, bf);
+		else if (statement->getType() == Argument::EXPRESSION){
+			Expression(static_cast<ExpressionString&>(*statement).expression).compile(cmp, bf);
 		}
 	}
 	return output.str();

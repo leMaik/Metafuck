@@ -20,7 +20,7 @@ public:
 	Argument::Type getType() const;
 
 private:
-	std::vector<Call> statements_;
+	std::vector<std::unique_ptr<Argument>> statements_;
 };
 
 #endif

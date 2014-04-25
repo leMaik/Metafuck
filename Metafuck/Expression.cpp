@@ -1,14 +1,19 @@
 #include "Expression.h"
 
-Expression::Expression(std::string code) 
+Expression::Expression(std::string code)
 {
 }
 
 std::string Expression::compile(Compiler& cmp, Brainfuck& bf){
-	return "";
+	return ".";
 }
 
-bool Expression::matches(std::string code)
+std::string Expression::toString() const
 {
-	return false; //Expression is not implemented => will never match
+	return "<expression>"; //TODo
+}
+
+bool Expression::returns() const
+{
+	return true; //Expressions always return something
 }

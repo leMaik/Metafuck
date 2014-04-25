@@ -57,10 +57,8 @@ Argument* parseArgument(std::string const& code)
 	else if (code[code.length() - 1] == ')') {
 		return new Call(code);
 	}
-	//else {
-	//	//TODO
-	//	//return new ExpressionString(code);
-	//	return nullptr;
-	//}
+	/*else {
+		return new ExpressionString(code);
+	}*/
 	throw; //TODO: Create an exception class for that
 }

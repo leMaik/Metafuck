@@ -23,7 +23,6 @@ private:
 	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
 
-	unsigned int getVar(const Variable& variable);
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
 	unsigned int evaluateTo(Argument& arg);
@@ -66,6 +65,7 @@ public:
 	unsigned int array_get(const Call& c, unsigned int result);
 
 	Statement* getStatement(Call const& call);
+	unsigned int getVar(const Variable& variable);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;

@@ -11,6 +11,7 @@ public:
 		CALL, CALLLIST, STRING, VARIABLE, INTEGER,
 		EVALUATABLE,  // = CALL, VARIABLE or INTEGER (something that has a result/a value)
 		CALLABLE, // = CALL or CALLLIST (something that can be called)
+		EXPRESSION
 	};
 
 	virtual Argument::Type getType() const = 0;
