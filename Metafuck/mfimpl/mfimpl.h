@@ -5,6 +5,6 @@
 #include "io.h"
 
 #define MF_METHODS	\
-	(Print)			
+	(Print)	        \		
 
 #endif

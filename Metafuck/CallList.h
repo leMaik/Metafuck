@@ -20,7 +20,7 @@ public:
 	Argument::Type getType() const;
 
 private:
-	std::vector<std::unique_ptr<Argument>> statements_;
+	std::vector<std::shared_ptr<Argument>> statements_;
 };
 
 #endif

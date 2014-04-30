@@ -22,7 +22,7 @@ public:
 
 	template<class T>
 	inline T& arg(unsigned int index) const {
-		return static_cast<T&>(*arguments_[index]);
+		return *static_cast<T*>(arguments_[index].get());
 	}
 
 protected:

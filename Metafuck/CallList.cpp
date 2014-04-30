@@ -11,6 +11,7 @@
 #include <memory>
 
 CallList::CallList(std::string code)
+: statements_{}
 {
 	std::stringstream statement;
 	bool isString = false;
@@ -45,13 +46,13 @@ CallList::CallList(std::string code)
 				if (keller.empty()) {
 					if (isStatement){
 						std::cout << statement.str() << std::endl;
-						statements_.push_back(std::unique_ptr<Call>(new Call(statement.str())));
+						statements_.emplace_back(new Call(statement.str()));
 
 						isStatement = false;
 					}
 					else {
 						std::cout << "Expression: '" << statement.str() << "'" << std::endl;
-						statements_.push_back(std::unique_ptr<ExpressionString>(new ExpressionString(statement.str())));
+						statements_.emplace_back(new ExpressionString(statement.str()));
 					}
 
 					//this clears the stringstream
@@ -108,17 +109,17 @@ std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
 	std::stringstream output;
 	for (auto& statement : statements_) {
 		if (statement->getType() == Argument::CALL){
-			Call call = static_cast<Call&>(*statement);
-			auto ptr = std::unique_ptr<Statement>(cmp.getStatement(call)); //TODO use CallSignature
-			if (ptr == nullptr){
-				std::cout << "Unknown function '" << call.getFunction() << "'." << std::endl;
+			Call* call = static_cast<Call*>(statement.get());
+			std::shared_ptr<Statement> ptr { (cmp.getStatement(*call)) }; //TODO use CallSignature
+			if (!ptr){
+				std::cout << "Unknown function '" << call->getFunction() << "'." << std::endl;
 			}
 			else {
 				output << ptr->compile(cmp, bf);
 			}
 		}
 		else if (statement->getType() == Argument::EXPRESSION){
-			Expression(static_cast<ExpressionString&>(*statement).expression).compile(cmp, bf);
+			Expression(static_cast<ExpressionString*>(statement.get())->expression).compile(cmp, bf);
 		}
 	}
 	return output.str();

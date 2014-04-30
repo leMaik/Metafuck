@@ -79,8 +79,7 @@ Call::Call(std::string code){
 		}
 
 		if (keller.empty() && !isString && !isChar && (i == code.length() - 1 || code[i + 1] == ',')) {
-			std::shared_ptr<Argument> arg(parseArgument(currentArgument.str()));
-			arguments_.push_back(arg);
+			arguments_.emplace_back(parseArgument(currentArgument.str()));
 
 			//this clears the stringstream
 			currentArgument.str(std::string());
