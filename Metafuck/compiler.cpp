@@ -275,35 +275,59 @@ std::string Compiler::getGeneratedCode() const {
 }
 
 Compiler::Compiler(std::string code, bool optimizeForSize) {
-	//reg()
-	//	("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
-	//	("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
-	//	("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
-	//	("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
-	//	("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
-	//	("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
-	//	("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
-	//	("print", { Argument::STRING }, &Compiler::print)
-	//	("print", { Argument::EVALUATABLE }, &Compiler::print)
-	//	//("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
-	//	("getchar", { Argument::VARIABLE }, &Compiler::input)
-	//	("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
-	//	("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)
-	//	("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
-	//	("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
-	//	("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
-	//	("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
-	//	("for", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::for_fn)
-	//	("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
-	//	("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
-	//	("or", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::or_fn)
-	//	("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
-	//	("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
-	//	("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
+	reg()
+		("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
+		("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
+		("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
+		("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
+		("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
+		("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
+		("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
+		("print", { Argument::STRING }, &Compiler::print)
+		("print", { Argument::EVALUATABLE }, &Compiler::print)
+		//("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
+		("getchar", { Argument::VARIABLE }, &Compiler::input)
+		("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
+		("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)
+		("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
+		("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
+		("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
+		("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
+		("for", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::for_fn)
+		("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
+		("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
+		("or", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::or_fn)
+		("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
+		("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
+		("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
 
 	//Remove comments from code before we do anything else
 	code_ = remove_comments(code);
 	bf_ = Brainfuck(optimizeForSize);
+}
+
+CompilerEasyRegister Compiler::reg() {
+	return CompilerEasyRegister(*this);
+}
+
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)){
+	predef_methods[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1);
+}
+
+void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int)){
+	predef_functions[CallSignature(callname, args)] = std::bind(fptr, this, std::placeholders::_1, std::placeholders::_2);
+}
+
+CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
+
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&)) {
+	owner_.reg(callname, args, fptr);
+	return *this;
+}
+
+CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int)) {
+	owner_.reg(callname, args, fptr);
+	return *this;
 }
 
 std::string remove_comments(const std::string& code) {

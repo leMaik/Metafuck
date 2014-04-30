@@ -14,6 +14,8 @@
 #include <utility>
 #include <functional>
 
+class CompilerEasyRegister;
+
 class Compiler
 {
 private:
@@ -22,6 +24,9 @@ private:
 	std::stringstream generated_;
 	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
+
+	std::map<CallSignature, std::function<void(const Call&)>> predef_methods;
+	std::map<CallSignature, std::function<unsigned int(const Call&, unsigned int)>> predef_functions;
 
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
@@ -67,8 +72,21 @@ public:
 	Statement* getStatement(Call const& call);
 	unsigned int getVar(const Variable& variable);
 
+	CompilerEasyRegister reg();
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
+};
+
+class CompilerEasyRegister {
+public:
+	CompilerEasyRegister(Compiler& owner);
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+private:
+	Compiler& owner_;
 };
 
 std::string remove_comments(const std::string& code);
