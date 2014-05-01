@@ -45,9 +45,7 @@ CallList::CallList(std::string code)
 			case ';':
 				if (keller.empty()) {
 					if (isStatement){
-						std::cout << statement.str() << std::endl;
 						statements_.emplace_back(new Call(statement.str()));
-
 						isStatement = false;
 					}
 					else {
@@ -105,8 +103,7 @@ CallList::CallList(std::string code)
 	}
 }
 
-std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
-	std::stringstream output;
+void CallList::compile(Compiler& cmp, Brainfuck& bf){
 	for (auto& statement : statements_) {
 		if (statement->getType() == Argument::CALL){
 			Call* call = static_cast<Call*>(statement.get());
@@ -115,14 +112,13 @@ std::string CallList::compile(Compiler& cmp, Brainfuck& bf){
 				std::cout << "Unknown function '" << call->getFunction() << "'." << std::endl;
 			}
 			else {
-				output << ptr->compile(cmp, bf);
+				ptr->compile(cmp, bf);
 			}
 		}
 		else if (statement->getType() == Argument::EXPRESSION){
 			Expression(static_cast<ExpressionString*>(statement.get())->expression).compile(cmp, bf);
 		}
 	}
-	return output.str();
 }
 
 std::string CallList::toString() const{

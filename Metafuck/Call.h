@@ -16,6 +16,9 @@ public:
 	Argument::Type getType() const;
 	std::string getFunction() const;
 
+	CallSignature signature() const;
+	bool matches(CallSignature sig) const;
+
 	inline Argument& arg(unsigned int index) const {
 		return *arguments_.at(index);
 	}

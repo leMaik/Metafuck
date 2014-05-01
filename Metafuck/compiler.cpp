@@ -6,6 +6,7 @@
 #include "helper.h"
 #include "mfimpl/mfimpl.h"
 #include "StatementFinder.h"
+#include "CallStatement.h"
 #include <algorithm>
 #include <locale>
 
@@ -259,12 +260,18 @@ unsigned int Compiler::array_get(const Call& c, unsigned int result) {
 
 Statement* Compiler::getStatement(Call const& call)
 {
-	//return get_statement<BOOST_PP_SEQ_ENUM(MF_METHODS)>(call);
+	auto method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
+		[&call](std::pair<CallSignature, MfProcedure> k) -> bool {
+		return call.matches(k.first);
+	});
+	if (method != std::end(predef_methods)){
+		return new CallStatement(method->second, call);
+	}
 	return nullptr;
 }
 
 void Compiler::compile() {
-	generated_ << lexed_.compile(*this, bf_);
+	lexed_.compile(*this, bf_);
 }
 
 std::string Compiler::getCode() const {

@@ -14,7 +14,7 @@ public:
 	CallList() = default;
 	CallList(std::string code);
 
-	std::string compile(Compiler& cmp, Brainfuck& bf);
+	void compile(Compiler& cmp, Brainfuck& bf);
 	std::string toString() const;
 	bool returns() const;
 	Argument::Type getType() const;
