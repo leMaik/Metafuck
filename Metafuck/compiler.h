@@ -14,6 +14,9 @@
 #include <utility>
 #include <functional>
 
+typedef void(*MfProcedure) (const Call&, Compiler&, Brainfuck&);
+typedef unsigned int(*MfFunction) (const Call&, Compiler&, Brainfuck&);
+
 class CompilerEasyRegister;
 
 class Compiler
@@ -21,12 +24,11 @@ class Compiler
 private:
 	Brainfuck bf_;
 	std::string code_;
-	std::stringstream generated_;
 	CallList lexed_;
 	std::map<std::string, unsigned int> vars_;
 
-	std::map<CallSignature, std::function<void(const Call&)>> predef_methods;
-	std::map<CallSignature, std::function<unsigned int(const Call&, unsigned int)>> predef_functions;
+	std::map<CallSignature, MfProcedure> predef_methods;
+	std::map<CallSignature, MfFunction> predef_functions;
 
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
@@ -37,6 +39,8 @@ private:
 
 public:
 	Compiler(std::string code, bool optimizeForSize);
+
+	std::stringstream generated_;
 
 	bool validate();
 	std::size_t lex();
@@ -73,8 +77,8 @@ public:
 	unsigned int getVar(const Variable& variable);
 
 	CompilerEasyRegister reg();
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
+	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
@@ -83,8 +87,8 @@ public:
 class CompilerEasyRegister {
 public:
 	CompilerEasyRegister(Compiler& owner);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
+	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
 private:
 	Compiler& owner_;
 };

@@ -5,12 +5,12 @@
 #include "../compiler.h"
 #include "../Call.h"
 
-class Print : public Procedure
-{
-public:
-	Print(Call const& call);
-	std::string compile(Compiler& cmp, Brainfuck& bf);
-	static bool matches(Call const& call);
-};
+namespace metafuck {
+	namespace impl {
+		namespace io {
+			void print(const Call& c, Compiler& compiler, Brainfuck& bf);
+		}
+	}
+}
 
 #endif
