@@ -13,6 +13,11 @@ std::string CallStatement::compile(Compiler& cmp, Brainfuck& bf) {
 std::string CallStatement::toString() const {
 	return call_.signature().first;
 }
+
 bool CallStatement::returns() const {
 	return false;
+}
+
+unsigned int CallStatement::result() {
+	return -1;
 }

@@ -11,7 +11,7 @@
 #include <memory>
 
 CallList::CallList(std::string code)
-: statements_{}
+: calls_{}
 {
 	std::stringstream statement;
 	bool isString = false;
@@ -45,12 +45,13 @@ CallList::CallList(std::string code)
 			case ';':
 				if (keller.empty()) {
 					if (isStatement){
-						statements_.emplace_back(new Call(statement.str()));
+						calls_.emplace_back(new Call(statement.str()));
 						isStatement = false;
 					}
 					else {
 						std::cout << "Expression: '" << statement.str() << "'" << std::endl;
-						statements_.emplace_back(new ExpressionString(statement.str()));
+						//TODO translate expression to calllist here
+						//calls_.emplace_back(new ExpressionString(statement.str()));
 					}
 
 					//this clears the stringstream
@@ -104,21 +105,14 @@ CallList::CallList(std::string code)
 }
 
 void CallList::compile(Compiler& cmp, Brainfuck& bf){
-	for (auto& statement : statements_) {
-		if (statement->getType() == Argument::CALL){
-			Call* call = static_cast<Call*>(statement.get());
-			std::shared_ptr<Statement> ptr { (cmp.getStatement(*call)) }; //TODO use CallSignature
-			if (!ptr){
-				std::cout << "Unknown function '" << call->getFunction() << "'." << std::endl;
-			}
-			else {
-				ptr->compile(cmp, bf);
-			}
-		}
-		else if (statement->getType() == Argument::EXPRESSION){
-			Expression(static_cast<ExpressionString*>(statement.get())->expression).compile(cmp, bf);
-		}
+	for (auto& statement : calls_) {
+		statement->compile(cmp, bf);
 	}
+}
+
+unsigned int CallList::compileResult(Compiler& cmp, Brainfuck& bf) {
+	this->compile(cmp, bf);
+	return -1;
 }
 
 std::string CallList::toString() const{

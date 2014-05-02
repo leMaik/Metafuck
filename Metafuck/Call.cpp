@@ -1,5 +1,6 @@
 #include "Call.h"
 #include "Argument.h"
+#include "compiler.h"
 #include "helper.h"
 #include <iostream>
 #include <stack>
@@ -125,4 +126,38 @@ bool Call::matches(CallSignature sig) const {
 
 std::string Call::getFunction() const {
 	return function_;
+}
+
+unsigned int Call::compileResult(Compiler& cmp, Brainfuck& bf) {
+	Statement* stmt = cmp.getStatement(*this);
+	if (stmt != nullptr){
+		stmt->compile(cmp, bf);
+		unsigned int result = stmt->result();
+		delete stmt;
+		return result;
+	}
+	else {
+		return -1;
+	}
+}
+
+void Call::compile(Compiler& cmp, Brainfuck& bf) {
+	//compile arguments, if needed
+	for (unsigned int i = 0; i < arguments_.size(); i++) {
+		if (arguments_[i]->getType() == Argument::CALL) {
+			Call call = *static_cast<Call*>(arguments_[i].get());
+			if (signature().second[0] == Argument::EVALUATABLE) {
+				call.compile(cmp, bf);
+			}
+			else {
+
+			}
+		}
+	}
+
+	Statement* stmt = cmp.getStatement(*this);
+	if (stmt != nullptr) {
+		stmt->compile(cmp, bf);
+		delete stmt;
+	}
 }

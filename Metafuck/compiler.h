@@ -2,7 +2,6 @@
 #define COMPILER_H
 
 #include "brainfuck.h"
-#include "Call.h"
 #include "CallList.h"
 #include "Variable.h"
 #include <iostream>

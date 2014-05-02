@@ -13,6 +13,7 @@ public:
 	std::string compile(Compiler& cmp, Brainfuck& bf);
 	std::string toString() const;
 	bool returns() const;
+	unsigned int result();
 
 private:
 	MfProcedure procedure_;

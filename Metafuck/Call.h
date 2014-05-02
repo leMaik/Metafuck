@@ -16,6 +16,9 @@ public:
 	Argument::Type getType() const;
 	std::string getFunction() const;
 
+	virtual void compile(Compiler& cmp, Brainfuck& bf);
+	virtual unsigned int compileResult(Compiler& cmp, Brainfuck& bf);
+
 	CallSignature signature() const;
 	bool matches(CallSignature sig) const;
 

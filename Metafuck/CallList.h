@@ -15,12 +15,14 @@ public:
 	CallList(std::string code);
 
 	void compile(Compiler& cmp, Brainfuck& bf);
+	unsigned int compileResult(Compiler& cmp, Brainfuck& bf);
+
 	std::string toString() const;
 	bool returns() const;
 	Argument::Type getType() const;
 
 private:
-	std::vector<std::shared_ptr<Argument>> statements_;
+	std::vector<std::shared_ptr<Call>> calls_;
 };
 
 #endif
