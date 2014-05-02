@@ -5,8 +5,6 @@
 #include "Number.h"
 #include "helper.h"
 #include "mfimpl/mfimpl.h"
-#include "StatementFinder.h"
-#include "CallStatement.h"
 #include <algorithm>
 #include <locale>
 
@@ -18,6 +16,7 @@ std::size_t Compiler::lex() {
 unsigned int Compiler::getVar(const Variable& variable) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
+		warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
 		return (vars_[variable.getName()] = bf_.allocCell());
 	}
 	return var->second;
@@ -258,16 +257,32 @@ unsigned int Compiler::array_get(const Call& c, unsigned int result) {
 	return result;
 }
 
-Statement* Compiler::getStatement(Call const& call)
+MfProcedure Compiler::getProcedure(Call const& call)
 {
 	auto method = std::find_if(std::begin(predef_methods), std::end(predef_methods),
 		[&call](std::pair<CallSignature, MfProcedure> k) -> bool {
 		return call.matches(k.first);
 	});
 	if (method != std::end(predef_methods)){
-		return new CallStatement(method->second, call);
+		return method->second;
 	}
 	return nullptr;
+}
+
+MfFunction Compiler::getFunction(Call const& call)
+{
+	auto method = std::find_if(std::begin(predef_functions), std::end(predef_functions),
+		[&call](std::pair<CallSignature, MfFunction> k) -> bool {
+		return call.matches(k.first);
+	});
+	if (method != std::end(predef_functions)){
+		return method->second;
+	}
+	return nullptr;
+}
+
+void Compiler::warning(Argument const* source, std::string message) {
+	std::cout << "[WARNING] " << message << std::endl;
 }
 
 void Compiler::compile() {
@@ -292,7 +307,7 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 		//("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
 		//("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
 		("print", { Argument::STRING }, &metafuck::impl::io::print)
-		//("print", { Argument::EVALUATABLE }, &Compiler::print)
+		("print", { Argument::EVALUATABLE }, &metafuck::impl::io::print)
 		////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
 		//("getchar", { Argument::VARIABLE }, &Compiler::input)
 		//("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)

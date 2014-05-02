@@ -129,12 +129,9 @@ std::string Call::getFunction() const {
 }
 
 unsigned int Call::compileResult(Compiler& cmp, Brainfuck& bf) {
-	Statement* stmt = cmp.getStatement(*this);
+	MfFunction stmt = cmp.getFunction(*this);
 	if (stmt != nullptr){
-		stmt->compile(cmp, bf);
-		unsigned int result = stmt->result();
-		delete stmt;
-		return result;
+		return stmt(*this, cmp, bf);
 	}
 	else {
 		return -1;
@@ -142,22 +139,9 @@ unsigned int Call::compileResult(Compiler& cmp, Brainfuck& bf) {
 }
 
 void Call::compile(Compiler& cmp, Brainfuck& bf) {
-	//compile arguments, if needed
-	for (unsigned int i = 0; i < arguments_.size(); i++) {
-		if (arguments_[i]->getType() == Argument::CALL) {
-			Call call = *static_cast<Call*>(arguments_[i].get());
-			if (signature().second[0] == Argument::EVALUATABLE) {
-				call.compile(cmp, bf);
-			}
-			else {
-
-			}
-		}
-	}
-
-	Statement* stmt = cmp.getStatement(*this);
-	if (stmt != nullptr) {
-		stmt->compile(cmp, bf);
-		delete stmt;
-	}
+	MfProcedure stmt = cmp.getProcedure(*this);
+	if (stmt != nullptr)
+		stmt(*this, cmp, bf);
+	else
+		cmp.warning(this, "Unknown procedure: " + function_);
 }

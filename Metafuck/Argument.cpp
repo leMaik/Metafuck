@@ -5,7 +5,6 @@
 #include "Variable.h"
 #include "Number.h"
 #include "Char.h"
-#include "StatementFinder.h"
 #include <iostream>
 #include <ctype.h>
 

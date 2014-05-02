@@ -1,11 +1,10 @@
 #ifndef EXPRESSION_H
 #define EXPRESSION_H
 
-#include "Statement.h"
 #include "compiler.h"
 #include <string>
 
-class Expression : public Statement
+class Expression
 {
 public:
 	Expression(std::string code);

@@ -1,7 +1,6 @@
 #ifndef MFIMPL_IO_H
 #define MFIMPL_IO_H
 
-#include "../Procedure.h"
 #include "../compiler.h"
 #include "../Call.h"
 

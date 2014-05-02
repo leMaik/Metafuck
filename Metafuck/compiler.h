@@ -2,8 +2,9 @@
 #define COMPILER_H
 
 #include "brainfuck.h"
-#include "CallList.h"
 #include "Variable.h"
+#include "Call.h"
+#include "CallList.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -13,10 +14,11 @@
 #include <utility>
 #include <functional>
 
+class Compiler;
+class CompilerEasyRegister;
+
 typedef void(*MfProcedure) (const Call&, Compiler&, Brainfuck&);
 typedef unsigned int(*MfFunction) (const Call&, Compiler&, Brainfuck&);
-
-class CompilerEasyRegister;
 
 class Compiler
 {
@@ -72,8 +74,11 @@ public:
 	void array_set(const Call& c);
 	unsigned int array_get(const Call& c, unsigned int result);
 
-	Statement* getStatement(Call const& call);
+	MfProcedure getProcedure(Call const& call);
+	MfFunction getFunction(Call const& call);
 	unsigned int getVar(const Variable& variable);
+
+	void warning(Argument const* source, std::string message);
 
 	CompilerEasyRegister reg();
 	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);

@@ -1,13 +1,14 @@
 #ifndef CALL_H
 #define CALL_H
 
-#include "Statement.h"
 #include "Argument.h"
+#include "brainfuck.h"
 #include <string>
 #include <vector>
 #include <memory>
 
 typedef std::pair<std::string, std::vector<Argument::Type>> CallSignature;
+class Compiler;
 
 class Call : public Argument
 {
