@@ -3,15 +3,14 @@
 #include "../brainfuck.h"
 #include "../String.h"
 
-void metafuck::impl::io::print(const Call& c, Compiler& compiler, Brainfuck& bf) {
-	switch (c.signature().second[0]) {
-	case Argument::STRING:
-		compiler.generated_ << bf.printString(c.arg<String>(0).getValue());
-		break;
-	case Argument::VARIABLE:
-		compiler.generated_ << bf.print(compiler.getVar(c.arg<Variable>(0).getName()));
-		break;
-	default:
-		return;
-	}
+void metafuck::impl::io::print_str(Compiler& compiler, String& str) {
+	compiler.generated_ << compiler.bf().printString(str.getValue());
+}
+
+void metafuck::impl::io::print_var(Compiler& compiler, Variable& var) {
+	compiler.generated_ << compiler.bf().print(compiler.getVar(var.getName()));
+}
+
+void metafuck::impl::io::getchar(Compiler& compiler, Variable& var) {
+	compiler.generated_ << compiler.bf().input(compiler.getVar(var));
 }

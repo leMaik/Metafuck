@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string bf2ook(const std::string const& bf);
+std::string bf2ook(const std::string& bf);
 
 #endif

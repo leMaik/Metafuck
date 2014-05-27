@@ -128,20 +128,22 @@ std::string Call::getFunction() const {
 	return function_;
 }
 
-unsigned int Call::compileResult(Compiler& cmp, Brainfuck& bf) {
+unsigned int Call::compileResult(Compiler& cmp) {
 	MfFunction stmt = cmp.getFunction(*this);
 	if (stmt != nullptr){
-		return stmt(*this, cmp, bf);
+		//return stmt(*this, cmp);
+	//TODO FIX THAT!!!!111eleven
 	}
 	else {
 		return -1;
 	}
+	return -1;
 }
 
-void Call::compile(Compiler& cmp, Brainfuck& bf) {
+void Call::compile(Compiler& cmp) {
 	MfProcedure stmt = cmp.getProcedure(*this);
 	if (stmt != nullptr)
-		stmt(*this, cmp, bf);
+		stmt(*this);
 	else
 		cmp.warning(this, "Unknown procedure: " + function_);
 }

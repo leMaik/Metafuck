@@ -13,8 +13,8 @@ public:
 	CallList() = default;
 	CallList(std::string code);
 
-	void compile(Compiler& cmp, Brainfuck& bf);
-	unsigned int compileResult(Compiler& cmp, Brainfuck& bf);
+	void compile(Compiler& cmp);
+	unsigned int compileResult(Compiler& cmp);
 
 	std::string toString() const;
 	bool returns() const;

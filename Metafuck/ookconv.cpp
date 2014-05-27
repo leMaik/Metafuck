@@ -2,7 +2,7 @@
 #include <sstream>
 #include <map>
 
-std::string bf2ook(const std::string const& bf)
+std::string bf2ook(const std::string& bf)
 {
 	const std::map<char, std::string> bf_ook = {
 		{ '+', "Ook. Ook." },

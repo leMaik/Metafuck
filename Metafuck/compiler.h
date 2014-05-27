@@ -17,7 +17,7 @@
 class Compiler;
 class CompilerEasyRegister;
 
-typedef void(*MfProcedure) (const Call&, Compiler&, Brainfuck&);
+typedef std::function<void(const Call&)> MfProcedure;
 typedef unsigned int(*MfFunction) (const Call&, Compiler&, Brainfuck&);
 
 class Compiler
@@ -41,6 +41,7 @@ private:
 public:
 	Compiler(std::string code, bool optimizeForSize);
 
+	Brainfuck& bf();
 	std::stringstream generated_;
 
 	bool validate();
@@ -58,12 +59,6 @@ public:
 	void printNumber(const Call& c);
 	void input(const Call& c);
 
-	void if_fn(const Call& c);
-	void if_else_fn(const Call& c);
-	void while_fn(const Call& c);
-	void do_while_fn(const Call& c);
-	void for_fn(const Call& c);
-
 	unsigned int iseq(const Call& c, unsigned int result);
 	unsigned int isnoteq(const Call& c, unsigned int result);
 	unsigned int not_fn(const Call& c, unsigned int result);
@@ -80,22 +75,47 @@ public:
 
 	void warning(Argument const* source, std::string message);
 
-	CompilerEasyRegister reg();
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
+	//CompilerEasyRegister reg();
+
+	/////////////////////////////////////// move this
+	template<unsigned...> struct indices{};
+
+	template<unsigned N, unsigned... Is>
+	struct indices_gen : indices_gen<N - 1, N - 1, Is...>{};
+
+	template<unsigned... Is>
+	struct indices_gen<0, Is...> : indices<Is...>{};
+
+	template<typename... Args, unsigned... Is>
+	void wrapper(const Call& c, void(*fptr)(Compiler&, Args&...), indices<Is...>) {
+		(*fptr)(*this, static_cast<Args&>(c.arg(Is))...);
+	}
+	///////////////////////////////////////////
+
+	template<class... ArgTypes>
+	void reg(const std::string& callname, void(*fptr)(Compiler&, ArgTypes&...)) {
+		//TODO
+		auto sig = CallSignature(callname, std::initializer_list<Argument::Type>{(ArgTypes::type)...});
+		predef_methods[sig] = [&, fptr](const Call& c){
+			wrapper(c, fptr, indices_gen<sizeof...(ArgTypes)>{});
+		};
+		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
+	};
+
+	//void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
 };
 
-class CompilerEasyRegister {
-public:
-	CompilerEasyRegister(Compiler& owner);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
-private:
-	Compiler& owner_;
-};
+//class CompilerEasyRegister {
+//public:
+//	CompilerEasyRegister(Compiler& owner);
+//	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
+//	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
+//private:
+//	Compiler& owner_;
+//};
 
 std::string remove_comments(const std::string& code);
 #endif

@@ -102,15 +102,15 @@ CallList::CallList(std::string code)
 	}
 }
 
-void CallList::compile(Compiler& cmp, Brainfuck& bf){
+void CallList::compile(Compiler& cmp){
 	for (auto& statement : calls_) {
-		statement->compile(cmp, bf);
+		statement->compile(cmp);
 	}
 }
 
-unsigned int CallList::compileResult(Compiler& cmp, Brainfuck& bf) {
-	this->compile(cmp, bf);
-	return -1;
+unsigned int CallList::compileResult(Compiler& cmp) {
+	this->compile(cmp);
+	return 0; //actual return value of a call list is undefined behaviour in metafuck
 }
 
 std::string CallList::toString() const{
