@@ -115,8 +115,8 @@ bool Call::matches(CallSignature sig) const {
 	std::vector<Type>::iterator itr = sig.second.begin();
 	for (auto& i : arguments_) {
 		if (i->getType() != *itr
-			&& !(*itr == Type::EVALUATABLE && isEvaluatable(i->getType()))
-			&& !(*itr == Type::CALLABLE && isCallable(i->getType()))
+			&& !(isEvaluatable(*itr) && isEvaluatable(i->getType()))
+			&& !(isCallable(*itr) && isCallable(i->getType()))
 			)
 			return false;
 		itr++;
@@ -128,11 +128,10 @@ std::string Call::getFunction() const {
 	return function_;
 }
 
-unsigned int Call::compileResult(Compiler& cmp) {
-	MfFunction stmt = cmp.getFunction(*this);
+unsigned int Call::evaluate(Compiler& compiler) const {
+	MfFunction stmt = compiler.getFunction(*this);
 	if (stmt != nullptr){
-		//return stmt(*this, cmp);
-	//TODO FIX THAT!!!!111eleven
+		return stmt(compiler, *this, compiler.bf().allocCell());
 	}
 	else {
 		return -1;
@@ -140,7 +139,7 @@ unsigned int Call::compileResult(Compiler& cmp) {
 	return -1;
 }
 
-void Call::compile(Compiler& cmp) {
+void Call::compile(Compiler& cmp) const {
 	MfProcedure stmt = cmp.getProcedure(*this);
 	if (stmt != nullptr)
 		stmt(cmp, *this);

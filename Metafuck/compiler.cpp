@@ -252,7 +252,7 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 	////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
 	//	("getchar", { Argument::VARIABLE }, &metafuck::impl::io::getchar)
 	//("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
-	//("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)
+	    ("if", &metafuck::impl::flow::if_fn)
         ("iseq", &metafuck::impl::logic::iseq);
 	//("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 	//("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)

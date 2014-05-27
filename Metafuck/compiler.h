@@ -88,6 +88,7 @@ public:
 
 	inline void reg(const CallSignature& sig, const MfFunction& proc) {
 		predef_functions[sig] = proc;
+		std::cout << "Registered function: " << sig.first << ", " << sig.second[0] << std::endl;
 	};
 
 	std::string getCode() const;

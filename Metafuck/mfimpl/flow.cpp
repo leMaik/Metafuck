@@ -1,12 +1,13 @@
 #include "flow.h"
 #include "../CallList.h"
+#include "../compiler.h"
 
-void metafuck::impl::flow::if_fn(const Call& c) {
-	///*unsigned int x = bf_.allocCell();
-	//evaluateTo(c.arg(0), x);
-	//generated_ << bf_.move(x) << "[";
-	//c.arg<CallList>(1).compile(*this, bf_);
-	//generated_ << bf_.set(x, 0) << "]";*/
+void metafuck::impl::flow::if_fn(Compiler &compiler, const Evaluatable& var, const Call& doif) {
+	unsigned int x = var.evaluate(compiler);
+	compiler.generated_ << compiler.bf().move(x) << "[";
+	doif.compile(compiler);
+	compiler.generated_ << compiler.bf().set(x, 0) << "]";
+	compiler.bf().freeCell(x);
 }
 
 void metafuck::impl::flow::if_else_fn(const Call& c) {

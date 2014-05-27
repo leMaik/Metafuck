@@ -13,13 +13,14 @@ public:
 	CallList() = default;
 	CallList(std::string code);
 
-	void compile(Compiler& cmp);
-	unsigned int compileResult(Compiler& cmp);
+	void compile(Compiler& cmp) const;
+	unsigned int evaluate(Compiler& compiler) const;
 
 	std::string toString() const;
 	bool returns() const;
 	Type getType() const;
 
+    static const Type type = Type::CALLLIST;
 private:
 	std::vector<std::shared_ptr<Call>> calls_;
 };

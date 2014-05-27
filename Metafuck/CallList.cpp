@@ -102,14 +102,14 @@ CallList::CallList(std::string code)
 	}
 }
 
-void CallList::compile(Compiler& cmp){
+void CallList::compile(Compiler& cmp) const {
 	for (auto& statement : calls_) {
 		statement->compile(cmp);
 	}
 }
 
-unsigned int CallList::compileResult(Compiler& cmp) {
-	this->compile(cmp);
+unsigned int CallList::evaluate(Compiler& compiler) const {
+	this->compile(compiler);
 	return 0; //actual return value of a call list is undefined behaviour in metafuck
 }
 

@@ -8,7 +8,7 @@
 namespace metafuck {
 	namespace impl {
 		namespace logic {
-            unsigned int iseq(Compiler &compiler, unsigned int result, const Variable& var, const Variable& varb);
+            unsigned int iseq(Compiler &compiler, unsigned int result, const Evaluatable& var, const Evaluatable& varb);
 		}
 	}
 }

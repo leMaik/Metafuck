@@ -3,6 +3,7 @@
 
 #include "Argument.h"
 #include "brainfuck.h"
+#include "Evaluatable.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -10,15 +11,15 @@
 typedef std::pair<std::string, std::vector<Type>> CallSignature;
 class Compiler;
 
-class Call : public Argument
+class Call : public Evaluatable
 {
 public:
 	Call(std::string code);
 	Type getType() const;
 	std::string getFunction() const;
 
-	virtual void compile(Compiler& cmp);
-	virtual unsigned int compileResult(Compiler& cmp);
+	virtual void compile(Compiler& cmp) const;
+	virtual unsigned int evaluate(Compiler& compiler) const;
 
 	CallSignature signature() const;
 	bool matches(CallSignature sig) const;
@@ -31,6 +32,8 @@ public:
 	inline T& arg(unsigned int index) const {
 		return *static_cast<T*>(arguments_[index].get());
 	}
+
+    static const Type type = Type::CALL;
 
 protected:
 	Call() = default;
