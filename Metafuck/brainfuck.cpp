@@ -2,6 +2,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 unsigned int Brainfuck::allocCell(unsigned int count) {
 	return allocCellNear(pointer_, count);
@@ -20,7 +21,7 @@ bool Brainfuck::hasFreeCellsAt(unsigned int index, unsigned int count) const {
 }
 
 unsigned int Brainfuck::allocCellNear(unsigned int index, unsigned int count) {
-	unsigned int currBest(0);
+	unsigned int currBest = 0;
 	bool found = false;
 	for (unsigned int i = 0; i < cells_.size(); i++) {
 		if (hasFreeCellsAt(i, count)) {
@@ -436,4 +437,6 @@ unsigned int Brainfuck::getArrayPointer(unsigned int array, unsigned int index) 
 	return 2 * index + 3;
 }
 
-Brainfuck::Brainfuck(bool optimizeValueChanging) : pointer_(0), optimizeValueChanging_(optimizeValueChanging) { }
+Brainfuck::Brainfuck(bool optimizeValueChanging)
+: optimizeValueChanging_(optimizeValueChanging), pointer_(0) {
+}

@@ -22,9 +22,9 @@ unsigned int Compiler::getVar(const Variable& variable) {
 	return var->second;
 }
 
-Brainfuck& Compiler::bf() {
-	return bf_;
-}
+//Brainfuck& Compiler::bf() {
+//	return bf_;
+//}
 
 unsigned int Compiler::evaluateTo(Argument& arg) {
 	/*switch (arg.getType()){
@@ -235,17 +235,17 @@ std::string Compiler::getGeneratedCode() const {
 }
 
 Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize) {
-	//reg()
-	//("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
-	//("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
-	//("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
-	//("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
-	//("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
-	//("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
-	//("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
-	reg("print", &metafuck::impl::io::print_str);
-	reg("print", &metafuck::impl::io::print_var);
-	reg("getchar", &metafuck::impl::io::getchar);
+	reg()
+		//("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
+		//("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
+		//("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
+		//("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
+		//("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
+		//("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
+		//("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
+		("print", &metafuck::impl::io::print_str)
+		("print", &metafuck::impl::io::print_var)
+		("getchar", &metafuck::impl::io::getchar);
 	//("print", { Argument::EVALUATABLE }, &metafuck::impl::io::print)
 	////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
 	//	("getchar", { Argument::VARIABLE }, &metafuck::impl::io::getchar)
@@ -265,28 +265,18 @@ Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize
 	//;
 	//Remove comments from code before we do anything else
 	code_ = remove_comments(code);
-	bf_ = Brainfuck(optimizeForSize);
 }
 
-//CompilerEasyRegister Compiler::reg() {
-//	return CompilerEasyRegister(*this);
-//}
+CompilerEasyRegister Compiler::reg() {
+	return CompilerEasyRegister(*this);
+}
 //
 //void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr){
 //	predef_functions[CallSignature(callname, args)] = fptr;
 //}
 //
-//CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) { }
-//
-//CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr) {
-//	//owner_.reg(callname, args, fptr);
-//	return *this;
-//}
-//
-//CompilerEasyRegister& CompilerEasyRegister::operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr) {
-//	//owner_.reg(callname, args, fptr);
-//	return *this;
-//}
+CompilerEasyRegister::CompilerEasyRegister(Compiler& owner) : owner_(owner) {
+}
 
 std::string remove_comments(const std::string& code) {
 	std::stringstream uncommentedCode;

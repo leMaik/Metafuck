@@ -59,5 +59,8 @@ public:
 	unsigned int getArrayPointer(unsigned int array, unsigned int index) const;
 
 	Brainfuck(bool optimizeValueChanging = true);
+	Brainfuck(const Brainfuck&) = delete;
+	Brainfuck& operator=(const Brainfuck&) = delete;
+
 };
 #endif

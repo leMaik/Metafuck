@@ -40,8 +40,13 @@ private:
 
 public:
 	Compiler(std::string code, bool optimizeForSize);
+	Compiler(const Compiler&) = delete;
+	Compiler& operator=(const Compiler&) = delete;
 
-	Brainfuck& bf();
+	inline Brainfuck& bf() {
+		return bf_;
+	}
+
 	std::stringstream generated_;
 
 	bool validate();
@@ -75,9 +80,36 @@ public:
 
 	void warning(Argument const* source, std::string message);
 
-	//CompilerEasyRegister reg();
+	CompilerEasyRegister reg();
+	inline void reg(const CallSignature& sig, const MfProcedure& proc) {
+		predef_methods[sig] = proc;
+	};
 
-	/////////////////////////////////////// move this
+	std::string getCode() const;
+	std::string getGeneratedCode() const;
+};
+
+class CompilerEasyRegister {
+public:
+	CompilerEasyRegister(Compiler& owner);
+	//CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
+	//CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
+
+
+	template<class... ArgTypes>
+	CompilerEasyRegister& operator () (const std::string& callname, void(*fptr)(Compiler&, const ArgTypes&...)) {
+		//TODO
+		auto sig = CallSignature(callname, std::initializer_list<Argument::Type>{(ArgTypes::type)...});
+		owner_.reg(sig, [&, fptr](const Call& c){
+			wrapper(c, fptr, indices_gen<sizeof...(ArgTypes)>{});
+		});
+		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
+		return *this;
+	};
+
+private:
+	Compiler& owner_;
+
 	template<unsigned...> struct indices{};
 
 	template<unsigned N, unsigned... Is>
@@ -87,35 +119,10 @@ public:
 	struct indices_gen<0, Is...> : indices<Is...>{};
 
 	template<typename... Args, unsigned... Is>
-	void wrapper(const Call& c, void(*fptr)(Compiler&, Args&...), indices<Is...>) {
-		(*fptr)(*this, static_cast<Args&>(c.arg(Is))...);
+	inline void wrapper(const Call& c, void(*fptr)(Compiler&, const Args&...), indices<Is...>) {
+		(*fptr)(owner_, static_cast<Args&>(c.arg(Is))...);
 	}
-	///////////////////////////////////////////
-
-	template<class... ArgTypes>
-	void reg(const std::string& callname, void(*fptr)(Compiler&, ArgTypes&...)) {
-		//TODO
-		auto sig = CallSignature(callname, std::initializer_list<Argument::Type>{(ArgTypes::type)...});
-		predef_methods[sig] = [&, fptr](const Call& c){
-			wrapper(c, fptr, indices_gen<sizeof...(ArgTypes)>{});
-		};
-		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
-	};
-
-	//void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
-
-	std::string getCode() const;
-	std::string getGeneratedCode() const;
 };
-
-//class CompilerEasyRegister {
-//public:
-//	CompilerEasyRegister(Compiler& owner);
-//	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
-//	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
-//private:
-//	Compiler& owner_;
-//};
 
 std::string remove_comments(const std::string& code);
 #endif

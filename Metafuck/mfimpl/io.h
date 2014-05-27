@@ -8,9 +8,9 @@
 namespace metafuck {
 	namespace impl {
 		namespace io {
-			void print_str(Compiler& compiler, String& str);
-			void print_var(Compiler& compiler, Variable& var);
-			void getchar(Compiler& compiler, Variable& var);
+			void print_str(Compiler &compiler, const String& str);
+			void print_var(Compiler &compiler, const Variable& var);
+			void getchar(Compiler &compiler, const Variable& var);
 		}
 	}
 }

@@ -16,7 +16,7 @@ public:
 	std::string getName() const;
 	Argument::Type getType() const;
 
-	static const Argument::Type type = Argument::Type::VARIABLE;
+	static const Type type = Type::VARIABLE;
 };
 
 #endif
