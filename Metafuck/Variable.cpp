@@ -14,7 +14,13 @@ std::string Variable::getName() const {
 }
 
 unsigned int Variable::evaluate(Compiler& compiler) const {
-    return compiler.getVar(*this);
+    unsigned int cell = compiler.bf().allocCell();
+    evaluate(compiler, cell);
+    return cell;
+
+    return compiler.getVar(*this); //<-- TODO: use that, but we
+                                   //need to return the information that it's not
+                                   //temporary => something to do for bfcell later.
 }
 
 void Variable::evaluate(Compiler& compiler, unsigned int target) const {
