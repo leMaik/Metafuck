@@ -14,7 +14,7 @@ public:
 	CallList(std::string code);
 
 	void compile(Compiler& cmp) const;
-	unsigned int evaluate(Compiler& compiler) const;
+	void evaluate(Compiler& compiler, unsigned int target) const;
 
 	std::string toString() const;
 	bool returns() const;

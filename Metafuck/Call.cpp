@@ -129,14 +129,15 @@ std::string Call::getFunction() const {
 }
 
 unsigned int Call::evaluate(Compiler& compiler) const {
-	MfFunction stmt = compiler.getFunction(*this);
-	if (stmt != nullptr){
-		return stmt(compiler, *this, compiler.bf().allocCell());
-	}
-	else {
-		return -1;
-	}
-	return -1;
+    unsigned int target = compiler.bf().allocCell();
+	evaluate(compiler, target);
+	return target;
+}
+
+void Call::evaluate(Compiler& compiler, unsigned int target) const {
+    MfFunction stmt = compiler.getFunction(*this);
+	if (stmt != nullptr)
+		stmt(compiler, *this, target);
 }
 
 void Call::compile(Compiler& cmp) const {

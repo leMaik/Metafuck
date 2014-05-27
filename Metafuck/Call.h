@@ -19,7 +19,8 @@ public:
 	std::string getFunction() const;
 
 	virtual void compile(Compiler& cmp) const;
-	virtual unsigned int evaluate(Compiler& compiler) const;
+	unsigned int evaluate(Compiler& compiler) const;
+	virtual void evaluate(Compiler& compiler, unsigned int target) const;
 
 	CallSignature signature() const;
 	bool matches(CallSignature sig) const;

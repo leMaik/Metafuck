@@ -15,6 +15,7 @@ public:
 	~Variable();
 
 	unsigned int evaluate(Compiler& compiler) const;
+	void evaluate(Compiler& compiler, unsigned int target) const;
 
 	std::string getName() const;
 	Type getType() const;

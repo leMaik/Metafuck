@@ -20,3 +20,13 @@ unsigned int Number::getValue() const {
 Type Number::getType() const{
 	return Type::INTEGER;
 }
+
+unsigned int Number::evaluate(Compiler& compiler) const {
+    unsigned int cell = compiler.bf().allocCell();
+    evaluate(compiler, cell);
+    return cell;
+}
+
+void Number::evaluate(Compiler& compiler, unsigned int target) const {
+    compiler.generated_ << compiler.bf().set(target, getValue());
+}

@@ -10,20 +10,19 @@ void metafuck::impl::flow::if_fn(Compiler &compiler, const Evaluatable& var, con
 	compiler.bf().freeCell(x);
 }
 
-void metafuck::impl::flow::if_else_fn(const Call& c) {
-	/*unsigned int temp0 = bf_.allocCell();
-	unsigned int temp1 = bf_.allocCell();
-	evaluateTo(c.arg(0), temp1);
-	generated_ << bf_.set(temp0, 1);
-	generated_ << bf_.move(temp1) << "[";
-	c.arg<CallList>(1).compile(*this, bf_);
-	generated_ << bf_.move(temp0) << "-";
-	generated_ << bf_.set(temp1, 0) << "]";
-	generated_ << bf_.move(temp0) << "[";
-	c.arg<CallList>(2).compile(*this, bf_);
-	generated_ << bf_.move(temp0) << "-]";
-	bf_.freeCell(temp0);
-	bf_.freeCell(temp1);*/
+void metafuck::impl::flow::if_else_fn(Compiler &compiler, const Evaluatable& var, const Call& doif, const Call& doelse) {
+	unsigned int temp0 = compiler.bf().allocCell();
+	unsigned int temp1 = var.evaluate(compiler);
+	compiler.generated_ << compiler.bf().set(temp0, 1);
+	compiler.generated_ << compiler.bf().move(temp1) << "[";
+	doif.compile(compiler);
+	compiler.generated_ << compiler.bf().move(temp0) << "-";
+	compiler.generated_ << compiler.bf().set(temp1, 0) << "]";
+	compiler.generated_ << compiler.bf().move(temp0) << "[";
+	doelse.compile(compiler);
+	compiler.generated_ << compiler.bf().move(temp0) << "-]";
+	compiler.bf().freeCell(temp0);
+	compiler.bf().freeCell(temp1);
 }
 
 void metafuck::impl::flow::while_fn(const Call& c) {

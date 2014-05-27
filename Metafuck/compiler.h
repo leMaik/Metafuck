@@ -31,10 +31,10 @@ private:
 	std::map<CallSignature, MfProcedure> predef_methods;
 	std::map<CallSignature, MfFunction> predef_functions;
 
+	CompilerEasyRegister reg();
+
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
-	unsigned int evaluateTo(Argument& arg);
-	void evaluateTo(Argument& arg, unsigned int target);
 
 	void set(unsigned int target, Argument& evaluatable);
 
@@ -50,21 +50,17 @@ public:
 	std::stringstream generated_;
 
 	bool validate();
-	std::size_t lex();
+	void lex();
 	void compile();
 
-	void set(const Call& c);
-	void add_const(const Call& c);
+	/*void add_const(const Call& c);
 	void add_ev(const Call& c);
 	void sub_const(const Call& c);
 	void sub_ev(const Call& c);
 	void div(const Call& c);
 	void mod(const Call& c);
-	void print(const Call& c);
 	void printNumber(const Call& c);
-	void input(const Call& c);
 
-	unsigned int iseq(const Call& c, unsigned int result);
 	unsigned int isnoteq(const Call& c, unsigned int result);
 	unsigned int not_fn(const Call& c, unsigned int result);
 	unsigned int and_fn(const Call& c, unsigned int result);
@@ -72,7 +68,7 @@ public:
 
 	void array_init(const Call& c);
 	void array_set(const Call& c);
-	unsigned int array_get(const Call& c, unsigned int result);
+	unsigned int array_get(const Call& c, unsigned int result);*/
 
 	MfProcedure getProcedure(Call const& call);
 	MfFunction getFunction(Call const& call);
@@ -80,15 +76,12 @@ public:
 
 	void warning(Argument const* source, std::string message);
 
-	CompilerEasyRegister reg();
-
 	inline void reg(const CallSignature& sig, const MfProcedure& proc) {
 		predef_methods[sig] = proc;
 	};
 
 	inline void reg(const CallSignature& sig, const MfFunction& proc) {
 		predef_functions[sig] = proc;
-		std::cout << "Registered function: " << sig.first << ", " << sig.second[0] << std::endl;
 	};
 
 	std::string getCode() const;
@@ -105,7 +98,6 @@ public:
 		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c){
 			wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{});
 		});
-		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
 		return *this;
 	};
 
@@ -115,7 +107,6 @@ public:
 		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c, unsigned int target)->unsigned int{
 			return wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{}, target);
 		});
-		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
 		return *this;
 	};
 

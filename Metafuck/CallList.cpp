@@ -108,9 +108,8 @@ void CallList::compile(Compiler& cmp) const {
 	}
 }
 
-unsigned int CallList::evaluate(Compiler& compiler) const {
+void CallList::evaluate(Compiler& compiler, unsigned int target) const {
 	this->compile(compiler);
-	return 0; //actual return value of a call list is undefined behaviour in metafuck
 }
 
 std::string CallList::toString() const{
