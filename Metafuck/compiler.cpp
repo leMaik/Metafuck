@@ -27,25 +27,25 @@ unsigned int Compiler::getVar(const Variable& variable) {
 //}
 
 unsigned int Compiler::evaluateTo(Argument& arg) {
-	/*switch (arg.getType()){
-	case Argument::CALL:
+	switch (arg.getType()){
+	case Type::CALL:
 	{
 	Call& c = static_cast<Call&>(arg);
 	auto function = std::find_if(std::begin(predef_functions), std::end(predef_functions),
-	[&c](std::pair<CallSignature, std::function<int(const Call&, unsigned int)>> k) -> bool {
+	[&c](std::pair<CallSignature, MfFunction> k) -> bool {
 	return c.matches(k.first);
 	});
 	if (function != predef_functions.end()){
-	return function->second(c, bf_.allocCell());
+	return function->second(*this, c, bf_.allocCell());
 	}
 	else {
-	std::cerr << "Unknown function: " << c << std::endl;
+	std::cerr << "Unknown function: " << c.signature().first << std::endl;
 	}
 	}
 	break;
-	case Argument::Type::VARIABLE:
+	case Type::VARIABLE:
 	return getVar(static_cast<Variable&>(arg));
-	case Argument::Type::INTEGER:
+	case Type::INTEGER:
 	{
 	unsigned int t = bf_.allocCell();
 	generated_ << bf_.set(t, static_cast<Number&>(arg).getValue());
@@ -53,7 +53,7 @@ unsigned int Compiler::evaluateTo(Argument& arg) {
 	}
 	default:
 	return 0;
-	}*/
+	}
 	return 0;
 }
 
@@ -74,11 +74,11 @@ void Compiler::evaluateTo(Argument& arg, unsigned int target) {
 	//					   }
 	//}
 	//	break;
-	//case Argument::Type::VARIABLE:
+	//case Type::VARIABLE:
 	//	//TODO: In this case, the produced variable is temporary and should be treated as such
 	//	generated_ << bf_.copy(getVar(static_cast<Variable&>(arg)), target);
 	//	break;
-	//case Argument::Type::INTEGER:
+	//case Type::INTEGER:
 	//	generated_ << bf_.set(target, static_cast<Number&>(arg).getValue());
 	//	break;
 	//default:
@@ -94,7 +94,7 @@ void Compiler::set(const Call& c) {
 void Compiler::set(unsigned int target, Argument& evaluatable){
 	//generates the code that sets ´target´ to the evaluated value of ´evaluated´
 
-	if (evaluatable.getType() == Argument::INTEGER)
+	if (evaluatable.getType() == Type::INTEGER)
 		generated_ << bf_.set(target, static_cast<Number&>(evaluatable).getValue());
 	else
 		evaluateTo(evaluatable, target);
@@ -133,7 +133,7 @@ void Compiler::mod(const Call& c) {
 }
 
 void Compiler::print(const Call& c) {
-	if (c.arg(0).getType() == Argument::STRING)
+	if (c.arg(0).getType() == Type::STRING)
 		generated_ << bf_.printString(c.arg<String>(0).getValue());
 	else
 		generated_ << bf_.print(evaluateTo(c.arg(0)));
@@ -175,9 +175,9 @@ void Compiler::array_init(const Call& c) {
 }
 
 void Compiler::array_set(const Call& c) {
-	if (c.arg(1).getType() == Argument::INTEGER){
+	if (c.arg(1).getType() == Type::INTEGER){
 		auto target = bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-		if (c.arg(2).getType() == Argument::INTEGER)
+		if (c.arg(2).getType() == Type::INTEGER)
 			generated_ << bf_.set(target, c.arg<Number>(2).getValue());
 		else
 			generated_ << bf_.copy(evaluateTo(c.arg(2)), target);
@@ -187,7 +187,7 @@ void Compiler::array_set(const Call& c) {
 }
 
 unsigned int Compiler::array_get(const Call& c, unsigned int result) {
-	if (c.arg(1).getType() == Argument::INTEGER)
+	if (c.arg(1).getType() == Type::INTEGER)
 		generated_ << bf_.copy(bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue()), result);
 	else
 		generated_ << bf_.arrayGet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), result);
@@ -234,7 +234,9 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize) {
+Compiler::Compiler(std::string code, bool optimizeForSize) {
+    bf_ = Brainfuck(optimizeForSize);
+
 	reg()
 		//("set", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::set)
 		//("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
@@ -245,13 +247,13 @@ Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize
 		//("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
 		("print", &metafuck::impl::io::print_str)
 		("print", &metafuck::impl::io::print_var)
-		("getchar", &metafuck::impl::io::getchar);
+		("getchar", &metafuck::impl::io::getchar)
 	//("print", { Argument::EVALUATABLE }, &metafuck::impl::io::print)
 	////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
 	//	("getchar", { Argument::VARIABLE }, &metafuck::impl::io::getchar)
 	//("if", { Argument::EVALUATABLE, Argument::CALLABLE, Argument::CALLABLE }, &Compiler::if_else_fn)
 	//("if", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::if_fn)
-	//("iseq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::iseq)
+        ("iseq", &metafuck::impl::logic::iseq);
 	//("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
 	//("while", { Argument::EVALUATABLE, Argument::CALLABLE }, &Compiler::while_fn)
 	//("dowhile", { Argument::CALLABLE, Argument::EVALUATABLE }, &Compiler::do_while_fn)
@@ -271,7 +273,7 @@ CompilerEasyRegister Compiler::reg() {
 	return CompilerEasyRegister(*this);
 }
 //
-//void Compiler::reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr){
+//void Compiler::reg(const std::string& callname, const std::initializer_list<Type>& args, MfFunction fptr){
 //	predef_functions[CallSignature(callname, args)] = fptr;
 //}
 //

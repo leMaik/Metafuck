@@ -14,7 +14,7 @@ public:
 	~String();
 
 	std::string getValue() const;
-	Argument::Type getType() const;
+	Type getType() const;
 
 	static const Type type = Type::STRING;
 };

@@ -18,7 +18,7 @@ public:
 
 	std::string toString() const;
 	bool returns() const;
-	Argument::Type getType() const;
+	Type getType() const;
 
 private:
 	std::vector<std::shared_ptr<Call>> calls_;

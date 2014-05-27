@@ -17,6 +17,6 @@ unsigned int Number::getValue() const {
 	return value_;
 }
 
-Argument::Type Number::getType() const{
-	return Argument::Type::INTEGER;
+Type Number::getType() const{
+	return Type::INTEGER;
 }

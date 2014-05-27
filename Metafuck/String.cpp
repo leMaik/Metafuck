@@ -20,6 +20,6 @@ std::string String::getValue() const {
 	return value_;
 }
 
-Argument::Type String::getType() const {
+Type String::getType() const {
 	return STRING;
 }

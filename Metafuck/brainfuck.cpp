@@ -438,5 +438,5 @@ unsigned int Brainfuck::getArrayPointer(unsigned int array, unsigned int index) 
 }
 
 Brainfuck::Brainfuck(bool optimizeValueChanging)
-: optimizeValueChanging_(optimizeValueChanging), pointer_(0) {
+: pointer_(0), optimizeValueChanging_(optimizeValueChanging) {
 }

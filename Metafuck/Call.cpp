@@ -93,12 +93,12 @@ Call::Call(std::string code){
 	}
 }
 
-Argument::Type Call::getType() const {
+Type Call::getType() const {
 	return CALL;
 }
 
 CallSignature Call::signature() const {
-	std::vector<Argument::Type> params;
+	std::vector<Type> params;
 	for (auto &a : arguments_) {
 		params.push_back(a->getType());
 	}
@@ -143,7 +143,7 @@ unsigned int Call::compileResult(Compiler& cmp) {
 void Call::compile(Compiler& cmp) {
 	MfProcedure stmt = cmp.getProcedure(*this);
 	if (stmt != nullptr)
-		stmt(*this);
+		stmt(cmp, *this);
 	else
 		cmp.warning(this, "Unknown procedure: " + function_);
 }

@@ -4,6 +4,6 @@ ExpressionString::ExpressionString(std::string expression) : expression(expressi
 {
 }
 
-Argument::Type ExpressionString::getType() const {
-	return Argument::Type::EXPRESSION;
+Type ExpressionString::getType() const {
+	return Type::EXPRESSION;
 }

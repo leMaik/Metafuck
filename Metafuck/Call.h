@@ -7,14 +7,14 @@
 #include <vector>
 #include <memory>
 
-typedef std::pair<std::string, std::vector<Argument::Type>> CallSignature;
+typedef std::pair<std::string, std::vector<Type>> CallSignature;
 class Compiler;
 
 class Call : public Argument
 {
 public:
 	Call(std::string code);
-	Argument::Type getType() const;
+	Type getType() const;
 	std::string getFunction() const;
 
 	virtual void compile(Compiler& cmp);

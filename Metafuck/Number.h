@@ -14,7 +14,7 @@ public:
 	~Number();
 
 	unsigned int getValue() const;
-	Argument::Type getType() const;
+	Type getType() const;
 };
 
 #endif

@@ -121,6 +121,6 @@ bool CallList::returns() const {
 	return false;
 }
 
-Argument::Type CallList::getType() const {
+Type CallList::getType() const {
 	return CALLLIST;
 }

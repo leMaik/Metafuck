@@ -60,7 +60,6 @@ public:
 
 	Brainfuck(bool optimizeValueChanging = true);
 	Brainfuck(const Brainfuck&) = delete;
-	Brainfuck& operator=(const Brainfuck&) = delete;
-
+	//Brainfuck& operator=(const Brainfuck&) = delete;
 };
 #endif

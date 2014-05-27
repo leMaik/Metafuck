@@ -10,7 +10,7 @@ public:
 	ExpressionString(std::string expression);
 	const std::string expression;
 
-	Argument::Type getType() const;
+	Type getType() const;
 };
 
 #endif

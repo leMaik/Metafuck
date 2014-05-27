@@ -17,8 +17,8 @@
 class Compiler;
 class CompilerEasyRegister;
 
-typedef std::function<void(const Call&)> MfProcedure;
-typedef unsigned int(*MfFunction) (const Call&, Compiler&, Brainfuck&);
+typedef std::function<void(Compiler&, const Call&)> MfProcedure;
+typedef std::function<unsigned int(Compiler&, const Call&, unsigned int target)> MfFunction;
 
 class Compiler
 {
@@ -43,7 +43,7 @@ public:
 	Compiler(const Compiler&) = delete;
 	Compiler& operator=(const Compiler&) = delete;
 
-	inline Brainfuck& bf() {
+	Brainfuck& bf() {
 		return bf_;
 	}
 
@@ -81,8 +81,13 @@ public:
 	void warning(Argument const* source, std::string message);
 
 	CompilerEasyRegister reg();
+
 	inline void reg(const CallSignature& sig, const MfProcedure& proc) {
 		predef_methods[sig] = proc;
+	};
+
+	inline void reg(const CallSignature& sig, const MfFunction& proc) {
+		predef_functions[sig] = proc;
 	};
 
 	std::string getCode() const;
@@ -92,16 +97,22 @@ public:
 class CompilerEasyRegister {
 public:
 	CompilerEasyRegister(Compiler& owner);
-	//CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfProcedure fptr);
-	//CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, MfFunction fptr);
-
 
 	template<class... ArgTypes>
 	CompilerEasyRegister& operator () (const std::string& callname, void(*fptr)(Compiler&, const ArgTypes&...)) {
-		//TODO
-		auto sig = CallSignature(callname, std::initializer_list<Argument::Type>{(ArgTypes::type)...});
-		owner_.reg(sig, [&, fptr](const Call& c){
-			wrapper(c, fptr, indices_gen<sizeof...(ArgTypes)>{});
+		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
+		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c){
+			wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{});
+		});
+		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
+		return *this;
+	};
+
+	template<class... ArgTypes>
+	CompilerEasyRegister& operator () (const std::string& callname, unsigned int(*fptr)(Compiler&, unsigned int, const ArgTypes&...)) {
+		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
+		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c, unsigned int target)->unsigned int{
+			return wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{}, target);
 		});
 		//std::cout << "registered " << sig.first << " with " << sig.second.size() << " args" << std::endl;
 		return *this;
@@ -119,8 +130,13 @@ private:
 	struct indices_gen<0, Is...> : indices<Is...>{};
 
 	template<typename... Args, unsigned... Is>
-	inline void wrapper(const Call& c, void(*fptr)(Compiler&, const Args&...), indices<Is...>) {
-		(*fptr)(owner_, static_cast<Args&>(c.arg(Is))...);
+	inline void wrapper(Compiler& compiler, const Call& c, void(*fptr)(Compiler&, const Args&...), indices<Is...>) {
+		(*fptr)(compiler, static_cast<Args&>(c.arg(Is))...);
+	}
+
+	template<typename... Args, unsigned... Is>
+	inline unsigned int wrapper(Compiler& compiler, const Call& c, unsigned int(*fptr)(Compiler&, unsigned int, const Args&...), indices<Is...>, unsigned int target) {
+		return (*fptr)(compiler, target, static_cast<Args&>(c.arg(Is))...);
 	}
 };
 
