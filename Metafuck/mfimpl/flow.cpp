@@ -3,16 +3,15 @@
 #include "../compiler.h"
 
 void metafuck::impl::flow::if_fn(Compiler &compiler, const Evaluatable& var, const Call& doif) {
-	unsigned int x = var.evaluate(compiler);
+	auto x = compiler.bf().maketemp(var.evaluate(compiler));
 	compiler.generated_ << compiler.bf().move(x) << "[";
 	doif.compile(compiler);
 	compiler.generated_ << compiler.bf().set(x, 0) << "]";
-	compiler.bf().freeCell(x);
 }
 
 void metafuck::impl::flow::if_else_fn(Compiler &compiler, const Evaluatable& var, const Call& doif, const Call& doelse) {
-	unsigned int temp0 = compiler.bf().allocCell();
-	unsigned int temp1 = var.evaluate(compiler);
+	auto temp0 = compiler.bf().allocCell_t();
+	auto temp1 = compiler.bf().maketemp(var.evaluate(compiler));
 	compiler.generated_ << compiler.bf().set(temp0, 1);
 	compiler.generated_ << compiler.bf().move(temp1) << "[";
 	doif.compile(compiler);
@@ -21,8 +20,6 @@ void metafuck::impl::flow::if_else_fn(Compiler &compiler, const Evaluatable& var
 	compiler.generated_ << compiler.bf().move(temp0) << "[";
 	doelse.compile(compiler);
 	compiler.generated_ << compiler.bf().move(temp0) << "-]";
-	compiler.bf().freeCell(temp0);
-	compiler.bf().freeCell(temp1);
 }
 
 void metafuck::impl::flow::while_fn(const Call& c) {

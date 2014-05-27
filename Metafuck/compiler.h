@@ -72,7 +72,7 @@ public:
 
 	MfProcedure getProcedure(Call const& call);
 	MfFunction getFunction(Call const& call);
-	unsigned int getVar(const Variable& variable);
+	unsigned int getVar(const Variable& variable, bool ignoreDefining = false);
 
 	void warning(Argument const* source, std::string message);
 

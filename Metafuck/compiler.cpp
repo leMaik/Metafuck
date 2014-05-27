@@ -12,10 +12,11 @@ void Compiler::lex() {
 	lexed_ = CallList(code_);
 }
 
-unsigned int Compiler::getVar(const Variable& variable) {
+unsigned int Compiler::getVar(const Variable& variable, bool ignoredef) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
-		warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
+        if (!ignoredef)
+            warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
 		return (vars_[variable.getName()] = bf_.allocCell());
 	}
 	return var->second;
