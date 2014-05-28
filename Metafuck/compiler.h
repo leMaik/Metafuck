@@ -76,11 +76,11 @@ public:
 
 	void warning(Argument const* source, std::string message);
 
-	inline void reg(const CallSignature& sig, const MfProcedure& proc) {
+	inline void regp(const CallSignature& sig, const MfProcedure& proc) {
 		predef_methods[sig] = proc;
 	};
 
-	inline void reg(const CallSignature& sig, const MfFunction& proc) {
+	inline void regf(const CallSignature& sig, const MfFunction& proc) {
 		predef_functions[sig] = proc;
 	};
 
@@ -95,7 +95,7 @@ public:
 	template<class... ArgTypes>
 	CompilerEasyRegister& operator () (const std::string& callname, void(*fptr)(Compiler&, const ArgTypes&...)) {
 		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
-		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c){
+		owner_.regp(sig, [&, fptr](Compiler& compiler, const Call& c){
 			wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{});
 		});
 		return *this;
@@ -104,7 +104,7 @@ public:
 	template<class... ArgTypes>
 	CompilerEasyRegister& operator () (const std::string& callname, unsigned int(*fptr)(Compiler&, unsigned int, const ArgTypes&...)) {
 		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
-		owner_.reg(sig, [&, fptr](Compiler& compiler, const Call& c, unsigned int target)->unsigned int{
+		owner_.regf(sig, [&, fptr](Compiler& compiler, const Call& c, unsigned int target)->unsigned int{
 			return wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{}, target);
 		});
 		return *this;
