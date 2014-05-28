@@ -59,26 +59,6 @@ void Compiler::printNumber(const Call& c) {
 	generated_ << bf_.printNumber(evaluateTo(c.arg(0)));
 }
 
-unsigned int Compiler::isnoteq(const Call& c, unsigned int result) {
-	generated_ << bf_.isNotEqual(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-unsigned int Compiler::not_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.isNot(evaluateTo(c.arg(0)), result);
-	return result;
-}
-
-unsigned int Compiler::and_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.logicalAnd(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
-unsigned int Compiler::or_fn(const Call& c, unsigned int result) {
-	generated_ << bf_.logicalOr(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-
 void Compiler::array_init(const Call& c) {
 	unsigned int result = bf_.initArray(c.arg<Number>(1).getValue());
 	generated_ << bf_.set(result, 0);
@@ -160,19 +140,17 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 		("print", &metafuck::impl::io::print_str)
 		("print", &metafuck::impl::io::print_var)
 		("getchar", &metafuck::impl::io::getchar)
-        //("print", { Argument::EVALUATABLE }, &metafuck::impl::io::print)
         ////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
-        //	("getchar", { Argument::VARIABLE }, &metafuck::impl::io::getchar)
 	    ("if", &metafuck::impl::flow::if_else_fn)
 	    ("if", &metafuck::impl::flow::if_fn)
         ("iseq", &metafuck::impl::logic::iseq)
-        //("isneq", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::isnoteq)
+        ("isneq", &metafuck::impl::logic::isnoteq)
         ("while", &metafuck::impl::flow::while_fn)
         ("dowhile", &metafuck::impl::flow::do_while_fn)
         ("for", &metafuck::impl::flow::for_fn)
-        //("not", { Argument::EVALUATABLE }, &Compiler::not_fn)
-        //("and", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::and_fn)
-        //("or", { Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::or_fn)
+        ("not", &metafuck::impl::logic::not)
+        ("and", &metafuck::impl::logic::and)
+        ("or", &metafuck::impl::logic::or)
         //("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
         //("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
         //("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
