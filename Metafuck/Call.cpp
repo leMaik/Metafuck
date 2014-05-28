@@ -134,10 +134,12 @@ unsigned int Call::evaluate(Compiler& compiler) const {
 	return target;
 }
 
-void Call::evaluate(Compiler& compiler, unsigned int target) const {
-    MfFunction stmt = compiler.getFunction(*this);
+void Call::evaluate(Compiler& cmp, unsigned int target) const {
+    MfFunction stmt = cmp.getFunction(*this);
 	if (stmt != nullptr)
-		stmt(compiler, *this, target);
+		stmt(cmp, *this, target);
+	else
+		cmp.warning(this, "Unknown function: " + function_);
 }
 
 void Call::compile(Compiler& cmp) const {
