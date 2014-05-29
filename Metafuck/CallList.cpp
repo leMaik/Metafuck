@@ -109,7 +109,8 @@ void CallList::compile(Compiler& cmp) const {
 }
 
 void CallList::evaluate(Compiler& compiler, unsigned int target) const {
-	this->compile(compiler);
+	compiler.warning(this, "Using return value of call list results in undefined behaviour");
+	compile(compiler);
 }
 
 std::string CallList::toString() const{

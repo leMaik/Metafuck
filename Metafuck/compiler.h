@@ -31,6 +31,9 @@ private:
 	std::map<CallSignature, MfProcedure> predef_methods;
 	std::map<CallSignature, MfFunction> predef_functions;
 
+	unsigned int errors = 0;
+	unsigned int warnings = 0;
+
 	CompilerEasyRegister reg();
 
 	bool isNumber(const std::string &s) const;
@@ -74,7 +77,16 @@ public:
 	MfFunction getFunction(Call const& call);
 	unsigned int getVar(const Variable& variable, bool ignoreDefining = false);
 
+	void error(Argument const* source, std::string message);
 	void warning(Argument const* source, std::string message);
+
+	inline unsigned int errorsc() {
+		return errors;
+	}
+
+	inline unsigned int warningsc() {
+		return warnings;
+	}
 
 	inline void regp(const CallSignature& sig, const MfProcedure& proc) {
 		predef_methods[sig] = proc;

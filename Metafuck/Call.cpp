@@ -128,18 +128,35 @@ std::string Call::getFunction() const {
 	return function_;
 }
 
-unsigned int Call::evaluate(Compiler& compiler) const {
-    unsigned int target = compiler.bf().allocCell();
-	evaluate(compiler, target);
-	return target;
+unsigned int Call::evaluate(Compiler& cmp) const {
+	unsigned int target = cmp.bf().allocCell();
+
+	MfFunction stmt = cmp.getFunction(*this);
+	if (stmt != nullptr) {
+		auto actualTarget = stmt(cmp, *this, target);
+		if (actualTarget != target) {
+			cmp.bf().maketemp(target);
+		}
+		return actualTarget;
+	}
+	else {
+		cmp.error(this, "Unknown function: " + function_);
+		return 0;
+	}
 }
 
 void Call::evaluate(Compiler& cmp, unsigned int target) const {
-    MfFunction stmt = cmp.getFunction(*this);
-	if (stmt != nullptr)
-		stmt(cmp, *this, target);
-	else
-		cmp.warning(this, "Unknown function: " + function_);
+	MfFunction stmt = cmp.getFunction(*this);
+	if (stmt != nullptr) {
+		auto actualTarget = stmt(cmp, *this, target);
+		if (actualTarget != target) {
+			cmp.generated_ << cmp.bf().copy(actualTarget, target);
+			cmp.bf().maketemp(actualTarget);
+		}
+	}
+	else {
+		cmp.error(this, "Unknown function: " + function_);
+	}
 }
 
 void Call::compile(Compiler& cmp) const {
@@ -147,5 +164,5 @@ void Call::compile(Compiler& cmp) const {
 	if (stmt != nullptr)
 		stmt(cmp, *this);
 	else
-		cmp.warning(this, "Unknown procedure: " + function_);
+		cmp.error(this, "Unknown procedure: " + function_);
 }

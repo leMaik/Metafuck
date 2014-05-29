@@ -73,6 +73,13 @@ int main(int argc, char** argv)
 		com.lex();
 		com.compile();
 
+		std::cout << com.warningsc() << " warnings, " << com.errorsc() << " errors" << std::endl;
+
+		if (com.errorsc() > 0) {
+			std::cerr << com.errorsc() << " errors, stopping compilation" << std::endl;
+			return 1;
+		}
+
 		if (vm.count("nasm")) {
 			TargetPlatform target = TargetPlatform::UNKNOWN;
 			if (vm["nasm"].as<std::string>() == "win32")
@@ -137,9 +144,9 @@ int main(int argc, char** argv)
 
 		if (vm.count("print")) {
 			if (vm.count("ook"))
-				std::cout << bf2ook(com.getGeneratedCode());
+				std::cout << bf2ook(com.getGeneratedCode()) << std::endl;
 			else
-				std::cout << com.getGeneratedCode();
+				std::cout << com.getGeneratedCode() << std::endl;
 		}
 
 		if (vm.count("run") && !vm.count("nasm")) {

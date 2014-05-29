@@ -23,38 +23,6 @@ unsigned int Compiler::getVar(const Variable& variable, bool ignoredef) {
 }
 
 /*
-void Compiler::add_const(const Call& c) {
-	generated_ << bf_.add(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-}
-
-void Compiler::add_ev(const Call& c) {
-	generated_ << bf_.addCellTo(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
-}
-
-void Compiler::sub_const(const Call& c) {
-	generated_ << bf_.sub(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-}
-
-void Compiler::sub_ev(const Call& c) {
-	generated_ << bf_.subCellFrom(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), getVar(c.arg<Variable>(0)));
-}
-
-void Compiler::div(const Call& c) {
-	unsigned int cells = bf_.allocCell(2);
-	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
-	generated_ << bf_.copy(cells, getVar(c.arg<Variable>(2)));
-	bf_.freeCell(cells);
-	bf_.freeCell(cells + 1);
-}
-
-void Compiler::mod(const Call& c) {
-	unsigned int cells = bf_.allocCell(2);
-	generated_ << bf_.divmod(evaluateTo(c.arg(0)), evaluateTo(c.arg(1)), cells);
-	generated_ << bf_.copy(cells + 1, getVar(c.arg<Variable>(2)));
-	bf_.freeCell(cells);
-	bf_.freeCell(cells + 1);
-}
-
 void Compiler::printNumber(const Call& c) {
 	generated_ << bf_.printNumber(evaluateTo(c.arg(0)));
 }
@@ -112,6 +80,12 @@ MfFunction Compiler::getFunction(Call const& call)
 
 void Compiler::warning(Argument const* source, std::string message) {
 	std::cout << "[WARNING] " << message << std::endl;
+	warnings++;
+}
+
+void Compiler::error(Argument const* source, std::string message) {
+	std::cout << "[ERROR] " << message << std::endl;
+	errors++;
 }
 
 void Compiler::compile() {
@@ -131,12 +105,12 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 
 	reg()
 		("set", &metafuck::impl::basic::set)
-		//("add", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::add_const)
-		//("add", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::add_ev)
-		//("sub", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::sub_const)
-		//("sub", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::sub_ev)
-		//("div", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::div)
-		//("mod", { Argument::EVALUATABLE, Argument::EVALUATABLE, Argument::VARIABLE }, &Compiler::mod)
+		("add", &metafuck::impl::math::add_const)
+		("add", &metafuck::impl::math::add_ev)
+		("sub", &metafuck::impl::math::sub_const)
+		("sub", &metafuck::impl::math::sub_ev)
+		("div", &metafuck::impl::math::div)
+		("mod", &metafuck::impl::math::mod)
 		("print", &metafuck::impl::io::print_str)
 		("print", &metafuck::impl::io::print_var)
 		("getchar", &metafuck::impl::io::getchar)

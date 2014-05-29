@@ -24,12 +24,7 @@ unsigned int Variable::evaluate(Compiler& compiler) const {
 }
 
 void Variable::evaluate(Compiler& compiler, unsigned int target) const {
-	unsigned int var = compiler.getVar(*this);
-	if (var != target)
-		compiler.generated_ << compiler.bf().copy(var, target);
-
-    //compiler.generated_ << compiler.bf().copy(evaluate(compiler), target);
-	//TODO ^-- use that when we use the solution above	
+	compiler.generated_ << compiler.bf().copy(compiler.getVar(*this), target);	
 }
 
 Type Variable::getType() const {
