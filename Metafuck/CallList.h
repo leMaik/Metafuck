@@ -4,17 +4,25 @@
 #include "Argument.h"
 #include "Call.h"
 #include <string>
-#include <stack>
+#include <memory>
+#include <vector>
 
-class CallList : public Argument
+class CallList : public Call
 {
 public:
-	CallList();
+	CallList() = default;
 	CallList(std::string code);
-	~CallList();
-	Argument::Type getType() const;
 
-	std::vector<Call> statements;
+	void compile(Compiler& cmp) const;
+	void evaluate(Compiler& compiler, unsigned int target) const;
+
+	std::string toString() const;
+	bool returns() const;
+	Type getType() const;
+
+    static const Type type = Type::CALLLIST;
+private:
+	std::vector<std::shared_ptr<Call>> calls_;
 };
 
 #endif

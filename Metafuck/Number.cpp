@@ -17,6 +17,16 @@ unsigned int Number::getValue() const {
 	return value_;
 }
 
-Argument::Type Number::getType() const{
-	return Argument::Type::INTEGER;
+Type Number::getType() const{
+	return Type::INTEGER;
+}
+
+unsigned int Number::evaluate(Compiler& compiler) const {
+    unsigned int cell = compiler.bf().allocCell();
+    evaluate(compiler, cell);
+    return cell;
+}
+
+void Number::evaluate(Compiler& compiler, unsigned int target) const {
+    compiler.generated_ << compiler.bf().set(target, getValue());
 }

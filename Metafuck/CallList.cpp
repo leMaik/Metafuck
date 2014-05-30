@@ -1,12 +1,15 @@
 #include "CallList.h"
-#include "Call.h"
 #include "helper.h"
+#include "Expression.h"
+#include "ExpressionString.h"
 #include <iostream>
 #include <vector>
 #include <stack>
 #include <sstream>
+#include <memory>
 
 CallList::CallList(std::string code)
+: calls_{}
 {
 	std::stringstream statement;
 	bool isString = false;
@@ -20,6 +23,9 @@ CallList::CallList(std::string code)
 			switch (c) {
 			case '(':
 				isStatement = true;
+				keller.push(c);
+				statement << c;
+				break;
 			case '{':
 				keller.push(c);
 				statement << c;
@@ -35,7 +41,22 @@ CallList::CallList(std::string code)
 				statement << c;
 				break;
 			case ';':
-				if (!keller.empty()) {
+				if (keller.empty()) {
+					if (isStatement){
+						calls_.emplace_back(new Call(statement.str()));
+						isStatement = false;
+					}
+					else {
+						std::cout << "Expression: '" << statement.str() << "'" << std::endl;
+						//TODO translate expression to calllist here
+						//calls_.emplace_back(new ExpressionString(statement.str()));
+					}
+
+					//this clears the stringstream
+					statement.str(std::string());
+					statement.clear();
+				}
+				else {
 					statement << c;
 				}
 				break;
@@ -55,11 +76,6 @@ CallList::CallList(std::string code)
 			default:
 				statement << c;
 				break;
-			}
-			if (keller.empty() && isStatement){
-				statements.push_back(Call(statement.str()));
-				statement.clear();
-				isStatement = false;
 			}
 		}
 		else {
@@ -86,14 +102,25 @@ CallList::CallList(std::string code)
 	}
 }
 
-CallList::CallList()
-{
+void CallList::compile(Compiler& cmp) const {
+	for (auto& statement : calls_) {
+		statement->compile(cmp);
+	}
 }
 
-CallList::~CallList()
-{
+void CallList::evaluate(Compiler& compiler, unsigned int target) const {
+	compiler.warning(this, "Using return value of call list results in undefined behaviour");
+	compile(compiler);
 }
 
-Argument::Type CallList::getType() const {
+std::string CallList::toString() const{
+	return "CallList";
+}
+
+bool CallList::returns() const {
+	return false;
+}
+
+Type CallList::getType() const {
 	return CALLLIST;
 }

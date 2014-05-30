@@ -6,6 +6,19 @@
 
 class Brainfuck
 {
+class bftemp {
+    private:
+        Brainfuck& bf_;
+        unsigned int index_;
+        unsigned int length_;
+
+    public:
+        bftemp(Brainfuck& bf, unsigned int index, unsigned int length = 1);
+        ~bftemp();
+
+        operator unsigned int() const { return index_; }
+};
+
 private:
 	std::vector<bool> cells_;
 	unsigned int pointer_;
@@ -14,6 +27,8 @@ private:
 
 public:
 	unsigned int allocCell(unsigned int count = 1);
+	Brainfuck::bftemp allocCell_t(unsigned int count = 1);
+	Brainfuck::bftemp maketemp(unsigned int index, unsigned int count = 1);
 	unsigned int allocCellNear(unsigned int index, unsigned int count = 1);
 	void freeCell(unsigned int index);
 
@@ -59,5 +74,8 @@ public:
 	unsigned int getArrayPointer(unsigned int array, unsigned int index) const;
 
 	Brainfuck(bool optimizeValueChanging = true);
+	Brainfuck(const Brainfuck&) = delete;
+	Brainfuck& operator=(const Brainfuck&) = delete;
 };
+
 #endif

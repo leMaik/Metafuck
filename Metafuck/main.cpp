@@ -2,7 +2,8 @@
 #include "brainfuck.h"
 #include "Interpreter/ConvenienceFuck.h"
 #include "NasmGenerator/BrainfuckNasmConverter.h"
-#include "boost/program_options.hpp" 
+#include "ookconv.h"
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,7 +32,8 @@ int main(int argc, char** argv)
 			("input,i", po::value<std::string>()->required(), "File to compile")
 			("print,p", "Print the program on the screen after compiling (does not save it if --output is not set)")
 			("run,r", "Run the program after compiling it")
-			("nasm,n", po::value<std::string>(), "Convert generated brainfuck code to NASM (specify target platform by this parameter, may be win32 or unix)");
+			("nasm,n", po::value<std::string>(), "Convert generated brainfuck code to NASM (specify target platform by this parameter, may be win32 or unix)")
+			("ook", "Output Ook! instead of brainfuck.");
 
 		po::positional_options_description positionalOptions;
 		positionalOptions.add("input", 1);
@@ -70,6 +72,13 @@ int main(int argc, char** argv)
 		Compiler com(mfstream.str(), shallOptimize);
 		com.lex();
 		com.compile();
+
+		std::cout << com.warningsc() << " warnings, " << com.errorsc() << " errors" << std::endl;
+
+		if (com.errorsc() > 0) {
+			std::cerr << com.errorsc() << " errors, stopping compilation" << std::endl;
+			return 1;
+		}
 
 		if (vm.count("nasm")) {
 			TargetPlatform target = TargetPlatform::UNKNOWN;
@@ -125,13 +134,19 @@ int main(int argc, char** argv)
 			if (vm.count("output") || !vm.count("print")) {
 				std::ofstream out;
 				out.open(vm.count("output") ? vm["output"].as<std::string>() : vm["input"].as<std::string>() + ".bf");
-				out << com.getGeneratedCode();
+				if (vm.count("ook"))
+					out << bf2ook(com.getGeneratedCode());
+				else
+					out << com.getGeneratedCode();
 				out.close();
 			}
 		}
 
 		if (vm.count("print")) {
-			std::cout << com.getGeneratedCode() << std::endl;
+			if (vm.count("ook"))
+				std::cout << bf2ook(com.getGeneratedCode()) << std::endl;
+			else
+				std::cout << com.getGeneratedCode() << std::endl;
 		}
 
 		if (vm.count("run") && !vm.count("nasm")) {

@@ -2,9 +2,9 @@
 #define COMPILER_H
 
 #include "brainfuck.h"
+#include "Variable.h"
 #include "Call.h"
 #include "CallList.h"
-#include "Variable.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -14,65 +14,71 @@
 #include <utility>
 #include <functional>
 
+class Compiler;
 class CompilerEasyRegister;
+
+typedef std::function<void(Compiler&, const Call&)> MfProcedure;
+typedef std::function<unsigned int(Compiler&, const Call&, unsigned int target)> MfFunction;
 
 class Compiler
 {
 private:
 	Brainfuck bf_;
 	std::string code_;
-	std::stringstream generated_;
 	CallList lexed_;
-	std::map<CallSignature, std::function<void(const Call&)>> predef_methods;
-	std::map<CallSignature, std::function<unsigned int(const Call&, unsigned int)>> predef_functions;
 	std::map<std::string, unsigned int> vars_;
 
-	unsigned int getVar(const Variable& variable);
+	std::map<CallSignature, MfProcedure> predef_methods;
+	std::map<CallSignature, MfFunction> predef_functions;
+
+	unsigned int errors = 0;
+	unsigned int warnings = 0;
+
+	CompilerEasyRegister reg();
+
 	bool isNumber(const std::string &s) const;
 	bool isString(const std::string &s) const;
-	unsigned int evaluateTo(Argument& arg);
-	void evaluateTo(Argument& arg, unsigned int target);
-	void evaluate(Argument& arg);
 
 	void set(unsigned int target, Argument& evaluatable);
 
 public:
 	Compiler(std::string code, bool optimizeForSize);
+	Compiler(const Compiler&) = delete;
+	Compiler& operator=(const Compiler&) = delete;
 
-	CompilerEasyRegister reg();
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	void reg(const std::string& callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+	Brainfuck& bf() {
+		return bf_;
+	}
+
+	std::stringstream generated_;
 
 	bool validate();
-	std::size_t lex();
+	void lex();
 	void compile();
 
-	void set(const Call& c);
-	void add_const(const Call& c);
-	void add_ev(const Call& c);
-	void sub_const(const Call& c);
-	void sub_ev(const Call& c);
-	void div(const Call& c);
-	void mod(const Call& c);
-	void print(const Call& c);
-	void printNumber(const Call& c);
-	void input(const Call& c);
+	MfProcedure getProcedure(Call const& call);
+	MfFunction getFunction(Call const& call);
+	unsigned int getVar(const Variable& variable, bool ignoreDefining = false);
+	void setVar(const Variable& variable, unsigned int value);
 
-	void if_fn(const Call& c);
-	void if_else_fn(const Call& c);
-	void while_fn(const Call& c);
-	void do_while_fn(const Call& c);
-	void for_fn(const Call& c);
+	void error(Argument const* source, std::string message);
+	void warning(Argument const* source, std::string message);
 
-	unsigned int iseq(const Call& c, unsigned int result);
-	unsigned int isnoteq(const Call& c, unsigned int result);
-	unsigned int not_fn(const Call& c, unsigned int result);
-	unsigned int and_fn(const Call& c, unsigned int result);
-	unsigned int or_fn(const Call& c, unsigned int result);
+	inline unsigned int errorsc() {
+		return errors;
+	}
 
-	void array_init(const Call& c);
-	void array_set(const Call& c);
-	unsigned int array_get(const Call& c, unsigned int result);
+	inline unsigned int warningsc() {
+		return warnings;
+	}
+
+	inline void regp(const CallSignature& sig, const MfProcedure& proc) {
+		predef_methods[sig] = proc;
+	};
+
+	inline void regf(const CallSignature& sig, const MfFunction& proc) {
+		predef_functions[sig] = proc;
+	};
 
 	std::string getCode() const;
 	std::string getGeneratedCode() const;
@@ -81,10 +87,45 @@ public:
 class CompilerEasyRegister {
 public:
 	CompilerEasyRegister(Compiler& owner);
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, void (Compiler::*fptr) (const Call&));
-	CompilerEasyRegister& operator () (std::string callname, const std::initializer_list<Argument::Type>& args, unsigned int (Compiler::*fptr) (const Call&, unsigned int));
+
+	template<class... ArgTypes>
+	CompilerEasyRegister& operator () (const std::string& callname, void(*fptr)(Compiler&, const ArgTypes&...)) {
+		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
+		owner_.regp(sig, [&, fptr](Compiler& compiler, const Call& c){
+			wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{});
+		});
+		return *this;
+	};
+
+	template<class... ArgTypes>
+	CompilerEasyRegister& operator () (const std::string& callname, unsigned int(*fptr)(Compiler&, unsigned int, const ArgTypes&...)) {
+		auto sig = CallSignature(callname, std::initializer_list<Type>{(ArgTypes::type)...});
+		owner_.regf(sig, [&, fptr](Compiler& compiler, const Call& c, unsigned int target)->unsigned int{
+			return wrapper(compiler, c, fptr, indices_gen<sizeof...(ArgTypes)>{}, target);
+		});
+		return *this;
+	};
+
 private:
 	Compiler& owner_;
+
+	template<unsigned...> struct indices{};
+
+	template<unsigned N, unsigned... Is>
+	struct indices_gen : indices_gen<N - 1, N - 1, Is...>{};
+
+	template<unsigned... Is>
+	struct indices_gen<0, Is...> : indices<Is...>{};
+
+	template<typename... Args, unsigned... Is>
+	inline void wrapper(Compiler& compiler, const Call& c, void(*fptr)(Compiler&, const Args&...), indices<Is...>) {
+		(*fptr)(compiler, static_cast<Args&>(c.arg(Is))...);
+	}
+
+	template<typename... Args, unsigned... Is>
+	inline unsigned int wrapper(Compiler& compiler, const Call& c, unsigned int(*fptr)(Compiler&, unsigned int, const Args&...), indices<Is...>, unsigned int target) {
+		return (*fptr)(compiler, target, static_cast<Args&>(c.arg(Is))...);
+	}
 };
 
 std::string remove_comments(const std::string& code);
