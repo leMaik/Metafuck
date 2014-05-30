@@ -6,5 +6,6 @@
 #include "logic.h"
 #include "flow.h"
 #include "math.h"
+#include "array.h"
 
 #endif

@@ -75,9 +75,7 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-Compiler::Compiler(std::string code, bool optimizeForSize) {
-	bf_ = Brainfuck(optimizeForSize);
-
+Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize) {
 	reg()
 		("set", &metafuck::impl::basic::set)
 		("add", &metafuck::impl::math::add_const)
@@ -100,9 +98,9 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 		("not", &metafuck::impl::logic::not)
 		("and", &metafuck::impl::logic::and)
 		("or", &metafuck::impl::logic::or)
-		//("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
-		//("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
-		//("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
+		("array_init", &metafuck::impl::array::init)
+		("array_get", &metafuck::impl::array::get)
+		("array_set", &metafuck::impl::array::set)
 		;
 
 	code_ = remove_comments(code);
