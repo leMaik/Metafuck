@@ -15,44 +15,19 @@ void Compiler::lex() {
 unsigned int Compiler::getVar(const Variable& variable, bool ignoredef) {
 	auto var = vars_.find(variable.getName());
 	if (var == vars_.end()) {
-        if (!ignoredef)
-            warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
+		if (!ignoredef)
+			warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
 		return (vars_[variable.getName()] = bf_.allocCell());
 	}
 	return var->second;
 }
 
-/*
-void Compiler::printNumber(const Call& c) {
-	generated_ << bf_.printNumber(evaluateTo(c.arg(0)));
+void Compiler::setVar(const Variable& variable, unsigned int value) {
+	auto var = vars_.find(variable.getName());
+	if (var != vars_.end())
+		warning(&variable, "Redefining previously defined variable " + variable.getName() + " may result in unexpected behaviour");
+	vars_[variable.getName()] = value;
 }
-
-void Compiler::array_init(const Call& c) {
-	unsigned int result = bf_.initArray(c.arg<Number>(1).getValue());
-	generated_ << bf_.set(result, 0);
-	vars_[c.arg<Variable>(0).getName()] = result;
-}
-
-void Compiler::array_set(const Call& c) {
-	if (c.arg(1).getType() == Type::INTEGER){
-		auto target = bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue());
-		if (c.arg(2).getType() == Type::INTEGER)
-			generated_ << bf_.set(target, c.arg<Number>(2).getValue());
-		else
-			generated_ << bf_.copy(evaluateTo(c.arg(2)), target);
-	}
-	else
-		generated_ << bf_.arraySet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), evaluateTo(c.arg(2)));
-}
-
-unsigned int Compiler::array_get(const Call& c, unsigned int result) {
-	if (c.arg(1).getType() == Type::INTEGER)
-		generated_ << bf_.copy(bf_.getArrayPointer(getVar(c.arg<Variable>(0)), c.arg<Number>(1).getValue()), result);
-	else
-		generated_ << bf_.arrayGet(getVar(c.arg<Variable>(0)), evaluateTo(c.arg(1)), result);
-	return result;
-}
-*/
 
 MfProcedure Compiler::getProcedure(Call const& call)
 {
@@ -101,7 +76,7 @@ std::string Compiler::getGeneratedCode() const {
 }
 
 Compiler::Compiler(std::string code, bool optimizeForSize) {
-    bf_ = Brainfuck(optimizeForSize);
+	bf_ = Brainfuck(optimizeForSize);
 
 	reg()
 		("set", &metafuck::impl::basic::set)
@@ -114,21 +89,21 @@ Compiler::Compiler(std::string code, bool optimizeForSize) {
 		("print", &metafuck::impl::io::print_str)
 		("print", &metafuck::impl::io::print_var)
 		("getchar", &metafuck::impl::io::getchar)
-        ////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
-	    ("if", &metafuck::impl::flow::if_else_fn)
-	    ("if", &metafuck::impl::flow::if_fn)
-        ("iseq", &metafuck::impl::logic::iseq)
-        ("isneq", &metafuck::impl::logic::isnoteq)
-        ("while", &metafuck::impl::flow::while_fn)
-        ("dowhile", &metafuck::impl::flow::do_while_fn)
-        ("for", &metafuck::impl::flow::for_fn)
-        ("not", &metafuck::impl::logic::not)
-        ("and", &metafuck::impl::logic::and)
-        ("or", &metafuck::impl::logic::or)
-        //("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
-        //("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
-        //("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
-        ;
+		////("printNumber", { Argument::EVALUATABLE }, &Compiler::printNumber)
+		("if", &metafuck::impl::flow::if_else_fn)
+		("if", &metafuck::impl::flow::if_fn)
+		("iseq", &metafuck::impl::logic::iseq)
+		("isneq", &metafuck::impl::logic::isnoteq)
+		("while", &metafuck::impl::flow::while_fn)
+		("dowhile", &metafuck::impl::flow::do_while_fn)
+		("for", &metafuck::impl::flow::for_fn)
+		("not", &metafuck::impl::logic::not)
+		("and", &metafuck::impl::logic::and)
+		("or", &metafuck::impl::logic::or)
+		//("array_init", { Argument::VARIABLE, Argument::INTEGER }, &Compiler::array_init)
+		//("array_get", { Argument::VARIABLE, Argument::EVALUATABLE }, &Compiler::array_get)
+		//("array_set", { Argument::VARIABLE, Argument::EVALUATABLE, Argument::EVALUATABLE }, &Compiler::array_set);
+		;
 
 	code_ = remove_comments(code);
 }

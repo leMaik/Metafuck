@@ -56,26 +56,10 @@ public:
 	void lex();
 	void compile();
 
-	/*void add_const(const Call& c);
-	void add_ev(const Call& c);
-	void sub_const(const Call& c);
-	void sub_ev(const Call& c);
-	void div(const Call& c);
-	void mod(const Call& c);
-	void printNumber(const Call& c);
-
-	unsigned int isnoteq(const Call& c, unsigned int result);
-	unsigned int not_fn(const Call& c, unsigned int result);
-	unsigned int and_fn(const Call& c, unsigned int result);
-	unsigned int or_fn(const Call& c, unsigned int result);
-
-	void array_init(const Call& c);
-	void array_set(const Call& c);
-	unsigned int array_get(const Call& c, unsigned int result);*/
-
 	MfProcedure getProcedure(Call const& call);
 	MfFunction getFunction(Call const& call);
 	unsigned int getVar(const Variable& variable, bool ignoreDefining = false);
+	void setVar(const Variable& variable, unsigned int value);
 
 	void error(Argument const* source, std::string message);
 	void warning(Argument const* source, std::string message);
