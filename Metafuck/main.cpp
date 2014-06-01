@@ -9,7 +9,6 @@
 #include <sstream>
 #include <string>
 #include <stack>
-#include <stdlib.h>
 
 namespace
 {

@@ -1,4 +1,4 @@
-#include "math.h"
+#include "maths.h"
 
 void metafuck::impl::math::add_const(Compiler& compiler, const Variable& var, const Number& c) {
 	compiler.generated_ << compiler.bf().add(compiler.getVar(var), c.getValue());

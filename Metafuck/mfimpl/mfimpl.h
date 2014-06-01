@@ -5,7 +5,7 @@
 #include "io.h"
 #include "logic.h"
 #include "flow.h"
-#include "math.h"
+#include "maths.h"
 #include "array.h"
 
 #endif
