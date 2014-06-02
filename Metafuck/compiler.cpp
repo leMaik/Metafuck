@@ -77,6 +77,7 @@ std::string Compiler::getGeneratedCode() const {
 
 Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize), vars_(*this) {
 	reg()
+		("let", &metafuck::impl::basic::let)
 		("set", &metafuck::impl::basic::set)
 		("add", &metafuck::impl::math::add_const)
 		("add", &metafuck::impl::math::add_ev)

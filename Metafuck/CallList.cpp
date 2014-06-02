@@ -103,6 +103,7 @@ CallList::CallList(std::string code)
 }
 
 void CallList::compile(Compiler& cmp) const {
+	auto scope = cmp.scope();
 	for (auto& statement : calls_) {
 		statement->compile(cmp);
 	}

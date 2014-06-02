@@ -51,6 +51,10 @@ public:
 		return bf_;
 	}
 
+	std::unique_ptr<autoscope> scope() {
+		return std::unique_ptr<autoscope>(new autoscope(vars_));
+	}
+
 	std::stringstream generated_;
 
 	bool validate();

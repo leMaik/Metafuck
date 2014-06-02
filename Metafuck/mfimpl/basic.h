@@ -5,8 +5,9 @@
 
 namespace metafuck{
 namespace impl {
-namespace basic {
-        void set(Compiler& compiler, const Variable& var, const Evaluatable& value);
+	namespace basic {
+		void set(Compiler& compiler, const Variable& var, const Evaluatable& value);
+		void let(Compiler& compiler, const Variable& var, const Evaluatable& value);
 }}}
 
 #endif

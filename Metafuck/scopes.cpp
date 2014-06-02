@@ -4,7 +4,6 @@
 
 scopes::scopes(Compiler& owner)
 	: owner_(owner) {
-
 }
 
 void scopes::push() {
@@ -16,7 +15,7 @@ void scopes::pop() {
 	for (auto& var : scopes_.back()) {
 		owner_.bf().freeCell(var.second);
 	}
-
+	std::cout << "scope removed" << std::endl;
 	scopes_.pop_back();
 }
 

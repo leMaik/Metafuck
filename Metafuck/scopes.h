@@ -8,9 +8,11 @@
 typedef unsigned int mfvar;
 
 class Compiler;
+class autoscope;
 
 class scopes
 {
+	friend autoscope;
 private:
 	Compiler& owner_;
 	std::vector<std::map<std::string, mfvar>> scopes_;
@@ -22,6 +24,19 @@ public:
 	mfvar get(std::string name) const;
 	mfvar set(std::string name, mfvar value);
 	bool hasincscope(std::string name) const;
+};
+
+class autoscope
+{
+private:
+	scopes& owner_;
+public:
+	autoscope(scopes& owner) : owner_(owner) {
+		owner_.push();
+	}
+	~autoscope() {
+		owner_.pop();
+	}
 };
 
 #endif
