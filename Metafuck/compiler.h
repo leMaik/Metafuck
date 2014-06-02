@@ -5,6 +5,7 @@
 #include "Variable.h"
 #include "Call.h"
 #include "CallList.h"
+#include "scopes.h"
 #include <iostream>
 #include <string>
 #include <stack>
@@ -26,7 +27,7 @@ private:
 	Brainfuck bf_;
 	std::string code_;
 	CallList lexed_;
-	std::map<std::string, unsigned int> vars_;
+	scopes vars_;
 
 	std::map<CallSignature, MfProcedure> predef_methods;
 	std::map<CallSignature, MfFunction> predef_functions;
