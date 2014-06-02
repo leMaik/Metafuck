@@ -13,20 +13,20 @@ void Compiler::lex() {
 }
 
 unsigned int Compiler::getVar(const Variable& variable, bool ignoredef) {
-	auto var = vars_.find(variable.getName());
-	if (var == vars_.end()) {
+	try {
+		return vars_.get(variable.getName());
+	}
+	catch (std::runtime_error) {
 		if (!ignoredef)
 			warning(&variable, "Implicitly defined variable '" + variable.getName() + "'");
-		return (vars_[variable.getName()] = bf_.allocCell());
+		return vars_.set(variable.getName(), bf_.allocCell());
 	}
-	return var->second;
 }
 
 void Compiler::setVar(const Variable& variable, unsigned int value) {
-	auto var = vars_.find(variable.getName());
-	if (var != vars_.end())
+	if (vars_.hasincscope(variable.getName()))
 		warning(&variable, "Redefining previously defined variable " + variable.getName() + " may result in unexpected behaviour");
-	vars_[variable.getName()] = value;
+	vars_.set(variable.getName(), value);
 }
 
 MfProcedure Compiler::getProcedure(Call const& call)
@@ -75,8 +75,9 @@ std::string Compiler::getGeneratedCode() const {
 	return generated_.str();
 }
 
-Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize) {
+Compiler::Compiler(std::string code, bool optimizeForSize) : bf_(optimizeForSize), vars_(*this) {
 	reg()
+		("let", &metafuck::impl::basic::let)
 		("set", &metafuck::impl::basic::set)
 		("add", &metafuck::impl::math::add_const)
 		("add", &metafuck::impl::math::add_ev)
