@@ -10,7 +10,8 @@
 class CallList : public Call
 {
 public:
-	CallList() = default;
+	CallList(const CallList&) = delete;
+	CallList& operator=(const CallList&) = delete;
 	CallList(std::string code);
 
 	void compile(Compiler& cmp) const;
@@ -22,7 +23,7 @@ public:
 
     static const Type type = Type::CALLLIST;
 private:
-	std::vector<std::shared_ptr<Call>> calls_;
+	std::vector<std::unique_ptr<Call>> calls_;
 };
 
 #endif

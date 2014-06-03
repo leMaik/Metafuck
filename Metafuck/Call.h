@@ -41,7 +41,7 @@ protected:
 
 private:
 	std::string function_;
-	std::vector<std::shared_ptr<Argument>> arguments_;
+	std::vector<std::unique_ptr<Argument>> arguments_;
 };
 
 std::ostream& operator<<(std::ostream &strm, const Call &c);

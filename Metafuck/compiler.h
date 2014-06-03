@@ -26,7 +26,7 @@ class Compiler
 private:
 	Brainfuck bf_;
 	std::string code_;
-	CallList lexed_;
+	std::unique_ptr<CallList> lexed_;
 	scopes vars_;
 
 	std::map<CallSignature, MfProcedure> predef_methods;

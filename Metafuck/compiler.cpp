@@ -9,7 +9,7 @@
 #include <locale>
 
 void Compiler::lex() {
-	lexed_ = CallList(code_);
+	lexed_.reset(new CallList(code_));
 }
 
 unsigned int Compiler::getVar(const Variable& variable, bool ignoredef) {
@@ -64,7 +64,7 @@ void Compiler::error(Argument const* source, std::string message) {
 }
 
 void Compiler::compile() {
-	lexed_.compile(*this);
+	lexed_->compile(*this);
 }
 
 std::string Compiler::getCode() const {
