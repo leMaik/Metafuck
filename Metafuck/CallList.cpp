@@ -43,7 +43,10 @@ CallList::CallList(std::string code)
 			case ';':
 				if (keller.empty()) {
 					if (isStatement){
-						calls_.emplace_back(new Call(statement.str()));
+						if (isCallList(statement.str()))
+							calls_.emplace_back(new CallList(statement.str().substr(1, statement.str().size() - 2)));
+						else
+							calls_.emplace_back(new Call(statement.str()));
 						isStatement = false;
 					}
 					else {

@@ -27,4 +27,32 @@ inline bool isEvaluatable(const Type t) {
 inline bool isCallable(const Type t) {
 	return t == Type::CALL || t == Type::CALLLIST || t == Type::CALLABLE;
 }
+
+inline bool isNumber(std::string const& s) {
+	for (char const &c : s) {
+		if (!isdigit(c))
+			return false;
+	}
+	return true;
+}
+
+inline bool isVar(std::string const& s) {
+	for (char c : s){
+		if (!isalnum(c))
+			return false;
+	}
+	return true;
+}
+
+inline bool isCallList(std::string const& s) {
+	return s.length() >= 2 && *s.begin() == '{' && *s.rbegin() == '}';
+}
+
+inline bool isString(std::string const& s) {
+	return s.length() >= 2 && *s.begin() == '"' && *s.rbegin() == '"';
+}
+
+inline bool isChar(std::string const& s) {
+	return s.length() >= 3 && *s.begin() == '\'' && *s.rbegin() == '\'';
+}
 #endif
