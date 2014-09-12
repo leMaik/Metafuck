@@ -1,0 +1,18 @@
+STRINGIFY(
+
+let(h, div(__ARG__, 100));
+let(ph, h);
+add(ph, 48);
+print(ph);
+
+let(t, __ARG__);
+while(isneq(h,0),{sub(t, 100);sub(h,1);});
+set(h, div(t, 10));
+set(ph, h);
+add(ph,48);
+print(ph);
+
+while(isneq(h,0),{sub(t, 10);sub(h,1);});
+add(t, 48);
+print(t);
+)
