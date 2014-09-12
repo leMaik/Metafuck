@@ -3,12 +3,13 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
 
 enum Type{
-    CALL, CALLLIST, STRING, VARIABLE, INTEGER,
-    EVALUATABLE,  // = CALL, VARIABLE or INTEGER (something that has a result/a value)
-    CALLABLE, // = CALL or CALLLIST (something that can be called)
-    EXPRESSION
+	CALL, CALLLIST, STRING, VARIABLE, INTEGER,
+	EVALUATABLE,  // = CALL, VARIABLE or INTEGER (something that has a result/a value)
+	CALLABLE, // = CALL or CALLLIST (something that can be called)
+	EXPRESSION
 };
 
 class Argument
@@ -37,11 +38,9 @@ inline bool isNumber(std::string const& s) {
 }
 
 inline bool isVar(std::string const& s) {
-	for (char c : s){
-		if (!isalnum(c))
-			return false;
-	}
-	return true;
+	return find_if(s.begin(), s.end(), [](char c) {
+		return !(isalnum(c) || (c == '_'));
+	}) == s.end();
 }
 
 inline bool isCallList(std::string const& s) {

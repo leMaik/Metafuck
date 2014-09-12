@@ -11,6 +11,7 @@ namespace metafuck {
 		namespace io {
 			void print_str(Compiler &compiler, const String& str);
 			void print_var(Compiler &compiler, const Evaluatable& var);
+			void print_num(Compiler &compiler, const Evaluatable& var);
 			void getchar(Compiler &compiler, const Variable& var);
 		}
 	}
